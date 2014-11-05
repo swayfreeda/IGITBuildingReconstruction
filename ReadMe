@@ -1,0 +1,16 @@
+Description: This is a software for viewing 3D objects. The central widget of the mainwindow is a glivewer widget, which is developed from libqglviewer.
+             This software can be used a basic framework for developing other complex GUIs by adding some fucntions.
+
+Author: Sway
+Time: 11/05/2014
+Organization: Institute of Automation, Chinese Academy of Sciences
+
+
+==========================================================================================================================================================
+GLViewer.h: defines the GLViewer class;
+GLViewer.cpp: implement class members related to GLViewer class.
+
+Mainwindow.h: defines the Mainwindow class
+Mainwindow.cpp: implement class members related to Mainwindow class.
+
+main.cpp: run the mainwindow classs 
