@@ -1,0 +1,5 @@
+*.o
+*.user
+*.xml
+simpleMainwindow
+moc_*
