@@ -1,7 +1,7 @@
 /********************************************************************************
 ** Form generated from reading UI file 'mainwindow.ui'
 **
-** Created: Wed Nov 5 11:17:33 2014
+** Created: Wed Nov 5 16:57:29 2014
 **      by: Qt User Interface Compiler version 4.8.1
 **
 ** WARNING! All changes made in this file will be lost when recompiling UI file!
@@ -22,14 +22,14 @@
 #include <QtGui/QToolBar>
 #include <QtGui/QVBoxLayout>
 #include <QtGui/QWidget>
-#include "GLViewer.h"
+#include "sw_glviewer.h"
 
 QT_BEGIN_NAMESPACE
 
 class Ui_MainWindow
 {
 public:
-    QAction *fileOpenAction;
+    QAction *loadPointsAction;
     QAction *fileSaveAction;
     QAction *fileSaveAsAction;
     QAction *exitAction;
@@ -99,11 +99,11 @@ public:
         sizePolicy.setVerticalStretch(0);
         sizePolicy.setHeightForWidth(MainWindow->sizePolicy().hasHeightForWidth());
         MainWindow->setSizePolicy(sizePolicy);
-        fileOpenAction = new QAction(MainWindow);
-        fileOpenAction->setObjectName(QString::fromUtf8("fileOpenAction"));
+        loadPointsAction = new QAction(MainWindow);
+        loadPointsAction->setObjectName(QString::fromUtf8("loadPointsAction"));
         QIcon icon;
         icon.addFile(QString::fromUtf8(":/fileopen"), QSize(), QIcon::Normal, QIcon::Off);
-        fileOpenAction->setIcon(icon);
+        loadPointsAction->setIcon(icon);
         fileSaveAction = new QAction(MainWindow);
         fileSaveAction->setObjectName(QString::fromUtf8("fileSaveAction"));
         QIcon icon1;
@@ -320,24 +320,7 @@ public:
         menubar->addAction(settingMenu->menuAction());
         menubar->addAction(displayMenu->menuAction());
         menubar->addAction(helpMenu->menuAction());
-        fileMenu->addAction(fileOpenAction);
-        fileMenu->addAction(loadModelAction);
-        fileMenu->addAction(actionLoad_Texure_Model);
-        fileMenu->addAction(actionSave_Texture_Model);
-        fileMenu->addAction(loadImageAction);
-        fileMenu->addAction(loadProjectionMatrixAction);
-        fileMenu->addAction(LoadVisibilityAction);
-        fileMenu->addAction(LoadPlaneInformationAction);
-        fileMenu->addAction(LoadCameraInformationAction);
-        fileMenu->addAction(fileSaveAction);
-        fileMenu->addAction(fileSaveAsAction);
-        fileMenu->addAction(saveModelAction);
-        fileMenu->addSeparator();
-        fileMenu->addAction(exportOFFFileAction);
-        fileMenu->addAction(exportProjectionMatrixFileAction);
-        fileMenu->addAction(ExportPlaneInfromationAction);
-        fileMenu->addAction(ExportCameraInformationAction);
-        fileMenu->addAction(exitAction);
+        fileMenu->addAction(loadPointsAction);
         toolBar->addSeparator();
         toolBar->addSeparator();
         toolBar->addSeparator();
@@ -350,14 +333,14 @@ public:
     void retranslateUi(QMainWindow *MainWindow)
     {
         MainWindow->setWindowTitle(QApplication::translate("MainWindow", "MainWindow", 0, QApplication::UnicodeUTF8));
-        fileOpenAction->setText(QApplication::translate("MainWindow", "Load Point Cloud From PLY", 0, QApplication::UnicodeUTF8));
+        loadPointsAction->setText(QApplication::translate("MainWindow", "Load Points", 0, QApplication::UnicodeUTF8));
 #ifndef QT_NO_TOOLTIP
-        fileOpenAction->setToolTip(QApplication::translate("MainWindow", "Open a PLY file to Load point cloud.", 0, QApplication::UnicodeUTF8));
+        loadPointsAction->setToolTip(QApplication::translate("MainWindow", "Open a PLY file to Load point cloud.", 0, QApplication::UnicodeUTF8));
 #endif // QT_NO_TOOLTIP
 #ifndef QT_NO_STATUSTIP
-        fileOpenAction->setStatusTip(QApplication::translate("MainWindow", "Load point cloud from PLY file", 0, QApplication::UnicodeUTF8));
+        loadPointsAction->setStatusTip(QApplication::translate("MainWindow", "Load point cloud from PLY file", 0, QApplication::UnicodeUTF8));
 #endif // QT_NO_STATUSTIP
-        fileOpenAction->setShortcut(QApplication::translate("MainWindow", "Ctrl+O", 0, QApplication::UnicodeUTF8));
+        loadPointsAction->setShortcut(QApplication::translate("MainWindow", "Ctrl+O", 0, QApplication::UnicodeUTF8));
         fileSaveAction->setText(QApplication::translate("MainWindow", "Save", 0, QApplication::UnicodeUTF8));
 #ifndef QT_NO_TOOLTIP
         fileSaveAction->setToolTip(QApplication::translate("MainWindow", "Save a PLY file", 0, QApplication::UnicodeUTF8));

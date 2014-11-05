@@ -34,7 +34,6 @@ class  GLViewer : public QGLViewer
 public:
 
     GLViewer(QWidget *parent0=0, const QGLWidget *parent1=0, Qt::WFlags f = 0);
-   // GLViewer(QWidget *parent=0, const char * name=0, Qt::WFlags f = 0);
     ~GLViewer();
 
     virtual void init();
@@ -52,17 +51,19 @@ public:
 
     void viewAll();
 
-
-public:
     //draw world coordinates
     void drawAxises(double width, double length);
 
 public slots:
+
     virtual void drawText(){}
 
-
-
 signals:
+
+private:
+
+  GLfloat * g_points_;
+  GLfloat * g_facets_;
 
 };
 

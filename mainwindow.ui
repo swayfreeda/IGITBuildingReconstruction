@@ -52,24 +52,7 @@
     <property name="title">
      <string>&amp;File</string>
     </property>
-    <addaction name="fileOpenAction"/>
-    <addaction name="loadModelAction"/>
-    <addaction name="actionLoad_Texure_Model"/>
-    <addaction name="actionSave_Texture_Model"/>
-    <addaction name="loadImageAction"/>
-    <addaction name="loadProjectionMatrixAction"/>
-    <addaction name="LoadVisibilityAction"/>
-    <addaction name="LoadPlaneInformationAction"/>
-    <addaction name="LoadCameraInformationAction"/>
-    <addaction name="fileSaveAction"/>
-    <addaction name="fileSaveAsAction"/>
-    <addaction name="saveModelAction"/>
-    <addaction name="separator"/>
-    <addaction name="exportOFFFileAction"/>
-    <addaction name="exportProjectionMatrixFileAction"/>
-    <addaction name="ExportPlaneInfromationAction"/>
-    <addaction name="ExportCameraInformationAction"/>
-    <addaction name="exitAction"/>
+    <addaction name="loadPointsAction"/>
    </widget>
    <widget class="QMenu" name="editMenu">
     <property name="title">
@@ -85,6 +68,11 @@
     <property name="title">
      <string>&amp;Display</string>
     </property>
+    <addaction name="actionDense_Points"/>
+    <addaction name="actionVertices"/>
+    <addaction name="actionWireFrame"/>
+    <addaction name="actionFlat"/>
+    <addaction name="actionTexture"/>
    </widget>
    <widget class="QMenu" name="helpMenu">
     <property name="title">
@@ -129,13 +117,13 @@
     <bool>false</bool>
    </attribute>
   </widget>
-  <action name="fileOpenAction">
+  <action name="loadPointsAction">
    <property name="icon">
     <iconset>
      <normaloff>:/fileopen</normaloff>:/fileopen</iconset>
    </property>
    <property name="text">
-    <string>Load Point Cloud From PLY</string>
+    <string>Load Points</string>
    </property>
    <property name="toolTip">
     <string>Open a PLY file to Load point cloud.</string>
@@ -573,12 +561,67 @@
     <string>Save Texture Model</string>
    </property>
   </action>
+  <action name="actionDense_Points">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="enabled">
+    <bool>false</bool>
+   </property>
+   <property name="text">
+    <string>Dense Points</string>
+   </property>
+  </action>
+  <action name="actionVertices">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="enabled">
+    <bool>false</bool>
+   </property>
+   <property name="text">
+    <string>Vertices</string>
+   </property>
+  </action>
+  <action name="actionWireFrame">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="enabled">
+    <bool>false</bool>
+   </property>
+   <property name="text">
+    <string>WireFrame</string>
+   </property>
+  </action>
+  <action name="actionFlat">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="enabled">
+    <bool>false</bool>
+   </property>
+   <property name="text">
+    <string>Flat</string>
+   </property>
+  </action>
+  <action name="actionTexture">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="enabled">
+    <bool>false</bool>
+   </property>
+   <property name="text">
+    <string>Texture</string>
+   </property>
+  </action>
  </widget>
  <customwidgets>
   <customwidget>
    <class>SW::GLViewer</class>
    <extends>QFrame</extends>
-   <header>GLViewer.h</header>
+   <header>sw_glviewer.h</header>
    <container>1</container>
   </customwidget>
  </customwidgets>

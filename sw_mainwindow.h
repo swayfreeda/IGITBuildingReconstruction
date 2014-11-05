@@ -1,7 +1,8 @@
 #ifndef SW_MAINWINDOW_H
 #define SW_MAINWINDOW_H
 
-#include"GLViewer.h"
+#include"sw_dataType.h"
+#include"sw_glviewer.h"
 #include"ui_mainwindow.h"
 
 #include <QMainWindow>
@@ -9,6 +10,8 @@
 //#include"qpopmenu.h"
 #include"qcursor.h"
 #include"qevent.h"
+
+#include<QVector>
 
 #include<QWidget>
 #include"qnamespace.h"
@@ -42,31 +45,42 @@ class QTimer;
 class QKeyEvent;
 class GLViewer;
 
+typedef PointXYZRGBNormal Point;
+
 namespace SW
 {
-    class MainWindow: public QMainWindow, public Ui::MainWindow
-    {
-        Q_OBJECT
+class MainWindow: public QMainWindow, public Ui::MainWindow
+{
+    Q_OBJECT
 
-    public:
+public:
 
-         MainWindow();
-        ~MainWindow(); // to be implemented
+    MainWindow();
+    ~MainWindow(); // to be implemented
 
-    protected:
+protected:
 
-        virtual void keyPressEvent(QKeyEvent *){}
-
-    public slots:
+    virtual void keyPressEvent(QKeyEvent *){}
 
 
-    public:
-         //////////////////////定义窗口部件/////////////////////////////////////
-         GLViewer *gv;
+public slots:
 
-  signals:
+    //---------------------------------------load points---------------------------//
+    // load dense points from PLY File
+    void loadPoints();
 
-    };
+
+signals:
+
+
+private:
+
+    QVector<QVector3D> m_points_;
+    QVector<QVector3D> m_colors_;
+    QVector<QVector3D> m_normals_;
+    QVector<QVector2D> m_texture_coords_;
+
+};
 
 }
 

@@ -1,0 +1,29 @@
+#include"MainWindow.h"
+
+#include<qfiledialog.h>
+#include<QListWidget>
+#include<QTextStream>
+#include<QGridLayout>
+#include<QProgressDialog>
+
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////
+SW::MainWindow::MainWindow()
+{
+    setupUi(this);
+
+    //----------------------SIGNALS  AND SLOTS------------------------------//
+
+    // load dense points from PLY files, a point including positions, colors, and normals
+    connect(loadPointsAction, SIGNAL(triggered()), this, SLOT(loadPoints()));
+}
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////
+SW::MainWindow::~MainWindow()
+{
+
+}
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////
+SW::MainWindow::loadPoints()
+{
+
+
+}

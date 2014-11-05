@@ -10,9 +10,17 @@ DEPENDPATH += .
 INCLUDEPATH += .
 
 # Input
-HEADERS += GLViewer.h MainWindow.h
+HEADERS += \
+    sw_dataType.h \
+    sw_glviewer.h \
+    sw_mainwindow.h \
+    sw_plyio.h
 FORMS += mainwindow.ui
-SOURCES += GLViewer.cpp main.cpp MainWidow.cpp
+SOURCES += main.cpp \
+    sw_glviewer.cpp \
+    sw_dataType.cpp \
+    sw_mainwindow.cpp \
+    sw_plyio.cpp
 
 INCLUDEPATH +=  /usr/include/qt4/QtCore     \
                  /usr/include/qt4/QtGui      \

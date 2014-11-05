@@ -1,12 +1,11 @@
 
-#include"GLViewer.h"
+#include"sw_glviewer.h"
 #include <string>
 
 #include<stdlib.h>
 
 #include<fstream>
 #include<sstream>
-
 
 #include<QFileDialog>
 #include<qcolordialog.h>
@@ -18,7 +17,6 @@
 #include<QApplication> // qaApp
 #include<QTextStream>
 
-
 #include<GL/gl.h>
 #include<GL/glu.h>
 #include<GL/freeglut.h>
@@ -26,15 +24,6 @@
 #include<sstream>
 #include<cassert>
 
-
-
-
-
-////////////////////////////////////////////////////////////////////////////////////////////////////////////
-//SW::GLViewer::GLViewer(QWidget *parent, const char * name, Qt::WFlags f)
-//{
-//    setAutoFillBackground(true);// painter auto clear the background
-//}
 
 SW::GLViewer::GLViewer(QWidget *parent0, const QGLWidget *parent1, Qt::WFlags f): QGLViewer(parent0, parent1, f)
 {
