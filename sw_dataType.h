@@ -215,6 +215,7 @@ class PointXYZRGBNormal
 {
 public:
 
+    // constructor
     PointXYZRGBNormal(){
 
         this->x = 0;
@@ -229,9 +230,36 @@ public:
         this->normal_y = 0;
         this->normal_z = 0;
 
+        this->id = 0;
+        this->label_ = -1;
+        this->vis.clear();
         this->inconsist_ = 0;
 
     }
+
+    // constructor
+    PointXYZRGBNormal(int id){
+
+        this->x = 0;
+        this->y = 0;
+        this->z = 0;
+
+        this->r = 0;
+        this->g = 0;
+        this->b = 0;
+
+        this->normal_x = 0;
+        this->normal_y = 0;
+        this->normal_z = 0;
+
+        this->id = id;
+        this->label_ = -1;
+        this->vis.clear();
+        this->inconsist_ = 0;
+
+    }
+
+    // constructor
     PointXYZRGBNormal(float x, float y, float z){
 
         this->x = x;
@@ -249,6 +277,8 @@ public:
         this->inconsist_ = 0;
 
     }
+
+    // copy constructor
     PointXYZRGBNormal(const PointXYZRGBNormal &pt )
     {
         this->x = pt.x;
@@ -268,6 +298,7 @@ public:
         this->inconsist_ = pt.inconsist_;
     }
 
+    // copy constructor from another Type
     PointXYZRGBNormal(const PointXYZNormal &pt )
     {
         this->x = pt.x;
@@ -285,7 +316,7 @@ public:
         this->inconsist_ = pt.inconsist_;
     }
 
-
+    // overload of operator=
     PointXYZRGBNormal & operator =(const PointXYZRGBNormal & pt)
     {
         this->x = pt.x;
@@ -307,6 +338,7 @@ public:
         return *this;
     }
 
+
     int id;
 
     float x;
@@ -326,8 +358,6 @@ public:
     bool inconsist_;
 
     int label_;
-
-
 };
 
 /////////////////////////////////////////////////////////////////////////////////

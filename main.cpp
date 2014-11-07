@@ -7,8 +7,9 @@
 
 // Note:  Most of the original codes are lost unfortunately, whatever, just make a fresh start and never complain !
 
-#include"sw_mainwindow.h".h"
+#include"sw_mainwindow.h"
 #include <qapplication.h>
+#include<QVector3D>
 
 
 using namespace SW;
@@ -27,8 +28,5 @@ int main(int argc, char**argv)
     mainwindow.show();
 
     return app.exec();
-
-
-
 }
 

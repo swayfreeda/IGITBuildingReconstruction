@@ -15,11 +15,40 @@ SW::MainWindow::MainWindow()
     setupUi(this);
 
 
+    QActionGroup *displayActions = new QActionGroup(this);
+    displayActions->addAction(actionDense_Points);
+    displayActions->addAction(actionVertices);
+    displayActions->addAction(actionWireFrame);
+    displayActions->addAction(actionFlat);
+    displayActions->addAction(actionTexture);
+    actionDense_Points->setChecked(true);
 
 
-    //----------------------SIGNALS  AND SLOTS------------------------------//
+    //--------------------------------SET SHARED POINTER--------------------------------//
+    viewer->setDensePointsPtr(&m_points_);
+    viewer->setMeshVerticesPtr(&m_vertices_);
+    viewer->setMeshFacetsPtr(&m_facets_);
+    viewer->setMeshTextureCoordsPtr(&m_texture_coords_);
+
+
+
+
+    //---------------------------------SIGNALS  AND SLOTS------------------------------//
     // load dense points from PLY files, a point including positions, colors, and normals
     connect(loadPointsAction, SIGNAL(triggered()), this, SLOT(loadPoints()));
+    connect(actionSave_Points,SIGNAL(triggered()), this, SLOT(savePoints()));
+    // display signals and slots
+    connect(actionDense_Points, SIGNAL(triggered(bool)), viewer, SLOT(toggle_display_points(bool)));
+    connect(actionVertices, SIGNAL(triggered(bool)), viewer, SLOT(toggle_display_vertices(bool)));
+    connect(actionWireFrame, SIGNAL(triggered(bool)), viewer, SLOT(toggle_display_wire_frame(bool)));
+    connect(actionFlat, SIGNAL(triggered(bool)), viewer, SLOT(toggle_display_flat(bool)));
+    connect(actionTexture, SIGNAL(triggered(bool)), viewer, SLOT(toggle_display_texture(bool)));
+    connect(this, SIGNAL(displayDensePoints(bool)), viewer, SLOT(toggle_display_points(bool)));
+
+
+    //--------------------------------MESSAGE ON STATUS BAR----------------------------//
+    // show information from viewer
+    connect(viewer, SIGNAL(statusBar(QString)), this, SLOT(viewerMessageToStatusBar(QString)));
 }
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////
 SW::MainWindow::~MainWindow()
@@ -30,10 +59,6 @@ SW::MainWindow::~MainWindow()
 void SW::MainWindow::loadPoints()
 {
 
-    m_points_.clear();
-    m_colors_.clear();
-    m_normals_.clear();
-
 
     QString file_name = QFileDialog::getOpenFileName(this, tr("Open PointCloud File"),".",
                                                      tr("Point Cloud files(*.ply)") );
@@ -42,34 +67,21 @@ void SW::MainWindow::loadPoints()
 
     PLYIO plyIn(file_name);
 
-    if(plyIn.loadPointsFromPLY(m_points_, m_colors_, m_normals_))
+    if(plyIn.loadPointsFromPLY(m_points_))
     {
-
-
         QString outputText = QString("%1 points").arg(m_points_.size());
         statusBar()->showMessage(outputText);
 
-        viewer->viewAll();
+        actionDense_Points->setEnabled(true);
+        emit displayDensePoints(true);
         viewer->updateGL();
     }
     else{
 
         statusBar()->showMessage("Fail to Load Points From" + file_name);
     }
-
-
-    //    // enable action to show dense poitns
-    //    ui->actionDense_Points->setEnabled(true);
-
-    //    // set bounding box
-    //    ui->viewer->viewAll();
-    //    ui->viewer->showEntireScene();
-
-    //    QString outputText = QString("%1 points").arg(m_dense_pts_.size());
-    //    statusBar()->showMessage(outputText);
-
-    //    // diaplay dense points
-    //    emit displayDensePoints(true);
-    //    ui->viewer->updateGL();
-
+}
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////
+void SW::MainWindow::savePoints()
+{
 }

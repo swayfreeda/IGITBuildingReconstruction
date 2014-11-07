@@ -13,12 +13,16 @@
 
 #ifndef SW_PLYIO_H
 #define SW_PLYIO_H
+
+#include "sw_dataType.h"
+
 #include <QObject>
 #include<QString>
 #include<QVector>
 #include<QVector3D>
 #include<QVector2D>
 
+typedef PointXYZRGBNormal Point;
 
 namespace SW
 {
@@ -37,12 +41,8 @@ public:
     // NONE
 
     // * return variables:
-    // vertices:  3D world coordinates of the points
-    // colors:    colors of the points
-    // normals:  normals of the points
-    bool loadPointsFromPLY(QVector<QVector3D> & vertices,
-                           QVector<QVector3D> & colors,
-                           QVector<QVector3D> & normals);
+    //  vertices:  3D points containing point colors, coordinates, normals, and so on
+    bool loadPointsFromPLY(QVector<Point> & vertices);
 
 
 
@@ -52,18 +52,15 @@ public:
     //save pionts to PLY file, and each point containes 9 elements( 3D world coordinates, corlors,
     // and normals).
     // *input variables:
-    // vertices:  3D world coordinates of the points
-    // colors:    colors of the points
-    // normals:  normals of the points
+    // vertices:  3D points containing point colors, coordinates, normals, and so on
 
     // *return variables:
     //NONE
-    bool savePointsToPLY(QVector<QVector3D> & vertices,
-                           QVector<QVector3D> & colors,
-                           QVector<QVector3D> & normals);
+    bool savePointsToPLY(QVector<Point> & vertices);
 
 
-
+signals:
+    void statusBar(QString text);
 
 private:
     QString file_name_;

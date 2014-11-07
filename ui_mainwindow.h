@@ -1,7 +1,7 @@
 /********************************************************************************
 ** Form generated from reading UI file 'mainwindow.ui'
 **
-** Created: Wed Nov 5 16:57:29 2014
+** Created: Fri Nov 7 22:20:27 2014
 **      by: Qt User Interface Compiler version 4.8.1
 **
 ** WARNING! All changes made in this file will be lost when recompiling UI file!
@@ -76,6 +76,12 @@ public:
     QAction *actionDisplay_Texture_Model;
     QAction *actionLoad_Texure_Model;
     QAction *actionSave_Texture_Model;
+    QAction *actionDense_Points;
+    QAction *actionVertices;
+    QAction *actionWireFrame;
+    QAction *actionFlat;
+    QAction *actionTexture;
+    QAction *actionSave_Points;
     QWidget *centralwidget;
     QVBoxLayout *verticalLayout_2;
     SW::GLViewer *viewer;
@@ -273,6 +279,28 @@ public:
         actionLoad_Texure_Model->setObjectName(QString::fromUtf8("actionLoad_Texure_Model"));
         actionSave_Texture_Model = new QAction(MainWindow);
         actionSave_Texture_Model->setObjectName(QString::fromUtf8("actionSave_Texture_Model"));
+        actionDense_Points = new QAction(MainWindow);
+        actionDense_Points->setObjectName(QString::fromUtf8("actionDense_Points"));
+        actionDense_Points->setCheckable(true);
+        actionDense_Points->setEnabled(false);
+        actionVertices = new QAction(MainWindow);
+        actionVertices->setObjectName(QString::fromUtf8("actionVertices"));
+        actionVertices->setCheckable(true);
+        actionVertices->setEnabled(false);
+        actionWireFrame = new QAction(MainWindow);
+        actionWireFrame->setObjectName(QString::fromUtf8("actionWireFrame"));
+        actionWireFrame->setCheckable(true);
+        actionWireFrame->setEnabled(false);
+        actionFlat = new QAction(MainWindow);
+        actionFlat->setObjectName(QString::fromUtf8("actionFlat"));
+        actionFlat->setCheckable(true);
+        actionFlat->setEnabled(false);
+        actionTexture = new QAction(MainWindow);
+        actionTexture->setObjectName(QString::fromUtf8("actionTexture"));
+        actionTexture->setCheckable(true);
+        actionTexture->setEnabled(false);
+        actionSave_Points = new QAction(MainWindow);
+        actionSave_Points->setObjectName(QString::fromUtf8("actionSave_Points"));
         centralwidget = new QWidget(MainWindow);
         centralwidget->setObjectName(QString::fromUtf8("centralwidget"));
         QSizePolicy sizePolicy1(QSizePolicy::Expanding, QSizePolicy::Expanding);
@@ -321,6 +349,12 @@ public:
         menubar->addAction(displayMenu->menuAction());
         menubar->addAction(helpMenu->menuAction());
         fileMenu->addAction(loadPointsAction);
+        fileMenu->addAction(actionSave_Points);
+        displayMenu->addAction(actionDense_Points);
+        displayMenu->addAction(actionVertices);
+        displayMenu->addAction(actionWireFrame);
+        displayMenu->addAction(actionFlat);
+        displayMenu->addAction(actionTexture);
         toolBar->addSeparator();
         toolBar->addSeparator();
         toolBar->addSeparator();
@@ -441,6 +475,12 @@ public:
         actionDisplay_Texture_Model->setText(QApplication::translate("MainWindow", "Display Texture Model", 0, QApplication::UnicodeUTF8));
         actionLoad_Texure_Model->setText(QApplication::translate("MainWindow", "Load Texure Model", 0, QApplication::UnicodeUTF8));
         actionSave_Texture_Model->setText(QApplication::translate("MainWindow", "Save Texture Model", 0, QApplication::UnicodeUTF8));
+        actionDense_Points->setText(QApplication::translate("MainWindow", "Dense Points", 0, QApplication::UnicodeUTF8));
+        actionVertices->setText(QApplication::translate("MainWindow", "Vertices", 0, QApplication::UnicodeUTF8));
+        actionWireFrame->setText(QApplication::translate("MainWindow", "WireFrame", 0, QApplication::UnicodeUTF8));
+        actionFlat->setText(QApplication::translate("MainWindow", "Flat", 0, QApplication::UnicodeUTF8));
+        actionTexture->setText(QApplication::translate("MainWindow", "Texture", 0, QApplication::UnicodeUTF8));
+        actionSave_Points->setText(QApplication::translate("MainWindow", "Save Points", 0, QApplication::UnicodeUTF8));
         fileMenu->setTitle(QApplication::translate("MainWindow", "&File", 0, QApplication::UnicodeUTF8));
         editMenu->setTitle(QApplication::translate("MainWindow", "&Edit", 0, QApplication::UnicodeUTF8));
         settingMenu->setTitle(QApplication::translate("MainWindow", "&Setting", 0, QApplication::UnicodeUTF8));

@@ -70,14 +70,36 @@ public slots:
     void loadPoints();
 
 
+    //---------------------------------------save points---------------------------//
+    // save dense points to PLY File
+    void savePoints();
+
+
+    //---------------------------------------message-------------------------------//
+    // show message from viwer on status bar
+    void viewerMessageToStatusBar(QString str)
+    {
+        statusBar()->showMessage(str);
+        update();
+    }
+
 signals:
 
+    // emit signals to display dense points
+    void displayDensePoints(bool flag);
 
 private:
 
-    QVector<QVector3D> m_points_;
-    QVector<QVector3D> m_colors_;
-    QVector<QVector3D> m_normals_;
+    // dense points
+    QVector<Point> m_points_;
+
+    // vertices
+    QVector<Vec3> m_vertices_;
+
+    // facets of the mesh
+    QVector<QVector<int> > m_facets_;
+
+    // texture coords of each vertex
     QVector<QVector2D> m_texture_coords_;
 
 };
