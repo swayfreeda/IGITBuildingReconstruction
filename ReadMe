@@ -14,3 +14,6 @@ Mainwindow.h: defines the Mainwindow class
 Mainwindow.cpp: implement class members related to Mainwindow class.
 
 main.cpp: run the mainwindow classs 
+
+
+11/07/2014 Find a Bug, if glNormalPointer are used, an error will happen.
