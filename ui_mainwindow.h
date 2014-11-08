@@ -1,7 +1,7 @@
 /********************************************************************************
 ** Form generated from reading UI file 'mainwindow.ui'
 **
-** Created: Fri Nov 7 22:20:27 2014
+** Created: Sat Nov 8 21:59:52 2014
 **      by: Qt User Interface Compiler version 4.8.1
 **
 ** WARNING! All changes made in this file will be lost when recompiling UI file!
@@ -14,10 +14,14 @@
 #include <QtGui/QAction>
 #include <QtGui/QApplication>
 #include <QtGui/QButtonGroup>
+#include <QtGui/QDockWidget>
+#include <QtGui/QHBoxLayout>
 #include <QtGui/QHeaderView>
+#include <QtGui/QListWidget>
 #include <QtGui/QMainWindow>
 #include <QtGui/QMenu>
 #include <QtGui/QMenuBar>
+#include <QtGui/QScrollArea>
 #include <QtGui/QStatusBar>
 #include <QtGui/QToolBar>
 #include <QtGui/QVBoxLayout>
@@ -29,7 +33,7 @@ QT_BEGIN_NAMESPACE
 class Ui_MainWindow
 {
 public:
-    QAction *loadPointsAction;
+    QAction *loadDataAction;
     QAction *fileSaveAction;
     QAction *fileSaveAsAction;
     QAction *exitAction;
@@ -83,8 +87,12 @@ public:
     QAction *actionTexture;
     QAction *actionSave_Points;
     QWidget *centralwidget;
-    QVBoxLayout *verticalLayout_2;
+    QVBoxLayout *verticalLayout;
     SW::GLViewer *viewer;
+    QScrollArea *imageScrollArea;
+    QWidget *scrollAreaWidgetContents;
+    QHBoxLayout *horizontalLayout;
+    QListWidget *imageListWidget;
     QMenuBar *menubar;
     QMenu *fileMenu;
     QMenu *editMenu;
@@ -94,22 +102,26 @@ public:
     QStatusBar *statusbar;
     QToolBar *toolBar;
     QToolBar *toolBar_2;
+    QToolBar *toolBar_3;
+    QDockWidget *dockWidget;
+    QWidget *dockWidgetContents;
 
     void setupUi(QMainWindow *MainWindow)
     {
         if (MainWindow->objectName().isEmpty())
             MainWindow->setObjectName(QString::fromUtf8("MainWindow"));
-        MainWindow->resize(830, 753);
-        QSizePolicy sizePolicy(QSizePolicy::Preferred, QSizePolicy::Expanding);
+        MainWindow->setWindowModality(Qt::NonModal);
+        MainWindow->resize(1123, 751);
+        QSizePolicy sizePolicy(QSizePolicy::Expanding, QSizePolicy::Fixed);
         sizePolicy.setHorizontalStretch(0);
         sizePolicy.setVerticalStretch(0);
         sizePolicy.setHeightForWidth(MainWindow->sizePolicy().hasHeightForWidth());
         MainWindow->setSizePolicy(sizePolicy);
-        loadPointsAction = new QAction(MainWindow);
-        loadPointsAction->setObjectName(QString::fromUtf8("loadPointsAction"));
+        loadDataAction = new QAction(MainWindow);
+        loadDataAction->setObjectName(QString::fromUtf8("loadDataAction"));
         QIcon icon;
         icon.addFile(QString::fromUtf8(":/fileopen"), QSize(), QIcon::Normal, QIcon::Off);
-        loadPointsAction->setIcon(icon);
+        loadDataAction->setIcon(icon);
         fileSaveAction = new QAction(MainWindow);
         fileSaveAction->setObjectName(QString::fromUtf8("fileSaveAction"));
         QIcon icon1;
@@ -303,24 +315,60 @@ public:
         actionSave_Points->setObjectName(QString::fromUtf8("actionSave_Points"));
         centralwidget = new QWidget(MainWindow);
         centralwidget->setObjectName(QString::fromUtf8("centralwidget"));
-        QSizePolicy sizePolicy1(QSizePolicy::Expanding, QSizePolicy::Expanding);
+        QSizePolicy sizePolicy1(QSizePolicy::Preferred, QSizePolicy::Preferred);
         sizePolicy1.setHorizontalStretch(0);
         sizePolicy1.setVerticalStretch(0);
         sizePolicy1.setHeightForWidth(centralwidget->sizePolicy().hasHeightForWidth());
         centralwidget->setSizePolicy(sizePolicy1);
-        verticalLayout_2 = new QVBoxLayout(centralwidget);
-        verticalLayout_2->setObjectName(QString::fromUtf8("verticalLayout_2"));
+        centralwidget->setFocusPolicy(Qt::TabFocus);
+        centralwidget->setAutoFillBackground(true);
+        verticalLayout = new QVBoxLayout(centralwidget);
+        verticalLayout->setObjectName(QString::fromUtf8("verticalLayout"));
         viewer = new SW::GLViewer(centralwidget);
         viewer->setObjectName(QString::fromUtf8("viewer"));
+        sizePolicy1.setHeightForWidth(viewer->sizePolicy().hasHeightForWidth());
+        viewer->setSizePolicy(sizePolicy1);
+        viewer->setMinimumSize(QSize(310, 0));
         //viewer->setFrameShape(QFrame::StyledPanel);
         //viewer->setFrameShadow(QFrame::Raised);
 
-        verticalLayout_2->addWidget(viewer);
+        verticalLayout->addWidget(viewer);
+
+        imageScrollArea = new QScrollArea(centralwidget);
+        imageScrollArea->setObjectName(QString::fromUtf8("imageScrollArea"));
+        QSizePolicy sizePolicy2(QSizePolicy::Preferred, QSizePolicy::Fixed);
+        sizePolicy2.setHorizontalStretch(0);
+        sizePolicy2.setVerticalStretch(0);
+        sizePolicy2.setHeightForWidth(imageScrollArea->sizePolicy().hasHeightForWidth());
+        imageScrollArea->setSizePolicy(sizePolicy2);
+        imageScrollArea->setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
+        imageScrollArea->setWidgetResizable(true);
+        scrollAreaWidgetContents = new QWidget();
+        scrollAreaWidgetContents->setObjectName(QString::fromUtf8("scrollAreaWidgetContents"));
+        scrollAreaWidgetContents->setGeometry(QRect(0, 0, 787, 118));
+        horizontalLayout = new QHBoxLayout(scrollAreaWidgetContents);
+        horizontalLayout->setObjectName(QString::fromUtf8("horizontalLayout"));
+        imageListWidget = new QListWidget(scrollAreaWidgetContents);
+        imageListWidget->setObjectName(QString::fromUtf8("imageListWidget"));
+        sizePolicy.setHeightForWidth(imageListWidget->sizePolicy().hasHeightForWidth());
+        imageListWidget->setSizePolicy(sizePolicy);
+        imageListWidget->setMaximumSize(QSize(16777215, 100));
+        imageListWidget->setAutoScrollMargin(7);
+        imageListWidget->setVerticalScrollMode(QAbstractItemView::ScrollPerPixel);
+        imageListWidget->setHorizontalScrollMode(QAbstractItemView::ScrollPerPixel);
+        imageListWidget->setFlow(QListView::LeftToRight);
+        imageListWidget->setResizeMode(QListView::Adjust);
+
+        horizontalLayout->addWidget(imageListWidget);
+
+        imageScrollArea->setWidget(scrollAreaWidgetContents);
+
+        verticalLayout->addWidget(imageScrollArea);
 
         MainWindow->setCentralWidget(centralwidget);
         menubar = new QMenuBar(MainWindow);
         menubar->setObjectName(QString::fromUtf8("menubar"));
-        menubar->setGeometry(QRect(0, 0, 830, 25));
+        menubar->setGeometry(QRect(0, 0, 1123, 25));
         fileMenu = new QMenu(menubar);
         fileMenu->setObjectName(QString::fromUtf8("fileMenu"));
         editMenu = new QMenu(menubar);
@@ -342,13 +390,28 @@ public:
         toolBar_2 = new QToolBar(MainWindow);
         toolBar_2->setObjectName(QString::fromUtf8("toolBar_2"));
         MainWindow->addToolBar(Qt::TopToolBarArea, toolBar_2);
+        toolBar_3 = new QToolBar(MainWindow);
+        toolBar_3->setObjectName(QString::fromUtf8("toolBar_3"));
+        MainWindow->addToolBar(Qt::TopToolBarArea, toolBar_3);
+        dockWidget = new QDockWidget(MainWindow);
+        dockWidget->setObjectName(QString::fromUtf8("dockWidget"));
+        QSizePolicy sizePolicy3(QSizePolicy::Expanding, QSizePolicy::Preferred);
+        sizePolicy3.setHorizontalStretch(0);
+        sizePolicy3.setVerticalStretch(0);
+        sizePolicy3.setHeightForWidth(dockWidget->sizePolicy().hasHeightForWidth());
+        dockWidget->setSizePolicy(sizePolicy3);
+        dockWidget->setMinimumSize(QSize(215, 41));
+        dockWidgetContents = new QWidget();
+        dockWidgetContents->setObjectName(QString::fromUtf8("dockWidgetContents"));
+        dockWidget->setWidget(dockWidgetContents);
+        MainWindow->addDockWidget(static_cast<Qt::DockWidgetArea>(1), dockWidget);
 
         menubar->addAction(fileMenu->menuAction());
         menubar->addAction(editMenu->menuAction());
         menubar->addAction(settingMenu->menuAction());
         menubar->addAction(displayMenu->menuAction());
         menubar->addAction(helpMenu->menuAction());
-        fileMenu->addAction(loadPointsAction);
+        fileMenu->addAction(loadDataAction);
         fileMenu->addAction(actionSave_Points);
         displayMenu->addAction(actionDense_Points);
         displayMenu->addAction(actionVertices);
@@ -367,14 +430,14 @@ public:
     void retranslateUi(QMainWindow *MainWindow)
     {
         MainWindow->setWindowTitle(QApplication::translate("MainWindow", "MainWindow", 0, QApplication::UnicodeUTF8));
-        loadPointsAction->setText(QApplication::translate("MainWindow", "Load Points", 0, QApplication::UnicodeUTF8));
+        loadDataAction->setText(QApplication::translate("MainWindow", "Load Data", 0, QApplication::UnicodeUTF8));
 #ifndef QT_NO_TOOLTIP
-        loadPointsAction->setToolTip(QApplication::translate("MainWindow", "Open a PLY file to Load point cloud.", 0, QApplication::UnicodeUTF8));
+        loadDataAction->setToolTip(QApplication::translate("MainWindow", "Open a PLY file to Load point cloud.", 0, QApplication::UnicodeUTF8));
 #endif // QT_NO_TOOLTIP
 #ifndef QT_NO_STATUSTIP
-        loadPointsAction->setStatusTip(QApplication::translate("MainWindow", "Load point cloud from PLY file", 0, QApplication::UnicodeUTF8));
+        loadDataAction->setStatusTip(QApplication::translate("MainWindow", "Load point cloud from PLY file", 0, QApplication::UnicodeUTF8));
 #endif // QT_NO_STATUSTIP
-        loadPointsAction->setShortcut(QApplication::translate("MainWindow", "Ctrl+O", 0, QApplication::UnicodeUTF8));
+        loadDataAction->setShortcut(QApplication::translate("MainWindow", "Ctrl+O", 0, QApplication::UnicodeUTF8));
         fileSaveAction->setText(QApplication::translate("MainWindow", "Save", 0, QApplication::UnicodeUTF8));
 #ifndef QT_NO_TOOLTIP
         fileSaveAction->setToolTip(QApplication::translate("MainWindow", "Save a PLY file", 0, QApplication::UnicodeUTF8));
@@ -491,6 +554,7 @@ public:
         toolBar->setStatusTip(QString());
 #endif // QT_NO_STATUSTIP
         toolBar_2->setWindowTitle(QApplication::translate("MainWindow", "toolBar_2", 0, QApplication::UnicodeUTF8));
+        toolBar_3->setWindowTitle(QApplication::translate("MainWindow", "toolBar_3", 0, QApplication::UnicodeUTF8));
     } // retranslateUi
 
 };

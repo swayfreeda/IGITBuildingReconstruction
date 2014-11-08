@@ -35,7 +35,7 @@ SW::MainWindow::MainWindow()
 
     //---------------------------------SIGNALS  AND SLOTS------------------------------//
     // load dense points from PLY files, a point including positions, colors, and normals
-    connect(loadPointsAction, SIGNAL(triggered()), this, SLOT(loadPoints()));
+    connect(loadDataAction, SIGNAL(triggered()), this, SLOT(loadData()));
     connect(actionSave_Points,SIGNAL(triggered()), this, SLOT(savePoints()));
     // display signals and slots
     connect(actionDense_Points, SIGNAL(triggered(bool)), viewer, SLOT(toggle_display_points(bool)));
@@ -56,10 +56,10 @@ SW::MainWindow::~MainWindow()
 
 }
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////
-void SW::MainWindow::loadPoints()
+void SW::MainWindow::loadData()
 {
 
-
+    // load images
     QString file_name = QFileDialog::getOpenFileName(this, tr("Open PointCloud File"),".",
                                                      tr("Point Cloud files(*.ply)") );
 

@@ -1,3 +1,9 @@
+// Description: this header defines some data structures, and part of these structures are dependent on Qt
+// Time: 11/07/2014
+// Author: Sway
+// Organization: Institute of Automation, Chinese Academy of Sciences
+
+
 #ifndef DATATYPE_H
 #define DATATYPE_H
 
@@ -11,6 +17,7 @@
 #include <iostream>
 #include <string>
 #include<QSet>
+#include <QColor>
 
 using namespace std;
 
@@ -50,6 +57,9 @@ public:
     float x;
     float y;
 };
+
+
+
 ////////////////////////////////////////////////PointXYZ///////////////////////////////////////////////////////////////////
 class PointXYZ
 {
@@ -94,6 +104,9 @@ public:
     bool inconsist_;
 
 };
+
+
+
 ////////////////////////////////////////////////PointXYZRGB////////////////////////////////////////////////////////////////
 class PointXYZRGB
 {
@@ -144,6 +157,8 @@ public:
     bool inconsist_;
 };
 
+
+////////////////////////////////////////////////PointXYZNormal////////////////////////////////////////////////////////////
 class PointXYZNormal{
 
 public:
@@ -210,7 +225,9 @@ public:
     bool inconsist_;
 
 };
-/////////////////////////////////////////////////////////////////////////////////
+
+
+///////////////////////////////////////////////PointXYZRGBNrmal/////////////////////////////////////////////////////////////
 class PointXYZRGBNormal
 {
 public:
@@ -360,7 +377,9 @@ public:
     int label_;
 };
 
-/////////////////////////////////////////////////////////////////////////////////
+
+
+////////////////////////////////////////////////Vec3//////////////////////////////////////////////////////////////////////////
 class Vec3{
 
 public:
@@ -475,7 +494,14 @@ public:
     float z_;
 };
 
-
+Vec3  operator +(const Vec3 & vl, const Vec3 & vr); // 注意返回不能是引用
+Vec3  operator -(const Vec3 & vl, const Vec3 & vr);
+Vec3  operator *(const Vec3 & v, const float f);
+Vec3  operator *( const float f, const Vec3 & v);
+Vec3  operator /( const Vec3 & v,const float f);
+float operator *(const Vec3& vl, const Vec3& vr);
+ostream& operator <<(ostream os, const Vec3 v);
+Vec3 cross(const Vec3 &vl, const Vec3 &vr);
 
 ////////////////////////////////////////////////Line3D//////////////////////////////////////////////////////////////////////
 class Line3D
@@ -496,14 +522,118 @@ public:
     PointXYZRGBNormal pt2_;
 
 };
-Vec3  operator +(const Vec3 & vl, const Vec3 & vr); // 注意返回不能是引用
-Vec3  operator -(const Vec3 & vl, const Vec3 & vr);
-Vec3  operator *(const Vec3 & v, const float f);
-Vec3  operator *( const float f, const Vec3 & v);
-Vec3  operator /( const Vec3 & v,const float f);
-float operator *(const Vec3& vl, const Vec3& vr);
-ostream& operator <<(ostream os, const Vec3 v);
-Vec3 cross(const Vec3 &vl, const Vec3 &vr);
 
+
+
+////////////////////////////////////////////////Camera//////////////////////////////////////////////////////////////////////
+class Camera{
+
+public:
+    Camera()
+    {
+        rotation_.create(3,3,CV_32FC1);
+        trans_.create(3,1,CV_32FC1);
+        project_.create(3,4,CV_32FC1);
+
+        pos_.create(3,1,CV_32FC1);
+        dir_.create(3,1,CV_32FC1);
+
+        xaxis_.create(3,1,CV_32FC1);
+        yaxis_.create(3,1,CV_32FC1);
+        zaxis_.create(3,1,CV_32FC1);
+
+        rotation_.setTo(0);
+        trans_.setTo(0);
+        project_.setTo(0);
+
+        pos_.setTo(0);
+        dir_.setTo(0);
+
+        xaxis_.setTo(0);
+        yaxis_.setTo(0);
+        zaxis_.setTo(0);
+
+        focal_ = 2000.0;  // 默认值
+
+        k0 = 0;
+        k1 = 0;
+    }
+
+    Camera(const Camera &cam )
+    {
+       this->focal_ = focal_;
+       cam.rotation_.copyTo(this->rotation_);
+       cam.trans_.copyTo((this->trans_));
+       cam.project_.copyTo(this->project_);
+
+       this->k0 = cam.k0;
+       this->k1 = cam.k1;
+
+       cam.pos_.copyTo(this->pos_);
+       cam.dir_.copyTo(this->dir_);
+
+       this->img_dir_ = cam.img_dir_;
+       this->color_ = cam.color_;
+
+
+       cam.xaxis_.copyTo(this->xaxis_);
+       cam.yaxis_.copyTo(this->yaxis_);
+       cam.zaxis_.copyTo(this->zaxis_);
+
+    }
+
+    ~Camera()
+    {
+        rotation_.release();
+        trans_.release();
+        project_.release();
+        pos_.release();
+        dir_.release();
+
+    }
+
+
+    // computet the direction and the position of the camera
+    void computePosAndDir();
+
+    // draw camera
+    void draw();
+
+#if 0
+    // projcet a point from 3D to 2D
+    qglviewer::Vec  project(const qglviewer::Vec & coord);
+#endif
+
+    PointXY  project(const Vec3 &coord);
+
+
+public:
+
+    // focal of the camera
+    float focal_;
+    // the rotation matrix of the camera
+    cv::Mat rotation_;
+    // the translation vector of the camera
+    cv::Mat trans_;
+    // the projection matrix of the matrix
+    cv::Mat project_;
+
+    float k0;
+    float k1;
+
+    // the position of the camera
+    cv::Mat pos_;
+    // the direction of the camera
+    cv::Mat dir_;
+
+    // the image dir of the image corresponding to the camera
+    QString img_dir_;
+    QColor color_;
+
+    // axis  correspoding to the camera coordinates
+    cv::Mat xaxis_;
+    cv::Mat yaxis_;
+    cv::Mat zaxis_;
+};
 
 #endif // DATATYPE_H

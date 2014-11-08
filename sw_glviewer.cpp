@@ -66,7 +66,7 @@ QString SW::GLViewer::helpString()
     text += "libQGLViewer (http://artis.imag.fr/~Gilles.Debunne/QGLViewer/)<p> ";
     text += "CGAL (http://www.cgal.org/, http://www-sop.inria.fr/geometrica/team/Pierre.Alliez/)<p> ";
     text += "OpenMesh (http://www.openmesh.org/)<p> ";
-    text += "Boost (http://www.boost.org/)<p> ";
+    text += "Boost (http://www.boost.orgwww/)<p> ";
     text += "OpenCV (http://sourceforge.net/projects/opencvlibrary/)<p> ";
     text += "Python (http://www.python.org/)<p> ";
     text += "etc.<p> ";
@@ -79,7 +79,7 @@ void SW::GLViewer::init()
 
     glClearColor(0.0, 0.0, 0.0, 0.0);
     glDisable(GL_DITHER);
-    //glShadeModel(GL_FLAT);
+    glShadeModel(GL_FLAT);
     glDisable(GL_DEPTH_TEST);
     glDisable(GL_LIGHTING);
 

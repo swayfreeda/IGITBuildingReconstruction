@@ -66,8 +66,11 @@ protected:
 public slots:
 
     //---------------------------------------load points---------------------------//
-    // load dense points from PLY File
-    void loadPoints();
+    // load dense points from *.ply
+    // load images from visualize/ folder
+    // load visbility from .patch file
+    // load camera infomation from txt/ folder
+    void loadData();
 
 
     //---------------------------------------save points---------------------------//
@@ -101,6 +104,12 @@ private:
 
     // texture coords of each vertex
     QVector<QVector2D> m_texture_coords_;
+
+    // images of all the scene
+    QMap< QString, QImage> m_images_;
+
+    // projection matrixes
+    QMap< QString, Camera> m_cameras_;
 
 };
 
