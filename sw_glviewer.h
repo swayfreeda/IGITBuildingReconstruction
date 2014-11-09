@@ -68,6 +68,8 @@ public:
     //------------------------------DISPLAY FUNCTIONS------------------------------------//
     //draw world coordinates
     void drawAxises(double width, double length);
+    // draw cameras
+    void drawCameras();
     // create vertex arrays and buffers for dense points
     void makeDensePoints();
     // create vertex arrays and buffers for meshes
@@ -82,7 +84,7 @@ public:
     void setMeshVerticesPtr(QVector<Vec3> * ptr) { g_vertices_ = ptr;}
     void setMeshFacetsPtr(QVector<QVector<int> > * ptr){g_facets_ = ptr;}
     void setMeshTextureCoordsPtr(QVector<QVector2D> * ptr){ g_texture_coords_ = ptr;}
-
+    void setCamerasPtr(QMap<QString, Camera> * ptr){ g_cameras_ = ptr; }
 
 
 public slots:
@@ -195,6 +197,17 @@ public slots:
         }
         updateGL();
     }
+    // display cameras
+    inline void toggle_display_cameras(bool flag)
+    {
+        viewAll();
+        showEntireScene();
+        g_display_cameras_ = flag;
+
+        QString outputText = QString("%1 vertices cameras").arg(g_cameras_->size());
+        emit statusBar(outputText);
+        updateGL();
+    }
 
 signals:
     void statusBar(QString info);
@@ -207,6 +220,7 @@ private:
     bool g_display_wire_frame_;
     bool g_display_flat_;
     bool g_display_texture_;
+    bool g_display_cameras_;
 
 
     //------------------------variables for dense points--------------------------------//
@@ -235,6 +249,9 @@ private:
     //---------------------------variables for texture -------------------------------------//
     //texture index
     GLuint g_texture_id_;
+
+    //---------------------------variable for cameras----------------------------------------//
+    QMap<QString, Camera> *g_cameras_;
 };
 
 }

@@ -9,13 +9,18 @@ HEADERS += \
     sw_dataType.h \
     sw_glviewer.h \
     sw_mainwindow.h \
-    sw_plyio.h
-FORMS += mainwindow.ui
+    sw_dataIO.h \
+    sw_functions.h \
+    sw_floorplan.h
+FORMS += mainwindow.ui \
+    FloorPlan.ui
 SOURCES += main.cpp \
     sw_glviewer.cpp \
     sw_dataType.cpp \
     sw_mainwindow.cpp \
-    sw_plyio.cpp
+    sw_dataIO.cpp \
+    sw_functions.cpp \
+    sw_floorplan.cpp
 
 INCLUDEPATH +=  /usr/include/qt4/QtCore     \
                  /usr/include/qt4/QtGui      \

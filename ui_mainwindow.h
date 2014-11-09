@@ -1,7 +1,7 @@
 /********************************************************************************
 ** Form generated from reading UI file 'mainwindow.ui'
 **
-** Created: Sat Nov 8 21:59:52 2014
+** Created: Sun Nov 9 21:54:16 2014
 **      by: Qt User Interface Compiler version 4.8.1
 **
 ** WARNING! All changes made in this file will be lost when recompiling UI file!
@@ -86,6 +86,8 @@ public:
     QAction *actionFlat;
     QAction *actionTexture;
     QAction *actionSave_Points;
+    QAction *actionCameras;
+    QAction *actionFloorPlanReconstuction;
     QWidget *centralwidget;
     QVBoxLayout *verticalLayout;
     SW::GLViewer *viewer;
@@ -313,6 +315,14 @@ public:
         actionTexture->setEnabled(false);
         actionSave_Points = new QAction(MainWindow);
         actionSave_Points->setObjectName(QString::fromUtf8("actionSave_Points"));
+        actionCameras = new QAction(MainWindow);
+        actionCameras->setObjectName(QString::fromUtf8("actionCameras"));
+        actionCameras->setCheckable(true);
+        actionCameras->setEnabled(false);
+        actionFloorPlanReconstuction = new QAction(MainWindow);
+        actionFloorPlanReconstuction->setObjectName(QString::fromUtf8("actionFloorPlanReconstuction"));
+        actionFloorPlanReconstuction->setCheckable(true);
+        actionFloorPlanReconstuction->setEnabled(false);
         centralwidget = new QWidget(MainWindow);
         centralwidget->setObjectName(QString::fromUtf8("centralwidget"));
         QSizePolicy sizePolicy1(QSizePolicy::Preferred, QSizePolicy::Preferred);
@@ -330,7 +340,7 @@ public:
         viewer->setSizePolicy(sizePolicy1);
         viewer->setMinimumSize(QSize(310, 0));
         //viewer->setFrameShape(QFrame::StyledPanel);
-        //viewer->setFrameShadow(QFrame::Raised);
+        //viewer->setFrameShadow(QFrame::Sunken);
 
         verticalLayout->addWidget(viewer);
 
@@ -341,7 +351,9 @@ public:
         sizePolicy2.setVerticalStretch(0);
         sizePolicy2.setHeightForWidth(imageScrollArea->sizePolicy().hasHeightForWidth());
         imageScrollArea->setSizePolicy(sizePolicy2);
-        imageScrollArea->setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
+        imageScrollArea->setFrameShadow(QFrame::Plain);
+        imageScrollArea->setVerticalScrollBarPolicy(Qt::ScrollBarAsNeeded);
+        imageScrollArea->setHorizontalScrollBarPolicy(Qt::ScrollBarAsNeeded);
         imageScrollArea->setWidgetResizable(true);
         scrollAreaWidgetContents = new QWidget();
         scrollAreaWidgetContents->setObjectName(QString::fromUtf8("scrollAreaWidgetContents"));
@@ -353,6 +365,11 @@ public:
         sizePolicy.setHeightForWidth(imageListWidget->sizePolicy().hasHeightForWidth());
         imageListWidget->setSizePolicy(sizePolicy);
         imageListWidget->setMaximumSize(QSize(16777215, 100));
+        imageListWidget->setAutoFillBackground(true);
+        imageListWidget->setFrameShape(QFrame::HLine);
+        imageListWidget->setFrameShadow(QFrame::Plain);
+        imageListWidget->setVerticalScrollBarPolicy(Qt::ScrollBarAsNeeded);
+        imageListWidget->setHorizontalScrollBarPolicy(Qt::ScrollBarAsNeeded);
         imageListWidget->setAutoScrollMargin(7);
         imageListWidget->setVerticalScrollMode(QAbstractItemView::ScrollPerPixel);
         imageListWidget->setHorizontalScrollMode(QAbstractItemView::ScrollPerPixel);
@@ -413,11 +430,13 @@ public:
         menubar->addAction(helpMenu->menuAction());
         fileMenu->addAction(loadDataAction);
         fileMenu->addAction(actionSave_Points);
+        editMenu->addAction(actionFloorPlanReconstuction);
         displayMenu->addAction(actionDense_Points);
         displayMenu->addAction(actionVertices);
         displayMenu->addAction(actionWireFrame);
         displayMenu->addAction(actionFlat);
         displayMenu->addAction(actionTexture);
+        displayMenu->addAction(actionCameras);
         toolBar->addSeparator();
         toolBar->addSeparator();
         toolBar->addSeparator();
@@ -544,6 +563,8 @@ public:
         actionFlat->setText(QApplication::translate("MainWindow", "Flat", 0, QApplication::UnicodeUTF8));
         actionTexture->setText(QApplication::translate("MainWindow", "Texture", 0, QApplication::UnicodeUTF8));
         actionSave_Points->setText(QApplication::translate("MainWindow", "Save Points", 0, QApplication::UnicodeUTF8));
+        actionCameras->setText(QApplication::translate("MainWindow", "Cameras", 0, QApplication::UnicodeUTF8));
+        actionFloorPlanReconstuction->setText(QApplication::translate("MainWindow", "FloorPlan Reconstuction", 0, QApplication::UnicodeUTF8));
         fileMenu->setTitle(QApplication::translate("MainWindow", "&File", 0, QApplication::UnicodeUTF8));
         editMenu->setTitle(QApplication::translate("MainWindow", "&Edit", 0, QApplication::UnicodeUTF8));
         settingMenu->setTitle(QApplication::translate("MainWindow", "&Setting", 0, QApplication::UnicodeUTF8));

@@ -8,6 +8,7 @@
 //#include"QGLFunctions"
 
 #include"sw_glviewer.h"
+#include"sw_functions.h"
 
 #include <string>
 #include<stdlib.h>
@@ -47,6 +48,7 @@ SW::GLViewer::GLViewer(QWidget *parent0, const QGLWidget *parent1, Qt::WFlags f)
     g_display_wire_frame_ = false;
     g_display_flat_ = false;
     g_display_texture_ = false;
+    g_display_cameras_ = false;
 
 }
 /////////////////////////////////////////////////////////////////////////////////////////////////
@@ -77,10 +79,11 @@ QString SW::GLViewer::helpString()
 void SW::GLViewer::init()
 {
 
+    glClear(GL_COLOR_BUFFER_BIT|GL_DEPTH_BUFFER_BIT);
     glClearColor(0.0, 0.0, 0.0, 0.0);
-    glDisable(GL_DITHER);
-    glShadeModel(GL_FLAT);
-    glDisable(GL_DEPTH_TEST);
+   // glDisable(GL_DITHER);
+   // glShadeModel(GL_FLAT);
+   // glDisable(GL_DEPTH_TEST);
     glDisable(GL_LIGHTING);
 
     //------Note very important, or error occurs-------//
@@ -93,10 +96,9 @@ void SW::GLViewer::init()
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 void SW::GLViewer::draw()
 {
-    glClear(GL_COLOR_BUFFER_BIT|GL_DEPTH_BUFFER_BIT);
-    glDisable(GL_LIGHTING);
 
-    drawAxises(0.1, 0.1);
+
+    //drawAxises(0.1, 0.1);
 
     // draw dense points
     if(g_display_dense_pts_== true)
@@ -114,7 +116,6 @@ void SW::GLViewer::draw()
             glEnd();
         }
 #endif
-
 
     }
 
@@ -186,7 +187,44 @@ void SW::GLViewer::draw()
 #endif
     }
 
+    if(g_display_cameras_== true)
+    {
+#ifdef VERTEX_ARRAY
 
+#else
+        foreach(QString key, g_cameras_->keys())
+        {
+            foreach(Camera cam, g_cameras_->values(key))
+            {
+                Vec3 axis;
+                Vec3 src(0,0,-1);
+                Vec3 dirst(cam.dir_.at<float>(0),
+                           cam.dir_.at<float>(1),
+                           cam.dir_.at<float>(2));
+
+                // 计算旋转轴和旋转角度
+                float angle = angleAxisFromDirections(src, dirst, axis);
+
+                glDisable(GL_LIGHTING);
+
+                glPushMatrix();
+
+                glTranslatef( cam.pos_.at<float>(0),
+                              cam.pos_.at<float>(1),
+                              cam.pos_.at<float>(2) );
+
+                glRotatef(angle*180/3.1415, axis.x_, axis.y_, axis.z_);
+                glColor3f( (GLfloat) (cam.color_.red())/255.0,
+                           (GLfloat) (cam.color_.green())/255.0,
+                           (GLfloat) (cam.color_.blue())/255.0);
+                cam.draw();
+
+                glPopMatrix();
+            }
+        }
+
+#endif
+    }
     glFlush();
 }
 ////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -206,18 +244,18 @@ void SW::GLViewer::viewAll()
     setSceneBoundingBox(qglviewer::Vec(-2.0, -2.0, -2.0),
                        qglviewer::Vec( 2.0, 2.0,  2.0));
 
-    cout<<"Bounding Box: "<<g_bounding_left_top_.x()<<" ";
-    cout<<g_bounding_left_top_.y()<<" ";
-    cout<<g_bounding_left_top_.z()<<endl;
+   // cout<<"Bounding Box: "<<g_bounding_left_top_.x()<<" ";
+   // cout<<g_bounding_left_top_.y()<<" ";
+   // cout<<g_bounding_left_top_.z()<<endl;
 
-    cout<<"Bouding Box: "<<g_bounding_right_bottom_.x()<<" ";
-    cout<< g_bounding_right_bottom_.y()<<" ";
-    cout<< g_bounding_right_bottom_.z() <<endl;
+   // cout<<"Bouding Box: "<<g_bounding_right_bottom_.x()<<" ";
+   // cout<< g_bounding_right_bottom_.y()<<" ";
+   // cout<< g_bounding_right_bottom_.z() <<endl;
 
-    //showEntireScene();
-
+    showEntireScene();
     updateGL();
 }
+
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 void SW::GLViewer::computeSceneBoundingBox()
 {
@@ -389,7 +427,8 @@ void SW::GLViewer::makeMeshes()
 }
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 void SW::GLViewer::makeTextures()
-{}
+{
+}
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 void SW::GLViewer::drawAxises(double width, double length)
 {

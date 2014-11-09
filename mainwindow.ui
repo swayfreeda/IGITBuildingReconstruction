@@ -54,7 +54,7 @@
        <enum>QFrame::StyledPanel</enum>
       </property>
       <property name="frameShadow">
-       <enum>QFrame::Raised</enum>
+       <enum>QFrame::Sunken</enum>
       </property>
      </widget>
     </item>
@@ -66,8 +66,14 @@
         <verstretch>0</verstretch>
        </sizepolicy>
       </property>
+      <property name="frameShadow">
+       <enum>QFrame::Plain</enum>
+      </property>
       <property name="verticalScrollBarPolicy">
-       <enum>Qt::ScrollBarAlwaysOff</enum>
+       <enum>Qt::ScrollBarAsNeeded</enum>
+      </property>
+      <property name="horizontalScrollBarPolicy">
+       <enum>Qt::ScrollBarAsNeeded</enum>
       </property>
       <property name="widgetResizable">
        <bool>true</bool>
@@ -95,6 +101,21 @@
             <width>16777215</width>
             <height>100</height>
            </size>
+          </property>
+          <property name="autoFillBackground">
+           <bool>true</bool>
+          </property>
+          <property name="frameShape">
+           <enum>QFrame::HLine</enum>
+          </property>
+          <property name="frameShadow">
+           <enum>QFrame::Plain</enum>
+          </property>
+          <property name="verticalScrollBarPolicy">
+           <enum>Qt::ScrollBarAsNeeded</enum>
+          </property>
+          <property name="horizontalScrollBarPolicy">
+           <enum>Qt::ScrollBarAsNeeded</enum>
           </property>
           <property name="autoScrollMargin">
            <number>7</number>
@@ -139,6 +160,7 @@
     <property name="title">
      <string>&amp;Edit</string>
     </property>
+    <addaction name="actionFloorPlanReconstuction"/>
    </widget>
    <widget class="QMenu" name="settingMenu">
     <property name="title">
@@ -154,6 +176,7 @@
     <addaction name="actionWireFrame"/>
     <addaction name="actionFlat"/>
     <addaction name="actionTexture"/>
+    <addaction name="actionCameras"/>
    </widget>
    <widget class="QMenu" name="helpMenu">
     <property name="title">
@@ -729,6 +752,28 @@
   <action name="actionSave_Points">
    <property name="text">
     <string>Save Points</string>
+   </property>
+  </action>
+  <action name="actionCameras">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="enabled">
+    <bool>false</bool>
+   </property>
+   <property name="text">
+    <string>Cameras</string>
+   </property>
+  </action>
+  <action name="actionFloorPlanReconstuction">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="enabled">
+    <bool>false</bool>
+   </property>
+   <property name="text">
+    <string>FloorPlan Reconstuction</string>
    </property>
   </action>
  </widget>

@@ -16,7 +16,7 @@
 
 #include <iostream>
 #include <string>
-#include<QSet>
+#include<QVector>
 #include <QColor>
 
 using namespace std;
@@ -95,7 +95,7 @@ public:
     }
 
 public:
-    QSet<int> vis;
+    QVector<int> vis;
 
     float x;
     float y;
@@ -153,7 +153,7 @@ public:
     float g;
     float b;
 
-    QSet<int> vis;
+    QVector<int> vis;
     bool inconsist_;
 };
 
@@ -370,7 +370,7 @@ public:
     float normal_y;
     float normal_z;
 
-    QSet<int> vis;
+    QVector<uint> vis;
 
     bool inconsist_;
 
@@ -593,8 +593,13 @@ public:
     }
 
 
+#if 0
     // computet the direction and the position of the camera
     void computePosAndDir();
+#endif
+
+    // get all other information from the projection matrix
+    void decomposeProjMats();
 
     // draw camera
     void draw();

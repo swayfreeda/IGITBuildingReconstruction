@@ -4,12 +4,12 @@
 // 重载算数操作符号+
 Vec3  operator +(const Vec3 & vl, const Vec3 & vr) //算数和关系操作符一般定义为非成员函数
 {
-  Vec3 tmp(vl);
-  tmp.x_ += vr.x_;
-  tmp.y_ += vr.y_;
-  tmp.z_ += vr.z_;
+    Vec3 tmp(vl);
+    tmp.x_ += vr.x_;
+    tmp.y_ += vr.y_;
+    tmp.z_ += vr.z_;
 
-  return tmp;
+    return tmp;
 }
 
 // 重载算术操作符号-
@@ -55,8 +55,8 @@ Vec3  operator *( const float f, const Vec3 & v)
 // 重载算术操作符*
 float operator *(const Vec3& vl, const Vec3& vr)
 {
-   float tmp = vl.x_ * vr.x_ + vl.y_* vr.y_ + vl.z_* vr.z_;
-   return tmp;
+    float tmp = vl.x_ * vr.x_ + vl.y_* vr.y_ + vl.z_* vr.z_;
+    return tmp;
 }
 
 Vec3  operator /( const Vec3 & v,const float f)
@@ -86,6 +86,8 @@ Vec3 cross(const Vec3 &vl, const Vec3 &vr)
 /*                      CLASS  CAMERA                                         */
 /********************************************************************************/
 ///////////////////////////////////////////////////////////////////////////////////////////////////
+
+#if 0
 // computet the direction and the position of the camera
 void Camera::computePosAndDir()
 {
@@ -112,19 +114,71 @@ void Camera::computePosAndDir()
     dir.release();
 
 }
+#endif
+
+///////////////////////////////////////////////////////////////////////////////////////////////////
+void Camera::decomposeProjMats()
+{
+
+    // 1.0 get direction
+    this->dir_.at<float>(0) = this->project_.at<float>(2,0);
+    this->dir_.at<float>(1) = this->project_.at<float>(2,1);
+    this->dir_.at<float>(2) = this->project_.at<float>(2,2);
+    this->dir_ = this->dir_/ norm(this->dir_);
+
+    // 2.0 get position
+    cv::Mat KR(3,3,CV_32FC1);
+    cv::Mat KT(3,1,CV_32FC1);
+    for(int i=0; i<3; i++)
+    {
+        for(int j=0; j<3; j++)
+        {
+            KR.at<float>(i,j) = this->project_.at<float>(i,j);
+        }
+    }
+    for(int i=0; i<3; i++)
+        KT.at<float>(i,0) = this->project_.at<float>(i,3);
+
+    this->pos_ = -KR.inv()* KT;
+
+    // 3.0 compute the focal
+    cv::Mat R0(3,1, CV_32FC1);
+    cv::Mat R1(3, 1, CV_32FC1);
+    cv::Mat R2(3, 1, CV_32FC1);
+
+    for(int i=0; i<3; i++)
+    {
+        R0.at<float>(i) = KR.at<float>(0, i);
+        R1.at<float>(i) = KR.at<float>(1, i);
+        R2.at<float>(i) = KR.at<float>(2, i);
+    }
+
+    this->focal_ = 0.5*abs(norm(R0.cross(R2)))+ 0.5*abs(norm(R1.cross(R2)));
+
+
+    // 4.0 axises of the camera
+    this->zaxis_ = this->dir_;
+    this->yaxis_ = this->zaxis_.cross(R0);
+    this->yaxis_ = this->yaxis_/norm(this->yaxis_);
+
+    this->xaxis_ = this->yaxis_.cross(this->zaxis_);
+    this->xaxis_ = this->xaxis_/norm(this->xaxis_);
+
+    KR.release();
+    KT.release();
+    R0.release();
+    R1.release();
+    R2.release();
+}
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 // draw camera
 void Camera::draw()
 {
     //cv::Mat rotation = rotation_.t();
     //cv::Mat  trans = -rotation_.t()* trans_;
-
     //qglviewer::Vec dir;
     //float angle = rotationMatrixToAngleAxis(rotation, dir);
-
     //cout<<"angle axis: "<<angle* dir.x<<", "<<angle* dir.y<<", "<<angle* dir.z<<endl;
-
-
     // cout<<"Camera Pos: "<< trans.at<float>(0)<<", "<< trans.at<float>(1)<<", "<< trans.at<float>(2)<<endl;
 
 
@@ -134,7 +188,6 @@ void Camera::draw()
     glVertex3f(0.4, 0.3, -focal_/(2500.0));
     glVertex3f(0.4, -0.3, -focal_/(2500.0));
     glVertex3f(-0.4, -0.3, -focal_/(2500.0));
-
     glEnd();
 
     glBegin(GL_LINES);
@@ -152,14 +205,10 @@ void Camera::draw()
     glVertex3f(0, 0, 0);
     glEnd();
 
-
     glBegin(GL_LINES);
     glVertex3f(-0.4,-0.3, -focal_/(2500.0));
     glVertex3f(0, 0, 0);
     glEnd();
-
-
-
 }
 
 #if 0

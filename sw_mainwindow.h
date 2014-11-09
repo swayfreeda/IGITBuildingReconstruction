@@ -3,6 +3,9 @@
 
 #include"sw_dataType.h"
 #include"sw_glviewer.h"
+#include"sw_dataIO.h"
+#include"sw_floorplan.h"
+
 #include"ui_mainwindow.h"
 
 #include <QMainWindow>
@@ -26,6 +29,7 @@
 #include<QStatusBar>
 #include<QMessageBox>
 #include<QListWidget>
+#include<QThread>
 
 
 #include<opencv2/opencv.hpp>
@@ -86,12 +90,52 @@ public slots:
         update();
     }
 
+
+    //----------------------------------------floorplan reconstruction---------------//
+    // begin floorplan reconstruction
+    void floorPlanReconstruction(bool flag)
+    {
+        m_floorpan_reconstruction_ = flag;
+
+        // start to floor plan reconstruction
+        if(m_floorpan_reconstruction_ == true)
+        {
+            m_floorplanRec_->show();
+        }
+
+        // terminate floor plan reconstrution
+        if(m_floorpan_reconstruction_ == false)
+        {
+            m_floorplanRec_->hide();
+        }
+       update();
+    }
+
+
 signals:
 
     // emit signals to display dense points
     void displayDensePoints(bool flag);
 
+
 private:
+
+     bool m_floorpan_reconstruction_;
+
+
+    //------------------------------------------class structures-----------------------------------//
+
+    // for load and save points
+    SW::DATAIO *m_dataIO_;
+
+    // for floor plan reconstruction
+    // Note:  if the floorplanDialog is defined in the form "SW::FloorPlanDialog m_floorplanRec_ "
+    // no widgets in the floorplanDialog will be displayed.
+    SW::FloorPlanDialog * m_floorplanRec_;
+
+
+
+    //------------------------------------------variables------------------------------------------//
 
     // dense points
     QVector<Point> m_points_;
@@ -110,6 +154,9 @@ private:
 
     // projection matrixes
     QMap< QString, Camera> m_cameras_;
+
+    // multi-thread
+    QThread m_thread_;
 
 };
 
