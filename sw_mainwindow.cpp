@@ -18,7 +18,7 @@ SW::MainWindow::MainWindow()
 
     // alloc for the pointers
      m_dataIO_ = new SW::DATAIO();
-    m_floorplanRec_ = new SW::FloorPlanDialog(this);
+    m_floorplanRec_ = new SW::FloorPlanDialog(this, &m_points_, &m_pt_ids_);
 
 
     QActionGroup *displayActions = new QActionGroup(this);
@@ -83,6 +83,12 @@ void SW::MainWindow::loadData()
     //------------------------- load points from ply files---------------------------------//
     if(m_dataIO_->loadPointsFromPLY(m_points_))
     {
+        for(int i=0; i< m_points_.size(); i++)
+        {
+            m_pt_ids_.append(i);
+        }
+
+
         QString outputText = QString("%1 points").arg(m_points_.size());
         statusBar()->showMessage(outputText);
 

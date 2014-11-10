@@ -14,6 +14,8 @@
 #define SW_FLOORPLAN_H
 
 #include"ui_FloorPlan.h"
+#include "sw_dataType.h"
+
 ////#include"SW_PointCloud.h"
 ////#include"codingEdit.h"
 //#include"gts_repetitiveStructure.h"
@@ -29,6 +31,8 @@
 #include<QProgressBar>
 #include<QApplication>
 #include<QThread>
+
+typedef PointXYZRGBNormal Point;
 
 namespace SW {
 class FloorPlanDialog;
@@ -186,16 +190,15 @@ class FloorPlanDialog: public QDialog, public Ui::FloorPlanDialog
 public:
 
     //// friend class can visit the protected and private members
-    ////friend class InconsistenRegionDetector;
+    friend class InconsistenRegionDetector;
     ////friend class SlicesDataCaculator;
     ////friend class MainDirectionExtractor;
     ////friend class FloorPlanReconstructor;
 
-    FloorPlanDialog(QWidget * parent);
+    FloorPlanDialog(QWidget * parent, QVector<Point> * points, QVector<int> * pt_ids);
     FloorPlanDialog(){}
     ~FloorPlanDialog(){}
 
-#if 0
     inline void setKnnChanged(bool flag){
         is_knn_changed_ = flag;
     }
@@ -204,14 +207,15 @@ public:
     }
     inline bool isKnnChanged(){return is_knn_changed_;}
     inline bool isThreshChanged(){return is_thresh_changed_;}
-    inline void setIsGettingSlicesFinished(bool flag){ is_gettingSlices_finished_ = flag;}
-    inline bool isGettingSlicesFinished(){return is_gettingSlices_finished_;}
-    inline void setIsComputeMainDirectsFinsihed(bool flag){ is_computeMainDirects_finished_ = flag;}
-    inline bool isComputeMainDirectsFinished(){return is_computeMainDirects_finished_;}
+    ////inline void setIsGettingSlicesFinished(bool flag){ is_gettingSlices_finished_ = flag;}
+    ////inline bool isGettingSlicesFinished(){return is_gettingSlices_finished_;}
+    ////inline void setIsComputeMainDirectsFinsihed(bool flag){ is_computeMainDirects_finished_ = flag;}
+    ////inline bool isComputeMainDirectsFinished(){return is_computeMainDirects_finished_;}
 
-    vector<vector<int> > getSlicePtsIds(){return p_slice_pts_;}
-    vector<double> getYcoords(){return p_ycoordinates_; }
+    ////vector<vector<int> > getSlicePtsIds(){return p_slice_pts_;}
+    ////vector<double> getYcoords(){return p_ycoordinates_; }
 
+#if 0
     inline void setFacetsPtr(QVector<QVector<int> > * facets)
     {
         p_facets_ = facets;
@@ -224,19 +228,18 @@ public:
     {
         p_edges_ = edges;
     }
-
-
     inline void setBlocksPtr(QVector<Block3> * blocks)
     {
         p_blocks_ = blocks;
     }
-
+#endif
+#if 0
     inline void setStartingLayerPtr(QVector<Vec3>* starting_layer){p_starting_layer_boundary_ = starting_layer;}
     inline void setEndingLayerPtr(QVector<Vec3>* ending_layer){p_ending_layer_boundary_ = ending_layer;}
     inline void setSemiPlanesPtr(QVector<QVector<Vec3> > * semi_planes){ p_semi_planes_ = semi_planes;}
+#endif
 
-
-    QVector<QPolygon > getGTS(){ return p_detected_gts_; }
+//    QVector<QPolygon > getGTS(){ return p_detected_gts_; }
 private slots:
 
     // Knn value changed
@@ -262,9 +265,10 @@ private slots:
     // set the button to be abled
     inline void enableButton()
     {
-        pushButton_insistRegionDetection->setDisabled(false);
+        pushButton_insistRegionDetection->setEnabled(true);
     }
 
+#if 0
     // enable Group Box Getting Slices
     inline void enableGroupBoxGettingSlices()
     {
@@ -288,7 +292,8 @@ private slots:
         doubleSpinBox_minAngle->setSingleStep(1);
         doubleSpinBox_minAngle->setValue(25.0);
     }
-
+#endif
+#if 0
     // enable Group Box FloorPlanReconstruction
     inline void enableGroupBoxFloorPlanReconstrucion()
     {
@@ -314,7 +319,8 @@ private slots:
         doubleSpinBox_MRFLambda->setSingleStep(0.1);
         doubleSpinBox_MRFLambda->setValue(0.5);
     }
-
+#endif
+#if 0
     // enable Group Box Modeling Ceiling
     inline void enableGroupBoxModelingCeiling()
     {
@@ -392,61 +398,63 @@ private slots:
             p_detected_gts_.append(polygon);
         }
     }
-
+#endif
 signals:
 
-    void enableImageGuideModeling();
+    ////void enableImageGuideModeling();
 
     void startToDetect(bool, bool);
 
-    void start_gts_detection();
+    ////void start_gts_detection();
 
 private:
 
     InconsistenRegionDetector * p_inconsistent_detector_;
-    SlicesDataCaculator * p_slices_acculator_;
-    MainDirectionExtractor * p_main_directions_extractor_;
-    FloorPlanReconstructor* p_floorplan_constructor_;
+    ////SlicesDataCaculator * p_slices_acculator_;
+    ////MainDirectionExtractor * p_main_directions_extractor_;
+    ////FloorPlanReconstructor* p_floorplan_constructor_;
 
-    GTSDetectionDialog * p_gts_detection_;
-    QVector<QPolygon> p_detected_gts_;
+    ////GTSDetectionDialog * p_gts_detection_;
+    //// QVector<QPolygon> p_detected_gts_;
 
-    QImage p_current_image_;
-    QPolygon p_current_mask_;  // outer polygon of a plane
+    ////QImage p_current_image_;
+    ////QPolygon p_current_mask_;  // outer polygon of a plane
 
-    PointCloud * p_pc_;
-    QSet<int> * p_pts_ids_;
+    ////PointCloud * p_pc_;
+    ////QSet<int> * p_pts_ids_;
 
     bool is_knn_changed_;
     bool is_thresh_changed_;
 
-    bool is_gettingSlices_finished_;
-    bool is_computeMainDirects_finished_;
+    ////bool is_gettingSlices_finished_;
+    ////bool is_computeMainDirects_finished_;
 
     // indices of slices points
-    vector<vector<int> >p_slice_pts_;
+    ////vector<vector<int> >p_slice_pts_;
 
     // y coordinates of each silces
-    vector<double> p_ycoordinates_;
+    ////vector<double> p_ycoordinates_;
 
-    double p_step_;
+    ////double p_step_;
 
     // main directions
-    vector<Vec3> p_main_directions_;
+    ////vector<Vec3> p_main_directions_;
 
-    QVector<QVector<int> > *p_facets_;
-    QVector<Vec3> * p_vertices_;
-    QVector<QPair<int, int> > *p_edges_;
-    QVector<Block3> *p_blocks_;
+    ////QVector<QVector<int> > *p_facets_;
+    ////QVector<Vec3> * p_vertices_;
+    ////QVector<QPair<int, int> > *p_edges_;
+    ////QVector<Block3> *p_blocks_;
 
 
-    QVector<Vec3>* p_starting_layer_boundary_;
-    QVector<Vec3>* p_ending_layer_boundary_;
-    QVector<QVector<Vec3> > *p_semi_planes_;
+    ////QVector<Vec3>* p_starting_layer_boundary_;
+    ////QVector<Vec3>* p_ending_layer_boundary_;
+    ////QVector<QVector<Vec3> > *p_semi_planes_;
 
     QThread p_thread_;
 
-#endif
+private:
+    QVector<Point> * f_points_;
+    QVector<int> *f_pt_ids_;
 };
 }
 

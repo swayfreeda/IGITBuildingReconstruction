@@ -140,6 +140,10 @@ private:
     // dense points
     QVector<Point> m_points_;
 
+    // remaining point ids
+    // it is used for remove some noisy points
+    QVector<int> m_pt_ids_;
+
     // vertices
     QVector<Vec3> m_vertices_;
 

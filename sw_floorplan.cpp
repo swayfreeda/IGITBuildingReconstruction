@@ -10,11 +10,10 @@
 void SW::InconsistenRegionDetector::computeCurvatures()
 {
 
-#if 0
     p_curvatures_.clear();
 
-    QSet<int> * pts_ids = p_floor_plan_->p_pts_ids_;
-    PointCloud * pc = p_floor_plan_->p_pc_;
+    QVector<int> * pts_ids = p_floor_plan_->f_pt_ids_;
+    QVector<Point> * pts = p_floor_plan_->f_points_;
 
     cv::Mat points(pts_ids->size(),3,CV_32FC1);
     cv::Mat query(pts_ids->size(),3,CV_32FC1);
@@ -24,13 +23,13 @@ void SW::InconsistenRegionDetector::computeCurvatures()
     int index = 0;
     foreach(int it, *pts_ids)
     {
-        points.at<float>(index, 0) = (*pc->Points)[it].x;
-        points.at<float>(index, 1) = (*pc->Points)[it].y;
-        points.at<float>(index, 2) = (*pc->Points)[it].z;
+        points.at<float>(index, 0) = (*pts)[it].x;
+        points.at<float>(index, 1) = (*pts)[it].y;
+        points.at<float>(index, 2) = (*pts)[it].z;
 
-        query.at<float>(index, 0) = (*pc->Points)[it].x;
-        query.at<float>(index, 1) = (*pc->Points)[it].y;
-        query.at<float>(index, 2) = (*pc->Points)[it].z;
+        query.at<float>(index, 0) = (*pts)[it].x;
+        query.at<float>(index, 1) = (*pts)[it].y;
+        query.at<float>(index, 2) = (*pts)[it].z;
 
         index++;
     }
@@ -57,9 +56,9 @@ void SW::InconsistenRegionDetector::computeCurvatures()
         for(int j=0; j<indices.cols; j++)
         {
             int point_index = indices.at<int>(i,j);//////////////////////type////////////////////
-            Mean.at<float>(0)  += (*pc->Points)[point_index].x/p_Knn_;
-            Mean.at<float>(1)  += (*pc->Points)[point_index].y/p_Knn_;
-            Mean.at<float>(2)  += (*pc->Points)[point_index].z/p_Knn_;
+            Mean.at<float>(0)  += (*pts)[point_index].x/p_Knn_;
+            Mean.at<float>(1)  += (*pts)[point_index].y/p_Knn_;
+            Mean.at<float>(2)  += (*pts)[point_index].z/p_Knn_;
         }
 
         Covar_matrix.setTo(0);
@@ -67,9 +66,9 @@ void SW::InconsistenRegionDetector::computeCurvatures()
         {
             int point_index = indices.at<int>(i,j);
 
-            Sample.at<float>(0) =  (*pc->Points)[point_index].x;
-            Sample.at<float>(1) =  (*pc->Points)[point_index].y;
-            Sample.at<float>(2) =  (*pc->Points)[point_index].z;
+            Sample.at<float>(0) =  (*pts)[point_index].x;
+            Sample.at<float>(1) =  (*pts)[point_index].y;
+            Sample.at<float>(2) =  (*pts)[point_index].z;
 
             Sample -= Mean;
 
@@ -109,45 +108,43 @@ void SW::InconsistenRegionDetector::computeCurvatures()
 
     Singulars.clear();
 
-    pts_ids = 0;
-    pc = 0;
 
-#endif
+    delete [] pts_ids;
+    delete [] pts;
+
 }
 ////////////////////////////////////////////////////////////////////////////////////////////////////////
 // compute the inconsistent region in the point cloud
 void SW::InconsistenRegionDetector::getInconsistentRegion()
 {
-#if 0
-    QSet<int> * pts_ids = p_floor_plan_->p_pts_ids_;
-    PointCloud * pc = p_floor_plan_->p_pc_;
+    QVector<int> * pts_ids = p_floor_plan_->f_pt_ids_;
+    QVector<Point>  * pts = p_floor_plan_->f_points_;
 
 
     int index = 0;
     foreach(int it, *pts_ids)
     {
-        (*pc->Points)[it].inconsist_ = false;
+        (*pts)[it].inconsist_ = false;
 
         if(p_curvatures_[index] < p_threshold_)
         {
-            (*pc->Points)[it].inconsist_ = true;
+            (*pts)[it].inconsist_ = true;
         }
 
         index ++;
     }
 
-    pts_ids = 0;
-    pc = 0;
-#endif
+    delete [] pts_ids;
+    delete [] pts;
 }
 /////////////////////////////////////////////////////////////////////////////////////////////////////////
 void SW::InconsistenRegionDetector::detect( bool is_knn_changed, bool is_thresh_changed)
 {
-#if 0
-    QSet<int> * pts_ids = p_floor_plan_->p_pts_ids_;
-    PointCloud * pc = p_floor_plan_->p_pc_;
 
-    if( pc->Points->size()==0)
+    QVector<int> * pts_ids = p_floor_plan_->f_pt_ids_;
+    QVector<Point> * pts = p_floor_plan_->f_points_;
+
+    if(pts->size()==0)
     {
         QMessageBox::warning(0, tr("Warning!"), tr("No Points!"));
     }
@@ -171,11 +168,10 @@ void SW::InconsistenRegionDetector::detect( bool is_knn_changed, bool is_thresh_
 
     getInconsistentRegion();
 
-    pts_ids = 0;
-    pc = 0;
+    delete [] pts_ids;
+    delete [] pts;
 
     emit enableGettingSlices();
-#endif
 }
 
 #if 0
@@ -637,63 +633,67 @@ void  FloorPlanReconstructor:: reconstruction( )
 }
 #endif
 ////////////////////////////////////////////////////////////////////////////////////////////////////////
-SW::FloorPlanDialog::FloorPlanDialog(QWidget *parent)
+SW::FloorPlanDialog::FloorPlanDialog(QWidget *parent,
+                                     QVector<Point> *points, QVector<int> *pt_ids):f_points_(points), f_pt_ids_(pt_ids)
 {
     setupUi(this);
 
-#if 0
+
+    // threshold for Knn
     spinBox_knn->setRange ( 1, 100);
     spinBox_knn->setSingleStep(1);
     spinBox_knn->setValue(0);
 
+    // threshold for inconsistent region
     doubleSpinBox_threshold->setRange(1, 500);
     doubleSpinBox_threshold->setSingleStep(1);
     doubleSpinBox_threshold->setValue(10);
 
-    doubleSpinBox_letterMargin->setValue(0.1);   
-    doubleSpinBox_letterMargin->setSingleStep(0.01);
+
+    ////doubleSpinBox_letterMargin->setValue(0.1);
+    ////doubleSpinBox_letterMargin->setSingleStep(0.01);
 
 
     /*****************image number need to set********/
     //spinBox_imageID->setRange(0, 200);
     /***********************************************/
 
-    label_displayLayerNumber->setNum(0);
-    label_displayLayerNumber->setBackgroundColor(Qt::yellow);
+    ////label_displayLayerNumber->setNum(0);
+    ////label_displayLayerNumber->setBackgroundColor(Qt::yellow);
 
-    label_dispMainDirectionNumbers->setNum(0);
-    label_dispMainDirectionNumbers->setBackgroundColor(Qt::yellow);
+    ////label_dispMainDirectionNumbers->setNum(0);
+    ////label_dispMainDirectionNumbers->setBackgroundColor(Qt::yellow);
 
 
     //progressBar_floorRecon->setValue(0);
     //progressBar_floorRecon->setBackgroundColor(Qt::blue);
 
-    p_pc_ = pc;
-    p_pts_ids_ = pts_ids;
-
+    //// p_pc_ = pc;
+    //// p_pts_ids_ = pts_ids;
     p_inconsistent_detector_ = new InconsistenRegionDetector(this);
-    p_slices_acculator_ = new SlicesDataCaculator(this);
-    p_main_directions_extractor_ = new MainDirectionExtractor(this);
-    p_floorplan_constructor_ = new FloorPlanReconstructor(this);
+
+    ////p_slices_acculator_ = new SlicesDataCaculator(this);
+    ////p_main_directions_extractor_ = new MainDirectionExtractor(this);
+    ////p_floorplan_constructor_ = new FloorPlanReconstructor(this);
 
 
     is_knn_changed_ = false;
     is_thresh_changed_ = false;
-    is_gettingSlices_finished_ = false;
-    is_computeMainDirects_finished_ = false;
+    ////is_gettingSlices_finished_ = false;
+    ////is_computeMainDirects_finished_ = false;
 
-    doubleSpinBox_windowDepth->setValue(0.05);
-    doubleSpinBox_windowDepth->setRange(0,1);
-    doubleSpinBox_windowDepth->setSingleStep(0.01);
+    ////doubleSpinBox_windowDepth->setValue(0.05);
+    ////doubleSpinBox_windowDepth->setRange(0,1);
+    ////doubleSpinBox_windowDepth->setSingleStep(0.01);
 
     connect(spinBox_knn, SIGNAL(valueChanged(int)), this, SLOT(KnnChanged()) );
     connect(doubleSpinBox_threshold, SIGNAL(valueChanged(double)), this, SLOT(ThreshChanged()));
 
     // enable group box
-    connect(p_inconsistent_detector_, SIGNAL(enableGettingSlices()), this, SLOT(enableGroupBoxGettingSlices()));
-    connect(p_slices_acculator_, SIGNAL(enableFloorPlanReconstruction()), this, SLOT(enableGroupBoxFloorPlanReconstrucion()));
-    connect(p_main_directions_extractor_, SIGNAL(enableFloorPlanReconstruction()), this, SLOT(enableGroupBoxFloorPlanReconstrucion()));
-    connect(p_floorplan_constructor_, SIGNAL(enableModelingCeiling()), this, SLOT(enableGroupBoxModelingCeiling()));
+    ////connect(p_inconsistent_detector_, SIGNAL(enableGettingSlices()), this, SLOT(enableGroupBoxGettingSlices()));
+    ////connect(p_slices_acculator_, SIGNAL(enableFloorPlanReconstruction()), this, SLOT(enableGroupBoxFloorPlanReconstrucion()));
+    ////connect(p_main_directions_extractor_, SIGNAL(enableFloorPlanReconstruction()), this, SLOT(enableGroupBoxFloorPlanReconstrucion()));
+    ////connect(p_floorplan_constructor_, SIGNAL(enableModelingCeiling()), this, SLOT(enableGroupBoxModelingCeiling()));
 
     // compute inconsistent region
     // if button id pressed, signal to detect will be emitted
@@ -705,33 +705,31 @@ SW::FloorPlanDialog::FloorPlanDialog(QWidget *parent)
 
 
     // getting slices
-    connect(pushButton_divide_slices, SIGNAL(clicked()), p_slices_acculator_, SLOT(divideToSlices()), Qt::QueuedConnection);
-    p_slices_acculator_->moveToThread(&p_thread_);
-    p_thread_.start();
+    ////connect(pushButton_divide_slices, SIGNAL(clicked()), p_slices_acculator_, SLOT(divideToSlices()), Qt::QueuedConnection);
+    ////p_slices_acculator_->moveToThread(&p_thread_);
+    ////p_thread_.start();
 
     // compute main directions
-    connect(pushButton_mainDireciongs, SIGNAL(clicked()),p_main_directions_extractor_, SLOT(computeMainDirections()), Qt::QueuedConnection);
-    p_main_directions_extractor_->moveToThread(&p_thread_);// thread
-    p_thread_.start();
+    ////connect(pushButton_mainDireciongs, SIGNAL(clicked()),p_main_directions_extractor_, SLOT(computeMainDirections()), Qt::QueuedConnection);
+    ////p_main_directions_extractor_->moveToThread(&p_thread_);// thread
+    ////p_thread_.start();
 
 
     // floor plan reconstrution
-    connect(horizontalSlider_Slayer,SIGNAL(valueChanged(int)), this, SLOT(starttingLayerChanged(int)));
-    connect(horizontalSlider_Elayer,SIGNAL(valueChanged(int)), this, SLOT(endingLayerChanged(int)));
-    connect(doubleSpinBox_lineWidth, SIGNAL(valueChanged(double)), this, SLOT(lineWidthChanged(double )));
-    connect(doubleSpinBox_curveMargin, SIGNAL(valueChanged(double)), this, SLOT(curveMarginChanged(double)));
-    connect(doubleSpinBox_MRFLambda, SIGNAL(valueChanged(double)), this, SLOT(MRFLambdaChanged(double)));
-    connect(doubleSpinBox_letterMargin, SIGNAL(valueChanged(double)), this, SLOT(LetterMarginChanged(double)));
+    ////connect(horizontalSlider_Slayer,SIGNAL(valueChanged(int)), this, SLOT(starttingLayerChanged(int)));
+    ////connect(horizontalSlider_Elayer,SIGNAL(valueChanged(int)), this, SLOT(endingLayerChanged(int)));
+    ////connect(doubleSpinBox_lineWidth, SIGNAL(valueChanged(double)), this, SLOT(lineWidthChanged(double )));
+    ////connect(doubleSpinBox_curveMargin, SIGNAL(valueChanged(double)), this, SLOT(curveMarginChanged(double)));
+    ////connect(doubleSpinBox_MRFLambda, SIGNAL(valueChanged(double)), this, SLOT(MRFLambdaChanged(double)));
+    ////connect(doubleSpinBox_letterMargin, SIGNAL(valueChanged(double)), this, SLOT(LetterMarginChanged(double)));
 
 
-    connect(pushButton_floorplanRec, SIGNAL(clicked()), p_floorplan_constructor_, SLOT(reconstruction()), Qt::QueuedConnection);
-    p_floorplan_constructor_->moveToThread(&p_thread_);
-    p_thread_.start();
+    ////connect(pushButton_floorplanRec, SIGNAL(clicked()), p_floorplan_constructor_, SLOT(reconstruction()), Qt::QueuedConnection);
+    ////p_floorplan_constructor_->moveToThread(&p_thread_);
+    ////p_thread_.start();
 
     //gts detection
-    connect(pushButton_beginGTSDetection_, SIGNAL(clicked()), this, SLOT(startGTSDetection()));
-
-#endif
+    ////connect(pushButton_beginGTSDetection_, SIGNAL(clicked()), this, SLOT(startGTSDetection()));
 
 }
 
