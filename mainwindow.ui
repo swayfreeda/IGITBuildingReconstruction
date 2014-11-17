@@ -83,7 +83,7 @@
         <rect>
          <x>0</x>
          <y>0</y>
-         <width>787</width>
+         <width>887</width>
          <height>118</height>
         </rect>
        </property>
@@ -183,10 +183,16 @@
      <string>&amp;Help</string>
     </property>
    </widget>
+   <widget class="QMenu" name="menuDebug">
+    <property name="title">
+     <string>Debug</string>
+    </property>
+   </widget>
    <addaction name="fileMenu"/>
    <addaction name="editMenu"/>
    <addaction name="settingMenu"/>
    <addaction name="displayMenu"/>
+   <addaction name="menuDebug"/>
    <addaction name="helpMenu"/>
   </widget>
   <widget class="QStatusBar" name="statusbar"/>
@@ -774,6 +780,14 @@
    </property>
    <property name="text">
     <string>FloorPlan Reconstuction</string>
+   </property>
+  </action>
+  <action name="actionInconsistent_Region">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>Inconsistent Region</string>
    </property>
   </action>
  </widget>

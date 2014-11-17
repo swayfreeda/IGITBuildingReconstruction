@@ -49,6 +49,9 @@ SW::GLViewer::GLViewer(QWidget *parent0, const QGLWidget *parent1, Qt::WFlags f)
     g_display_flat_ = false;
     g_display_texture_ = false;
     g_display_cameras_ = false;
+    g_display_inconsist_=false;
+    g_display_slices_ = false;
+
 
 }
 /////////////////////////////////////////////////////////////////////////////////////////////////
@@ -100,26 +103,7 @@ void SW::GLViewer::draw()
 
     //drawAxises(0.1, 0.1);
 
-    // draw dense points
-    if(g_display_dense_pts_== true)
-    {
-#ifdef VERTEX_ARRAY
-        glBindVertexArray(POINTS);
-        glPolygonMode(GL_FRONT_AND_BACK, GL_POINTS);
-        glDrawElements(GL_POINTS, g_points_->size(), GL_UNSIGNED_INT, BUFFER_OFFSET(0));
-#else
-        foreach(Point pt, * g_points_)
-        {
-            glColor3f(pt.r/255.0, pt.g/255.0, pt.b/255.0);
-            glBegin(GL_POINTS);
-            glVertex3f(pt.x, pt.y, pt.z);
-            glEnd();
-        }
-#endif
-
-    }
-
-    // draw mesh vertices
+    //-------------------- draw mesh vertices------------------------------------------//
     if(g_display_vertices_ == true)
     {
 #ifdef VERTEX_ARRAY
@@ -137,7 +121,7 @@ void SW::GLViewer::draw()
 #endif
     }
 
-    // draw mesh wire frame
+    //--------------------draw mesh wire frame-----------------------------------------//
     if(g_display_wire_frame_ == true)
     {
 #ifdef VERTEX_ARRAY
@@ -149,7 +133,7 @@ void SW::GLViewer::draw()
 #endif
     }
 
-    // draw mesh flat
+    //------------------- draw mesh flat  -----------------------------------------------//
     if(g_display_flat_ == true)
     {
 #ifdef VERTEX_ARRAY
@@ -157,11 +141,11 @@ void SW::GLViewer::draw()
         glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
         glDrawElements(GL_TRIANGLES, g_facets_->size()*3, GL_UNSIGNED_INT, BUFFER_OFFSET(0));
 #else
-        foreach(QVector<int> facet, *g_facets_)
+        foreach(QVector<uint> facet, *g_facets_)
         {
             glColor3f(0.5, 0.5, 0.5);
             glBegin(GL_TRIANGLES);
-            foreach(int id, facet)
+            foreach(uint id, facet)
             {
                 glVertex3f((*g_vertices_)[id].x_, (*g_vertices_)[id].y_, (*g_vertices_)[id].z_);
             }
@@ -170,7 +154,7 @@ void SW::GLViewer::draw()
 #endif
     }
 
-    // draw texture
+    //------------------- draw texture  --------------------------------------------------//
     if(g_display_texture_ == true)
     {
 #if 0
@@ -187,6 +171,7 @@ void SW::GLViewer::draw()
 #endif
     }
 
+    //--------------------------------------draw cameras -----------------------------------//
     if(g_display_cameras_== true)
     {
 #ifdef VERTEX_ARRAY
@@ -225,6 +210,70 @@ void SW::GLViewer::draw()
 
 #endif
     }
+
+    //--------------------------------------draw inconsistent regions-----------------------//
+    if(g_display_inconsist_ ==  true)
+    {
+        glPushMatrix();
+        glBegin(GL_POINTS);
+        foreach(uint it, *g_pt_ids_)
+        {
+            if((*g_points_)[it].inconsist_ == true)
+            {
+               glColor3f(1.0, 0.0, 0.0 );
+               glVertex3f((*g_points_)[it].x, (*g_points_)[it].y, (*g_points_)[it].z );
+            }
+        }
+        glEnd();
+        glPopMatrix();
+
+    }
+
+    //--------------------------------------draw slices-------------------------------------//
+    if(g_display_slices_ == true)
+    {
+        QVector<QVector<uint > > pts_ids = g_floorplan_displays_->f_slice_pt_ids_;
+        QVector<float> yCoords = g_floorplan_displays_->f_Y_coords_;
+
+        assert(yCoords.size() == pts_ids.size());
+
+        glPushMatrix();
+        glBegin(GL_POINTS);
+
+        for(int i=0; i< pts_ids.size() ; i++)
+        {
+            float y = yCoords[i];
+            for(int j=0; j< pts_ids[i].size(); j++)
+            {
+                int id = pts_ids[i][j];
+
+                glColor3f(0.0, 1.0, 0.0 );
+                glVertex3f((*g_points_)[id].x, y, (*g_points_)[id].z);
+            }
+        }
+        glEnd();
+        glPopMatrix();
+    }
+
+    //--------------------- draw dense points-------------------------------------------//
+    if(g_display_dense_pts_== true)
+    {
+#ifdef VERTEX_ARRAY
+        glBindVertexArray(POINTS);
+        glPolygonMode(GL_FRONT_AND_BACK, GL_POINTS);
+        glDrawElements(GL_POINTS, g_points_->size(), GL_UNSIGNED_INT, BUFFER_OFFSET(0));
+#else
+        glBegin(GL_POINTS);
+        foreach(uint id, *g_pt_ids_)
+        {
+            glColor3f((*g_points_)[id].r/255.0, (*g_points_)[id].g/255.0, (*g_points_)[id].b/255.0);
+            glVertex3f((*g_points_)[id].x, (*g_points_)[id].y, (*g_points_)[id].z);
+
+        }
+        glEnd();
+#endif
+    }
+
     glFlush();
 }
 ////////////////////////////////////////////////////////////////////////////////////////////////////

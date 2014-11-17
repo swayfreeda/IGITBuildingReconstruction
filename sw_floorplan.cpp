@@ -1,19 +1,20 @@
 #include"sw_floorplan.h"
-//#include"functions.h"
+#include"sw_functions.h"
 //#include"cornerExtraction.h"
-//#include"codingEdit.h"
+#include"sw_codingEdit.h"
 
 #include<QtGui>
 
 //float Letter::TR_ = 0.01;
+
 // compute the curvatures of each point in the point cloud
 void SW::InconsistenRegionDetector::computeCurvatures()
 {
 
     p_curvatures_.clear();
 
-    QVector<int> * pts_ids = p_floor_plan_->f_pt_ids_;
-    QVector<Point> * pts = p_floor_plan_->f_points_;
+    QVector<uint> * pts_ids = p_floor_plan_->p_pt_ids_;
+    QVector<Point> * pts = p_floor_plan_->p_points_;
 
     cv::Mat points(pts_ids->size(),3,CV_32FC1);
     cv::Mat query(pts_ids->size(),3,CV_32FC1);
@@ -21,7 +22,7 @@ void SW::InconsistenRegionDetector::computeCurvatures()
     cv::Mat indices;
 
     int index = 0;
-    foreach(int it, *pts_ids)
+    foreach(uint it, *pts_ids)
     {
         points.at<float>(index, 0) = (*pts)[it].x;
         points.at<float>(index, 1) = (*pts)[it].y;
@@ -109,20 +110,23 @@ void SW::InconsistenRegionDetector::computeCurvatures()
     Singulars.clear();
 
 
-    delete [] pts_ids;
-    delete [] pts;
+    //delete [] pts_ids;
+    //delete [] pts;
+    //pts_ids = 0;
+    //pts = 0;
 
 }
+
 ////////////////////////////////////////////////////////////////////////////////////////////////////////
 // compute the inconsistent region in the point cloud
 void SW::InconsistenRegionDetector::getInconsistentRegion()
 {
-    QVector<int> * pts_ids = p_floor_plan_->f_pt_ids_;
-    QVector<Point>  * pts = p_floor_plan_->f_points_;
+    QVector<uint> * pts_ids = p_floor_plan_->p_pt_ids_;
+    QVector<Point>  * pts = p_floor_plan_->p_points_;
 
 
     int index = 0;
-    foreach(int it, *pts_ids)
+    foreach(uint it, *pts_ids)
     {
         (*pts)[it].inconsist_ = false;
 
@@ -134,17 +138,18 @@ void SW::InconsistenRegionDetector::getInconsistentRegion()
         index ++;
     }
 
-    delete [] pts_ids;
-    delete [] pts;
+    //delete [] pts_ids;
+    //delete [] pts;
 }
+
 /////////////////////////////////////////////////////////////////////////////////////////////////////////
 void SW::InconsistenRegionDetector::detect( bool is_knn_changed, bool is_thresh_changed)
 {
 
-    QVector<int> * pts_ids = p_floor_plan_->f_pt_ids_;
-    QVector<Point> * pts = p_floor_plan_->f_points_;
+    //QVector<uint> *  pts_ids = p_floor_plan_->p_pt_ids_;
+    //QVector<Point> * pts = p_floor_plan_->p_points_;
 
-    if(pts->size()==0)
+    if(p_floor_plan_->p_points_->size()==0)
     {
         QMessageBox::warning(0, tr("Warning!"), tr("No Points!"));
     }
@@ -167,104 +172,120 @@ void SW::InconsistenRegionDetector::detect( bool is_knn_changed, bool is_thresh_
     }
 
     getInconsistentRegion();
-
-    delete [] pts_ids;
-    delete [] pts;
-
+    //delete [] pts_ids;
+    //delete [] pts;
+    emit updateGLViewer();
     emit enableGettingSlices();
 }
 
-#if 0
 ////////////////////////////////////////////////////////////////////////////////////////////////////////
-void SlicesDataCaculator::divideToSlices()
+void SW::SlicesDataCaculator::divideToSlices()
 {
-    QSet<int> * pts_ids = p_floor_plan_->p_pts_ids_;
-    PointCloud * pc = p_floor_plan_->p_pc_;
+    QVector<uint> * pts_ids = p_floor_plan_->p_pt_ids_;
+    QVector<Point>  * pts = p_floor_plan_->p_points_;
+
     double step  = p_floor_plan_->doubleSpinBox_stepValue->value();
     if(step  ==0)
     {
         QMessageBox::warning(0, tr("Warning!"), tr("Step cannot be 0!"));
     }
 
+    else{
+        p_floor_plan_->p_slice_pts_.clear();
+        p_floor_plan_->p_ycoordinates_.clear();
 
-    p_floor_plan_->p_slice_pts_.clear();
-    p_floor_plan_->p_ycoordinates_.clear();
+        p_floor_plan_->p_floorplan_displays_.f_slice_pt_ids_.clear();
+        p_floor_plan_->p_floorplan_displays_.f_Y_coords_.clear();
 
-    double max_height = 0;
-    foreach (int it, *pts_ids)
-    {
-        if(max_height<(*pc->Points)[it].y)
+        //------------------------- get the max height of the scene ---------------------//
+        double max_height = 0;
+        foreach (uint it, *pts_ids)
         {
-            max_height = (*pc->Points)[it].y;
-        }
-    }
-    /*****************获取切片数据*****************/
-    int layer_id = 0;
-    while(1)
-    {
-        double lower =  layer_id * step;
-        double upper = (layer_id +1) *step;
-
-        if(lower >= max_height) break;
-
-        vector<int> temp_layer;
-        float mean_num = 0;
-
-        foreach(int it, *pts_ids)
-        {
-            qglviewer::Vec normal( (*(pc->Points))[it].normal_x,
-                                   (*(pc->Points))[it].normal_y,
-                                   (*(pc->Points))[it].normal_z);
-
-            qglviewer::Vec direction(0.0, 1.0, 0.0);
-
-            if((*pc->Points)[it].inconsist_==false&&abs(normal*direction)< 0.2&&
-                    (*pc->Points)[it].y <upper && (*pc->Points)[it].y >lower)
+            if(max_height<(*pts)[it].y)
             {
-                temp_layer.push_back(it);
+                max_height = (*pts)[it].y;
             }
         }
-        mean_num = (mean_num* p_floor_plan_->p_ycoordinates_.size() +
-                    temp_layer.size())/(float)(p_floor_plan_->p_ycoordinates_.size()+1);
+        //-------------------------get the slices data----------------------------------//
+        int layer_id = 0;
+        while(1)
+        {
+            double lower =  layer_id * step;
+            double upper = (layer_id +1) *step;
 
-        if(temp_layer.size()< 0.5* mean_num) break;
+            if(lower >= max_height) break;
 
-        p_floor_plan_->p_slice_pts_.push_back(temp_layer);
-        p_floor_plan_->p_ycoordinates_.push_back(lower);
+            QVector<uint> temp_layer;
+            ////float mean_num = 0;
 
+            foreach(uint it, *pts_ids)
+            {
+                qglviewer::Vec normal( (*pts)[it].normal_x,
+                                       (*pts)[it].normal_y,
+                                       (*pts)[it].normal_z);
 
-        layer_id ++;
+                qglviewer::Vec direction(0.0, 1.0, 0.0);
+
+                if((*pts)[it].inconsist_==false&&abs(normal*direction)< 0.2&&
+                        (*pts)[it].y <upper && (*pts)[it].y >lower)
+                {
+                    temp_layer.push_back(it);
+                }
+            }
+            //// mean_num = (mean_num* p_floor_plan_->p_ycoordinates_.size() +
+            ////              temp_layer.size())/(float)(p_floor_plan_->p_ycoordinates_.size()+1);
+
+            ////  if(temp_layer.size()< 0.5* mean_num) break;
+
+            p_floor_plan_->p_slice_pts_.push_back(temp_layer);
+            p_floor_plan_->p_ycoordinates_.push_back(lower);
+
+            layer_id ++;
+        }
+
+        //-------------------copy the variables to the FloorplanDisplay struct------------------//
+        // these variables are used for displaying in glviewers
+        foreach(QVector<uint> slice, p_floor_plan_->p_slice_pts_)
+        {
+            p_floor_plan_->p_floorplan_displays_.f_slice_pt_ids_.append(slice);
+        }
+        foreach(float y_coord, p_floor_plan_->p_ycoordinates_)
+        {
+            p_floor_plan_->p_floorplan_displays_.f_Y_coords_.append(y_coord);
+        }
+
+        // display the number of slices
+        p_floor_plan_->label_displayLayerNumber->setNum((int) p_floor_plan_->p_slice_pts_.size());
+        p_floor_plan_->label_displayLayerNumber->setBackgroundColor(Qt::green);
+
+        p_floor_plan_->setIsGettingSlicesFinished(true);
+        if(p_floor_plan_->isGettingSlicesFinished()==true&& p_floor_plan_->isComputeMainDirectsFinished()==true)
+        {
+            emit enableFloorPlanReconstruction();
+        }
+
+        emit  updateGLViewer();
+        //  pts_ids= 0;
+        //  pc = 0;
     }
-
-    // display the number of slices
-    p_floor_plan_->label_displayLayerNumber->setNum((int) p_floor_plan_->p_slice_pts_.size());
-    p_floor_plan_->label_displayLayerNumber->setBackgroundColor(Qt::green);
-
-    p_floor_plan_->setIsGettingSlicesFinished(true);
-    if(p_floor_plan_->isGettingSlicesFinished()==true&& p_floor_plan_->isComputeMainDirectsFinished()==true)
-    {
-        emit enableFloorPlanReconstruction();
-    }
-
-    pts_ids= 0;
-    pc = 0;
 }
+
 ////////////////////////////////////////////////////////////////////////////////////////////////////////
-void MainDirectionExtractor::computeMainDirections()
+void SW::MainDirectionExtractor::computeMainDirections()
 {
     m_floor_plan_->p_main_directions_.clear();
 
-    QSet<int> * pts_ids = m_floor_plan_->p_pts_ids_;
-    PointCloud * pc = m_floor_plan_->p_pc_;
+    QVector<uint> * pts_ids = m_floor_plan_->p_pt_ids_;
+    QVector<Point>  * pts = m_floor_plan_->p_points_;
 
-    double angle = m_floor_plan_->doubleSpinBox_minAngle->value();
+    float angle = m_floor_plan_->doubleSpinBox_minAngle->value();
 
-    /******************计算主方向********************/
-    vector<PointXYZRGBNormal> all_points;
-    foreach (int it, *pts_ids) {
-        if((*pc->Points)[it].inconsist_ == false)
+    //------------------------------ collect all the points -----------------------------------------//
+    vector<Point> all_points;
+    foreach (uint it, *pts_ids) {
+        if((*pts)[it].inconsist_ == false)
         {
-            all_points.push_back((*pc->Points)[it]);
+            all_points.push_back((*pts)[it]);
             all_points[all_points.size() -1].y = 0;
         }
     }
@@ -294,7 +315,7 @@ void MainDirectionExtractor::computeMainDirections()
     //    for(int i=0; i< weights.size(); i++)
     //        cout<<weights[i]<<", ";
 
-    cout<<endl;
+    //cout<<endl;
 
     //********  7.0 对聚类后的中心进行合并  ********************************************************/
     vector<Vec3> centers_after_merging;
@@ -303,12 +324,13 @@ void MainDirectionExtractor::computeMainDirections()
 
     centersMerging(centers, weights, labels, centers_after_merging,
                    weights_after_merging, labels_after_merging, angle);
-
-    //    cout<<"Centers Num after Merging: " << centers_after_merging.size()<<endl;
-    //    cout<<"Weights: ";
-    //    for(int i=0; i< weights_after_merging.size(); i++)
-    //        cout<<weights_after_merging[i]<<", ";
-    //    cout<<endl;
+#if 0
+    cout<<"Centers Num after Merging: " << centers_after_merging.size()<<endl;
+    cout<<"Weights: ";
+    for(int i=0; i< weights_after_merging.size(); i++)
+        cout<<weights_after_merging[i]<<", ";
+    cout<<endl;
+#endif
 
     for(int i=0; i< weights_after_merging.size(); i++)
     {
@@ -325,30 +347,33 @@ void MainDirectionExtractor::computeMainDirections()
         emit  enableFloorPlanReconstruction();
     }
 
-    pts_ids = 0;
-    pc = 0;
-
+    // pts_ids = 0;
+    // pc = 0;
 }
+
+
 ////////////////////////////////////////////////////////////////////////////////////////////////////////
-void  FloorPlanReconstructor:: reconstruction( )
+void SW::FloorPlanReconstructor:: reconstruction( )
 {
 
-    double step  = m_floor_plan_->doubleSpinBox_stepValue->value();
 
-    QSet<int> * pts_ids = m_floor_plan_->p_pts_ids_;
-    PointCloud * pc = m_floor_plan_->p_pc_;
-    vector<vector<int> > * slices_pts = &m_floor_plan_->p_slice_pts_;
-    vector<double> *ycoordinates = &m_floor_plan_->p_ycoordinates_;
-    vector<Vec3> *main_directions = &m_floor_plan_->p_main_directions_;
+    float step  = m_floor_plan_->doubleSpinBox_stepValue->value();
 
+    QVector<uint> * pts_ids = m_floor_plan_->p_pt_ids_;
+    QVector<Point>  * pts = m_floor_plan_->p_points_;
 
+    QVector<QVector<uint> > * slices_pts = &m_floor_plan_->p_slice_pts_;
+    QVector<float> *ycoordinates = &m_floor_plan_->p_ycoordinates_;
+    QVector<Vec3> *main_directions = &m_floor_plan_->p_main_directions_;
+
+   #if 0
     QVector<QVector<int> > *facets = m_floor_plan_->p_facets_;
     QVector<Vec3> *vertices = m_floor_plan_->p_vertices_;
     QVector<QPair<int, int> > *edges = m_floor_plan_->p_edges_;
     QVector<Block3> *blocks = m_floor_plan_->p_blocks_;
 
 
-   // QProgressBar *progress = m_floor_plan_->progressBar_floorRecon;
+    // QProgressBar *progress = m_floor_plan_->progressBar_floorRecon;
     QVector<QVector<Vec3> >* semi_planes=  m_floor_plan_->p_semi_planes_;
     QVector<Vec3>* ending_boundary=   m_floor_plan_->p_ending_layer_boundary_;
     QVector<Vec3>*starting_boundary=  m_floor_plan_->p_starting_layer_boundary_;
@@ -381,7 +406,7 @@ void  FloorPlanReconstructor:: reconstruction( )
     float all_mean_dist = 0;
     //int layer_num = p_ending_layer_ - p_starting_layer_;
 
-   // progress->setRange(0, layer_num);
+    // progress->setRange(0, layer_num);
 
     for(int i_s = p_starting_layer_; i_s<p_ending_layer_ + 1; i_s++)
     {
@@ -474,8 +499,8 @@ void  FloorPlanReconstructor:: reconstruction( )
         }
         start_pts.push_back(pts);
 
-       // progress->setValue(i_s - p_starting_layer_);
-       // qApp->processEvents();
+        // progress->setValue(i_s - p_starting_layer_);
+        // qApp->processEvents();
     }
 
     all_mean_dist /= (p_ending_layer_ + 1 -  p_starting_layer_);
@@ -596,17 +621,17 @@ void  FloorPlanReconstructor:: reconstruction( )
         int pt_num = final_facets.size();
         for(int j=0;j< pt_num; j++)
         {
-           int id0 = j;
-           int id1 = (j+1)% pt_num;
+            int id0 = j;
+            int id1 = (j+1)% pt_num;
 
-           if(id0> id1) e.insert(qMakePair(id1, id0));
-           else e.insert(qMakePair(id0, id1));
+            if(id0> id1) e.insert(qMakePair(id1, id0));
+            else e.insert(qMakePair(id0, id1));
         }
     }
     QSet<QPair<int,int > > ::const_iterator iter = e.constBegin();
     while(iter!= e.constEnd())
     {
-       (*edges)<< *iter;
+        (*edges)<< *iter;
         iter++;
     }
 
@@ -630,11 +655,11 @@ void  FloorPlanReconstructor:: reconstruction( )
     semi_planes=  0;
     ending_boundary= 0;
     starting_boundary= 0;
-}
 #endif
+}
 ////////////////////////////////////////////////////////////////////////////////////////////////////////
 SW::FloorPlanDialog::FloorPlanDialog(QWidget *parent,
-                                     QVector<Point> *points, QVector<int> *pt_ids):f_points_(points), f_pt_ids_(pt_ids)
+                                     QVector<Point> *points, QVector<uint> *pt_ids):p_points_(points), p_pt_ids_(pt_ids)
 {
     setupUi(this);
 
@@ -650,37 +675,34 @@ SW::FloorPlanDialog::FloorPlanDialog(QWidget *parent,
     doubleSpinBox_threshold->setValue(10);
 
 
-    ////doubleSpinBox_letterMargin->setValue(0.1);
-    ////doubleSpinBox_letterMargin->setSingleStep(0.01);
+    doubleSpinBox_letterMargin->setValue(0.1);
+    doubleSpinBox_letterMargin->setSingleStep(0.01);
 
 
     /*****************image number need to set********/
     //spinBox_imageID->setRange(0, 200);
     /***********************************************/
 
-    ////label_displayLayerNumber->setNum(0);
-    ////label_displayLayerNumber->setBackgroundColor(Qt::yellow);
+    label_displayLayerNumber->setNum(0);
+    label_displayLayerNumber->setBackgroundColor(Qt::yellow);
 
-    ////label_dispMainDirectionNumbers->setNum(0);
-    ////label_dispMainDirectionNumbers->setBackgroundColor(Qt::yellow);
+    label_dispMainDirectionNumbers->setNum(0);
+    label_dispMainDirectionNumbers->setBackgroundColor(Qt::yellow);
 
 
     //progressBar_floorRecon->setValue(0);
     //progressBar_floorRecon->setBackgroundColor(Qt::blue);
 
-    //// p_pc_ = pc;
-    //// p_pts_ids_ = pts_ids;
     p_inconsistent_detector_ = new InconsistenRegionDetector(this);
-
-    ////p_slices_acculator_ = new SlicesDataCaculator(this);
-    ////p_main_directions_extractor_ = new MainDirectionExtractor(this);
-    ////p_floorplan_constructor_ = new FloorPlanReconstructor(this);
+    p_slices_acculator_ = new SlicesDataCaculator(this);
+    p_main_directions_extractor_ = new MainDirectionExtractor(this);
+    p_floorplan_constructor_ = new FloorPlanReconstructor(this);
 
 
     is_knn_changed_ = false;
     is_thresh_changed_ = false;
-    ////is_gettingSlices_finished_ = false;
-    ////is_computeMainDirects_finished_ = false;
+    is_gettingSlices_finished_ = false;
+    is_computeMainDirects_finished_ = false;
 
     ////doubleSpinBox_windowDepth->setValue(0.05);
     ////doubleSpinBox_windowDepth->setRange(0,1);
@@ -690,43 +712,42 @@ SW::FloorPlanDialog::FloorPlanDialog(QWidget *parent,
     connect(doubleSpinBox_threshold, SIGNAL(valueChanged(double)), this, SLOT(ThreshChanged()));
 
     // enable group box
-    ////connect(p_inconsistent_detector_, SIGNAL(enableGettingSlices()), this, SLOT(enableGroupBoxGettingSlices()));
-    ////connect(p_slices_acculator_, SIGNAL(enableFloorPlanReconstruction()), this, SLOT(enableGroupBoxFloorPlanReconstrucion()));
-    ////connect(p_main_directions_extractor_, SIGNAL(enableFloorPlanReconstruction()), this, SLOT(enableGroupBoxFloorPlanReconstrucion()));
-    ////connect(p_floorplan_constructor_, SIGNAL(enableModelingCeiling()), this, SLOT(enableGroupBoxModelingCeiling()));
+    connect(p_inconsistent_detector_, SIGNAL(enableGettingSlices()), this, SLOT(enableGroupBoxGettingSlices()));
+    connect(p_slices_acculator_, SIGNAL(enableFloorPlanReconstruction()), this, SLOT(enableGroupBoxFloorPlanReconstrucion()));
+    connect(p_main_directions_extractor_, SIGNAL(enableFloorPlanReconstruction()), this, SLOT(enableGroupBoxFloorPlanReconstrucion()));
+    connect(p_floorplan_constructor_, SIGNAL(enableModelingCeiling()), this, SLOT(enableGroupBoxModelingCeiling()));
 
     // compute inconsistent region
     // if button id pressed, signal to detect will be emitted
     connect(pushButton_insistRegionDetection, SIGNAL(clicked()), this, SLOT(emitDetectionSignal()));
-    // connect(this, SIGNAL(startToDetect(bool,bool)), this, SLOT(inconsistentRegionDetection(bool,bool)), Qt::QueuedConnection);
     connect(this, SIGNAL(startToDetect(bool,bool)), p_inconsistent_detector_, SLOT(detect(bool,bool)), Qt::QueuedConnection);
     p_inconsistent_detector_->moveToThread(&p_thread_);
     p_thread_.start();
 
 
     // getting slices
-    ////connect(pushButton_divide_slices, SIGNAL(clicked()), p_slices_acculator_, SLOT(divideToSlices()), Qt::QueuedConnection);
-    ////p_slices_acculator_->moveToThread(&p_thread_);
-    ////p_thread_.start();
+    connect(pushButton_divide_slices, SIGNAL(clicked()), p_slices_acculator_, SLOT(divideToSlices()), Qt::QueuedConnection);
+    p_slices_acculator_->moveToThread(&p_thread_);
+    p_thread_.start();
 
     // compute main directions
-    ////connect(pushButton_mainDireciongs, SIGNAL(clicked()),p_main_directions_extractor_, SLOT(computeMainDirections()), Qt::QueuedConnection);
-    ////p_main_directions_extractor_->moveToThread(&p_thread_);// thread
-    ////p_thread_.start();
+    connect(pushButton_mainDireciongs, SIGNAL(clicked()),p_main_directions_extractor_, SLOT(computeMainDirections()), Qt::QueuedConnection);
+    p_main_directions_extractor_->moveToThread(&p_thread_);// thread
+    p_thread_.start();
 
 
     // floor plan reconstrution
-    ////connect(horizontalSlider_Slayer,SIGNAL(valueChanged(int)), this, SLOT(starttingLayerChanged(int)));
-    ////connect(horizontalSlider_Elayer,SIGNAL(valueChanged(int)), this, SLOT(endingLayerChanged(int)));
-    ////connect(doubleSpinBox_lineWidth, SIGNAL(valueChanged(double)), this, SLOT(lineWidthChanged(double )));
-    ////connect(doubleSpinBox_curveMargin, SIGNAL(valueChanged(double)), this, SLOT(curveMarginChanged(double)));
-    ////connect(doubleSpinBox_MRFLambda, SIGNAL(valueChanged(double)), this, SLOT(MRFLambdaChanged(double)));
-    ////connect(doubleSpinBox_letterMargin, SIGNAL(valueChanged(double)), this, SLOT(LetterMarginChanged(double)));
+    connect(horizontalSlider_Slayer,SIGNAL(valueChanged(int)), this, SLOT(starttingLayerChanged(int)));
+    connect(horizontalSlider_Elayer,SIGNAL(valueChanged(int)), this, SLOT(endingLayerChanged(int)));
+    connect(doubleSpinBox_lineWidth, SIGNAL(valueChanged(double)), this, SLOT(lineWidthChanged(double )));
+    connect(doubleSpinBox_curveMargin, SIGNAL(valueChanged(double)), this, SLOT(curveMarginChanged(double)));
+    connect(doubleSpinBox_MRFLambda, SIGNAL(valueChanged(double)), this, SLOT(MRFLambdaChanged(double)));
+    connect(doubleSpinBox_letterMargin, SIGNAL(valueChanged(double)), this, SLOT(LetterMarginChanged(double)));
 
 
-    ////connect(pushButton_floorplanRec, SIGNAL(clicked()), p_floorplan_constructor_, SLOT(reconstruction()), Qt::QueuedConnection);
-    ////p_floorplan_constructor_->moveToThread(&p_thread_);
-    ////p_thread_.start();
+    connect(pushButton_floorplanRec, SIGNAL(clicked()), p_floorplan_constructor_, SLOT(reconstruction()), Qt::QueuedConnection);
+    p_floorplan_constructor_->moveToThread(&p_thread_);
+    p_thread_.start();
 
     //gts detection
     ////connect(pushButton_beginGTSDetection_, SIGNAL(clicked()), this, SLOT(startGTSDetection()));

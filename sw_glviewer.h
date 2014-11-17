@@ -4,6 +4,8 @@
 //#define VERTEX_ARRAY //  change ot VERTEX_ARRAY display Mode
 
 #include"sw_dataType.h"
+#include"sw_floorplan.h"
+
 #include"QGLViewer/qglviewer.h"
 
 #include<list>
@@ -31,7 +33,7 @@ typedef PointXYZRGBNormal Point;
 
 namespace SW{
 
-
+//----------------------------------------------CLASS QGLViewer------------------------------------------------//
 class  GLViewer : public QGLViewer
 {
     Q_OBJECT
@@ -82,10 +84,11 @@ public:
     //------------------------------INTERFACES-------------------------------------------//
     void setDensePointsPtr(QVector<Point>* ptr){ g_points_ = ptr;}
     void setMeshVerticesPtr(QVector<Vec3> * ptr) { g_vertices_ = ptr;}
-    void setMeshFacetsPtr(QVector<QVector<int> > * ptr){g_facets_ = ptr;}
+    void setMeshFacetsPtr(QVector<QVector<uint> > * ptr){g_facets_ = ptr;}
     void setMeshTextureCoordsPtr(QVector<QVector2D> * ptr){ g_texture_coords_ = ptr;}
     void setCamerasPtr(QMap<QString, Camera> * ptr){ g_cameras_ = ptr; }
-
+    void setPtIdsPtr(QVector<uint> * ptr){g_pt_ids_ = ptr;}
+    void setFloorPlanDisplay(FloorPlanDisplay * ptr){ g_floorplan_displays_ = ptr;}
 
 public slots:
 
@@ -209,6 +212,32 @@ public slots:
         updateGL();
     }
 
+
+    // under the floor plan reconstrucion framework
+    inline void toggle_display_inconsist_pts(int state)
+    {
+        bool flag ;
+        if(state ==0)flag = false;// unchecked
+        if(state ==2) flag = true;// checked
+        g_display_inconsist_ = flag;
+        g_display_dense_pts_ = !flag;
+        updateGL();
+    }
+    // under the floor plan reconstruction framework
+    inline void toggle_display_slices(int state)
+    {
+        bool flag ;
+        if(state ==0) flag = false;// unchecked
+        if(state ==2) flag = true;// checked
+        g_display_slices_ = flag;
+        updateGL();
+    }
+    // update GLViewer
+    inline void updateGLViewer()
+    {
+      updateGL();
+    }
+
 signals:
     void statusBar(QString info);
 
@@ -222,15 +251,18 @@ private:
     bool g_display_texture_;
     bool g_display_cameras_;
 
+    bool g_display_inconsist_;
+    bool g_display_slices_;
 
     //------------------------variables for dense points--------------------------------//
     QVector<Point> *g_points_;            // dense points containes world coordinates, colors,
     // normals, vis data and so on.
+    QVector<uint> *g_pt_ids_;             // remaining points ids after deleting points by mannul
 
 
     //-------------------------varaibles for mesh---------------------------------------//
     QVector<Vec3> *g_vertices_;            // world coordinates of the vertices in the mesh
-    QVector<QVector<int> > *g_facets_;     // facets of the mesh
+    QVector<QVector<uint> > *g_facets_;     // facets of the mesh
     QVector<QVector2D> *g_texture_coords_; // texture coords of each vertex
 
 
@@ -252,6 +284,9 @@ private:
 
     //---------------------------variable for cameras----------------------------------------//
     QMap<QString, Camera> *g_cameras_;
+
+    //---------------------------variable for display-----------------------------------------//
+    FloorPlanDisplay *g_floorplan_displays_;
 };
 
 }

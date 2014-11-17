@@ -3,9 +3,10 @@
 #include <QFile>
 #include <QTextStream>
 #include <QProgressDialog>
-#include<QApplication>
-#include<QMessageBox>
-#include<QDir>
+#include <QApplication>
+#include <QMessageBox>
+#include <QDir>
+#include<QImage>
 
 
 //-------------------------------------------getPLYFileDir-------------------------------//
@@ -32,6 +33,10 @@ QVector<QString> SW::DATAIO::getPLYFileDirs()
 
     return ply_file_names;
 }
+
+
+
+
 //-------------------------------------------getVisFileDir-------------------------------//
 QVector<QString> SW::DATAIO::getVisFileDirs()
 {
@@ -56,6 +61,10 @@ QVector<QString> SW::DATAIO::getVisFileDirs()
 
     return patch_file_names;
 }
+
+
+
+
 //-------------------------------------------getImageFolderDir---------------------------//
 QVector<QString> SW::DATAIO::getImageDirs()
 {
@@ -81,6 +90,11 @@ QVector<QString> SW::DATAIO::getImageDirs()
     return img_file_names;
 
 }
+
+
+
+
+
 //-------------------------------------------getCameraFolderDir-------------------------//
 QVector<QString> SW::DATAIO::getCameraDirs()
 {
@@ -106,6 +120,10 @@ QVector<QString> SW::DATAIO::getCameraDirs()
     return cam_file_names;
 
 }
+
+
+
+
 //-------------------------------------------loadPointsFromPLY----------------------------//
 bool SW::DATAIO::loadPointsFromPLY(QVector<Point> & vertices)
 {
@@ -206,6 +224,10 @@ bool SW::DATAIO::loadPointsFromPLY(QVector<Point> & vertices)
 
     return true;
 }
+
+
+
+
 //--------------------------------------------savePointsToPLY-----------------------------//
 bool SW::DATAIO::savePointsToPLY(QVector<Point> & vertices, QString file_name)
 {
@@ -255,9 +277,14 @@ bool SW::DATAIO::savePointsToPLY(QVector<Point> & vertices, QString file_name)
 
     return true;
 }
+
+
+
+
 //--------------------------------------------load images----------------------------------//
 bool SW::DATAIO::loadImages(QMap<QString, QImage> & images)
 {
+
     QVector<QString> img_dirs = getImageDirs();
     QProgressDialog progress;
     progress.setLabelText(tr("Loading Images..."));
@@ -270,6 +297,7 @@ bool SW::DATAIO::loadImages(QMap<QString, QImage> & images)
     //load images
     foreach(QString img_dir, img_dirs)
     {
+
         // set the value of progress diaog
         progress.setValue(nSteps);
         qApp->processEvents();
@@ -278,18 +306,33 @@ bool SW::DATAIO::loadImages(QMap<QString, QImage> & images)
             images.clear();
             return false;
         }
+
         if (!img_dir.isEmpty())
         {
+
+#if 0
+            //----------------------------------CRASH!!-----------------------------------------------//
+            // There is a problem unexpectedly
             img.load(img_dir);
 
             QStringList fields = img_dir.split("/");
             QString name = fields.takeLast();
             images.insert(name, img);
+#endif
+
         }
         nSteps++;
+
     }
-    return true;
+    //  return true;
+
+    return false;
 }
+
+
+
+
+
 //---------------------------------------------load cameras-------------------------------//
 bool SW::DATAIO::loadCameras(QMap<QString, Camera> & cameras)
 {
@@ -303,7 +346,7 @@ bool SW::DATAIO::loadCameras(QMap<QString, Camera> & cameras)
     int counter =0;
     foreach(QString cam_dir, cam_dirs)
     {
-          // set the value of progress diaog
+        // set the value of progress diaog
         // set the value of progress diaog
         progress.setValue(counter);
         qApp->processEvents();
@@ -353,6 +396,10 @@ bool SW::DATAIO::loadCameras(QMap<QString, Camera> & cameras)
     }
     return true;
 }
+
+
+
+
 //---------------------------------------------load visibility-----------------------------//
 bool SW::DATAIO::loadVisiblities(QVector<Point> & vertices)
 {

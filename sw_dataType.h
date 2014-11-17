@@ -4,8 +4,8 @@
 // Organization: Institute of Automation, Chinese Academy of Sciences
 
 
-#ifndef DATATYPE_H
-#define DATATYPE_H
+#ifndef SW_DATATYPE_H
+#define SW_DATATYPE_H
 
 #include"stdlib.h"
 #include"algorithm"

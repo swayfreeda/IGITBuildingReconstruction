@@ -11,7 +11,14 @@ HEADERS += \
     sw_mainwindow.h \
     sw_dataIO.h \
     sw_functions.h \
-    sw_floorplan.h
+    sw_floorplan.h \
+    unionFindGraph.h \
+    sw_codingEdit.h \
+    sw_graph_str.h \
+    graph.h \
+    energy.h \
+    block.h \
+    sw_alpha_expansion.h
 FORMS += mainwindow.ui \
     FloorPlan.ui
 SOURCES += main.cpp \
@@ -20,7 +27,13 @@ SOURCES += main.cpp \
     sw_mainwindow.cpp \
     sw_dataIO.cpp \
     sw_functions.cpp \
-    sw_floorplan.cpp
+    sw_floorplan.cpp \
+    unionFindGraph.cpp \
+    sw_graph_str.cpp \
+    sw_codingEdit.cpp \
+    graph.cpp \
+    alpha_expansion.cpp \
+    maxflow.cpp
 
 INCLUDEPATH +=  /usr/include/qt4/QtCore     \
                  /usr/include/qt4/QtGui      \

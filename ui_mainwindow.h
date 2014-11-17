@@ -1,7 +1,7 @@
 /********************************************************************************
 ** Form generated from reading UI file 'mainwindow.ui'
 **
-** Created: Sun Nov 9 21:54:16 2014
+** Created: Mon Nov 17 22:18:26 2014
 **      by: Qt User Interface Compiler version 4.8.1
 **
 ** WARNING! All changes made in this file will be lost when recompiling UI file!
@@ -88,6 +88,7 @@ public:
     QAction *actionSave_Points;
     QAction *actionCameras;
     QAction *actionFloorPlanReconstuction;
+    QAction *actionInconsistent_Region;
     QWidget *centralwidget;
     QVBoxLayout *verticalLayout;
     SW::GLViewer *viewer;
@@ -101,6 +102,7 @@ public:
     QMenu *settingMenu;
     QMenu *displayMenu;
     QMenu *helpMenu;
+    QMenu *menuDebug;
     QStatusBar *statusbar;
     QToolBar *toolBar;
     QToolBar *toolBar_2;
@@ -323,6 +325,9 @@ public:
         actionFloorPlanReconstuction->setObjectName(QString::fromUtf8("actionFloorPlanReconstuction"));
         actionFloorPlanReconstuction->setCheckable(true);
         actionFloorPlanReconstuction->setEnabled(false);
+        actionInconsistent_Region = new QAction(MainWindow);
+        actionInconsistent_Region->setObjectName(QString::fromUtf8("actionInconsistent_Region"));
+        actionInconsistent_Region->setCheckable(true);
         centralwidget = new QWidget(MainWindow);
         centralwidget->setObjectName(QString::fromUtf8("centralwidget"));
         QSizePolicy sizePolicy1(QSizePolicy::Preferred, QSizePolicy::Preferred);
@@ -357,7 +362,7 @@ public:
         imageScrollArea->setWidgetResizable(true);
         scrollAreaWidgetContents = new QWidget();
         scrollAreaWidgetContents->setObjectName(QString::fromUtf8("scrollAreaWidgetContents"));
-        scrollAreaWidgetContents->setGeometry(QRect(0, 0, 787, 118));
+        scrollAreaWidgetContents->setGeometry(QRect(0, 0, 887, 118));
         horizontalLayout = new QHBoxLayout(scrollAreaWidgetContents);
         horizontalLayout->setObjectName(QString::fromUtf8("horizontalLayout"));
         imageListWidget = new QListWidget(scrollAreaWidgetContents);
@@ -396,6 +401,8 @@ public:
         displayMenu->setObjectName(QString::fromUtf8("displayMenu"));
         helpMenu = new QMenu(menubar);
         helpMenu->setObjectName(QString::fromUtf8("helpMenu"));
+        menuDebug = new QMenu(menubar);
+        menuDebug->setObjectName(QString::fromUtf8("menuDebug"));
         MainWindow->setMenuBar(menubar);
         statusbar = new QStatusBar(MainWindow);
         statusbar->setObjectName(QString::fromUtf8("statusbar"));
@@ -427,6 +434,7 @@ public:
         menubar->addAction(editMenu->menuAction());
         menubar->addAction(settingMenu->menuAction());
         menubar->addAction(displayMenu->menuAction());
+        menubar->addAction(menuDebug->menuAction());
         menubar->addAction(helpMenu->menuAction());
         fileMenu->addAction(loadDataAction);
         fileMenu->addAction(actionSave_Points);
@@ -565,11 +573,13 @@ public:
         actionSave_Points->setText(QApplication::translate("MainWindow", "Save Points", 0, QApplication::UnicodeUTF8));
         actionCameras->setText(QApplication::translate("MainWindow", "Cameras", 0, QApplication::UnicodeUTF8));
         actionFloorPlanReconstuction->setText(QApplication::translate("MainWindow", "FloorPlan Reconstuction", 0, QApplication::UnicodeUTF8));
+        actionInconsistent_Region->setText(QApplication::translate("MainWindow", "Inconsistent Region", 0, QApplication::UnicodeUTF8));
         fileMenu->setTitle(QApplication::translate("MainWindow", "&File", 0, QApplication::UnicodeUTF8));
         editMenu->setTitle(QApplication::translate("MainWindow", "&Edit", 0, QApplication::UnicodeUTF8));
         settingMenu->setTitle(QApplication::translate("MainWindow", "&Setting", 0, QApplication::UnicodeUTF8));
         displayMenu->setTitle(QApplication::translate("MainWindow", "&Display", 0, QApplication::UnicodeUTF8));
         helpMenu->setTitle(QApplication::translate("MainWindow", "&Help", 0, QApplication::UnicodeUTF8));
+        menuDebug->setTitle(QApplication::translate("MainWindow", "Debug", 0, QApplication::UnicodeUTF8));
         toolBar->setWindowTitle(QApplication::translate("MainWindow", "toolBar", 0, QApplication::UnicodeUTF8));
 #ifndef QT_NO_STATUSTIP
         toolBar->setStatusTip(QString());

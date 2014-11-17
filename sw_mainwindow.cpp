@@ -17,7 +17,7 @@ SW::MainWindow::MainWindow()
     m_floorpan_reconstruction_ = false;
 
     // alloc for the pointers
-     m_dataIO_ = new SW::DATAIO();
+    m_dataIO_ = new SW::DATAIO();
     m_floorplanRec_ = new SW::FloorPlanDialog(this, &m_points_, &m_pt_ids_);
 
 
@@ -36,7 +36,8 @@ SW::MainWindow::MainWindow()
     viewer->setMeshFacetsPtr(&m_facets_);
     viewer->setMeshTextureCoordsPtr(&m_texture_coords_);
     viewer->setCamerasPtr(&m_cameras_);
-
+    viewer->setPtIdsPtr(&m_pt_ids_);
+    viewer->setFloorPlanDisplay(&m_floorplanRec_->p_floorplan_displays_);
 
 
     //---------------------------------SIGNALS  AND SLOTS------------------------------//
@@ -63,7 +64,17 @@ SW::MainWindow::MainWindow()
 
 
     //---------------------------------FloorPlan Reconstruction--------------------------------------------//
+    // begin floor plan reconstruction
     connect(actionFloorPlanReconstuction, SIGNAL(triggered(bool)), this, SLOT(floorPlanReconstruction(bool)));
+
+    // display inconsistent region
+    connect(m_floorplanRec_->checkBox_dispInconsist, SIGNAL(stateChanged(int)), viewer, SLOT(toggle_display_inconsist_pts(int)));
+    // display slices
+    connect(m_floorplanRec_->checkBox_dispSices, SIGNAL(stateChanged(int)), viewer, SLOT(toggle_display_slices(int)));
+
+    // update GL
+    connect(m_floorplanRec_->getIncinsistDetector(), SIGNAL(updateGLViewer()), viewer, SLOT(updateGLViewer()));
+    connect(m_floorplanRec_->getSlicesCalculator(), SIGNAL(updateGLViewer()), viewer,  SLOT(updateGLViewer()));
 }
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////
 SW::MainWindow::~MainWindow()
@@ -83,7 +94,7 @@ void SW::MainWindow::loadData()
     //------------------------- load points from ply files---------------------------------//
     if(m_dataIO_->loadPointsFromPLY(m_points_))
     {
-        for(int i=0; i< m_points_.size(); i++)
+        for(uint i=0; i< m_points_.size(); i++)
         {
             m_pt_ids_.append(i);
         }

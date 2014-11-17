@@ -6,12 +6,12 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>809</width>
-    <height>640</height>
+    <width>821</width>
+    <height>644</height>
    </rect>
   </property>
   <property name="windowTitle">
-   <string>Dialog</string>
+   <string>FloorPlan Reconstruction</string>
   </property>
   <layout class="QVBoxLayout" name="verticalLayout_3">
    <item>
@@ -26,6 +26,9 @@
          <widget class="QLabel" name="label_KNN">
           <property name="text">
            <string>&amp;Nearest Neighbours Number</string>
+          </property>
+          <property name="buddy">
+           <cstring>spinBox_knn</cstring>
           </property>
          </widget>
         </item>
@@ -44,6 +47,13 @@
         </item>
         <item>
          <widget class="QDoubleSpinBox" name="doubleSpinBox_threshold"/>
+        </item>
+        <item>
+         <widget class="QCheckBox" name="checkBox_dispInconsist">
+          <property name="text">
+           <string>Display Inconsist Region</string>
+          </property>
+         </widget>
         </item>
         <item>
          <spacer name="horizontalSpacer_6">
@@ -84,10 +94,17 @@
         <item>
          <layout class="QGridLayout" name="gridLayout_2">
           <item row="0" column="1">
-           <widget class="QDoubleSpinBox" name="doubleSpinBox_stepValue"/>
+           <widget class="QDoubleSpinBox" name="doubleSpinBox_stepValue">
+            <property name="enabled">
+             <bool>false</bool>
+            </property>
+           </widget>
           </item>
           <item row="0" column="0">
            <widget class="QLabel" name="Label_setStepValue">
+            <property name="enabled">
+             <bool>false</bool>
+            </property>
             <property name="text">
              <string>&amp;Step Value</string>
             </property>
@@ -105,12 +122,32 @@
           </item>
           <item row="1" column="1">
            <widget class="QLabel" name="label_displayLayerNumber">
+            <property name="enabled">
+             <bool>false</bool>
+            </property>
+            <property name="font">
+             <font>
+              <pointsize>12</pointsize>
+              <weight>75</weight>
+              <bold>true</bold>
+             </font>
+            </property>
+            <property name="autoFillBackground">
+             <bool>true</bool>
+            </property>
             <property name="text">
              <string/>
             </property>
            </widget>
           </item>
          </layout>
+        </item>
+        <item>
+         <widget class="QCheckBox" name="checkBox_dispSices">
+          <property name="text">
+           <string>Diplay Slices</string>
+          </property>
+         </widget>
         </item>
         <item>
          <spacer name="horizontalSpacer">
@@ -127,6 +164,9 @@
         </item>
         <item>
          <widget class="QPushButton" name="pushButton_divide_slices">
+          <property name="enabled">
+           <bool>false</bool>
+          </property>
           <property name="text">
            <string>Dividing</string>
           </property>
@@ -137,21 +177,50 @@
       <item>
        <layout class="QHBoxLayout" name="horizontalLayout">
         <item>
-         <widget class="QLabel" name="label">
+         <widget class="QLabel" name="label_mainDirecionNum">
           <property name="enabled">
            <bool>false</bool>
           </property>
           <property name="text">
-           <string>Main DIrection Numbers</string>
+           <string>Main Direction Numbers</string>
           </property>
          </widget>
         </item>
         <item>
-         <widget class="QLabel" name="label_MainDirectionNumbers">
+         <widget class="QLabel" name="label_dispMainDirectionNumbers">
+          <property name="sizePolicy">
+           <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
+            <horstretch>0</horstretch>
+            <verstretch>0</verstretch>
+           </sizepolicy>
+          </property>
+          <property name="font">
+           <font>
+            <pointsize>12</pointsize>
+            <weight>75</weight>
+            <bold>true</bold>
+           </font>
+          </property>
+          <property name="autoFillBackground">
+           <bool>true</bool>
+          </property>
+          <property name="frameShadow">
+           <enum>QFrame::Sunken</enum>
+          </property>
           <property name="text">
            <string/>
           </property>
          </widget>
+        </item>
+        <item>
+         <widget class="QLabel" name="label_minmum_angle">
+          <property name="text">
+           <string>Minmum Angle:</string>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QDoubleSpinBox" name="doubleSpinBox_minAngle"/>
         </item>
         <item>
          <spacer name="horizontalSpacer_5">
@@ -206,7 +275,7 @@
          </widget>
         </item>
         <item row="0" column="1">
-         <widget class="QSlider" name="horizontalSlider">
+         <widget class="QSlider" name="horizontalSlider_Slayer">
           <property name="orientation">
            <enum>Qt::Horizontal</enum>
           </property>
@@ -220,7 +289,7 @@
          </widget>
         </item>
         <item row="1" column="1">
-         <widget class="QSlider" name="horizontalSlider_2">
+         <widget class="QSlider" name="horizontalSlider_Elayer">
           <property name="orientation">
            <enum>Qt::Horizontal</enum>
           </property>
@@ -244,19 +313,6 @@
          <widget class="QDoubleSpinBox" name="doubleSpinBox_lineWidth"/>
         </item>
         <item>
-         <spacer name="horizontalSpacer_4">
-          <property name="orientation">
-           <enum>Qt::Horizontal</enum>
-          </property>
-          <property name="sizeHint" stdset="0">
-           <size>
-            <width>40</width>
-            <height>20</height>
-           </size>
-          </property>
-         </spacer>
-        </item>
-        <item>
          <widget class="QLabel" name="Label_setStepValue_3">
           <property name="text">
            <string>&amp;Curve Margin</string>
@@ -269,10 +325,6 @@
         <item>
          <widget class="QDoubleSpinBox" name="doubleSpinBox_curveMargin"/>
         </item>
-       </layout>
-      </item>
-      <item>
-       <layout class="QHBoxLayout" name="horizontalLayout_2">
         <item>
          <widget class="QLabel" name="Label_setMRFValue">
           <property name="text">
@@ -285,6 +337,47 @@
         </item>
         <item>
          <widget class="QDoubleSpinBox" name="doubleSpinBox_MRFLambda"/>
+        </item>
+        <item>
+         <widget class="QLabel" name="label">
+          <property name="text">
+           <string>Letter Margin</string>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QDoubleSpinBox" name="doubleSpinBox_letterMargin"/>
+        </item>
+        <item>
+         <spacer name="horizontalSpacer_4">
+          <property name="orientation">
+           <enum>Qt::Horizontal</enum>
+          </property>
+          <property name="sizeHint" stdset="0">
+           <size>
+            <width>40</width>
+            <height>20</height>
+           </size>
+          </property>
+         </spacer>
+        </item>
+       </layout>
+      </item>
+      <item>
+       <layout class="QHBoxLayout" name="horizontalLayout_2">
+        <item>
+         <widget class="QCheckBox" name="checkBox_dispProcess">
+          <property name="text">
+           <string>Display Reconstruction Process</string>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QCheckBox" name="checkBox_dispModel">
+          <property name="text">
+           <string>Display Final Model</string>
+          </property>
+         </widget>
         </item>
         <item>
          <spacer name="horizontalSpacer_2">
@@ -300,9 +393,16 @@
          </spacer>
         </item>
         <item>
-         <widget class="QPushButton" name="pushButton_2">
+         <widget class="QPushButton" name="pushButton_floorplanRec">
           <property name="text">
-           <string>Begining</string>
+           <string>OK</string>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QPushButton" name="pushButton">
+          <property name="text">
+           <string>Cancel</string>
           </property>
          </widget>
         </item>
@@ -314,7 +414,7 @@
    <item>
     <widget class="QGroupBox" name="GroupBox_modelingCeiling">
      <property name="enabled">
-      <bool>false</bool>
+      <bool>true</bool>
      </property>
      <property name="title">
       <string>Modeling Ceiling</string>
@@ -328,12 +428,152 @@
      <property name="checked">
       <bool>false</bool>
      </property>
+     <layout class="QHBoxLayout" name="horizontalLayout_16">
+      <item>
+       <layout class="QVBoxLayout" name="verticalLayout_4">
+        <item>
+         <widget class="QCheckBox" name="checkBox_edit_mode">
+          <property name="text">
+           <string>Edit Mode</string>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QPushButton" name="pushButton_addCeilingPlane">
+          <property name="text">
+           <string>Add Ceiling plane</string>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <layout class="QHBoxLayout" name="horizontalLayout_9">
+          <item>
+           <widget class="QPushButton" name="pushButton_acceptFloorPlygon">
+            <property name="text">
+             <string>Accept</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QPushButton" name="pushButton_cancelFloorPolygon">
+            <property name="text">
+             <string>Cancel</string>
+            </property>
+           </widget>
+          </item>
+         </layout>
+        </item>
+       </layout>
+      </item>
+      <item>
+       <spacer name="horizontalSpacer_3">
+        <property name="orientation">
+         <enum>Qt::Horizontal</enum>
+        </property>
+        <property name="sizeHint" stdset="0">
+         <size>
+          <width>71</width>
+          <height>20</height>
+         </size>
+        </property>
+       </spacer>
+      </item>
+      <item>
+       <layout class="QVBoxLayout" name="verticalLayout_6">
+        <item>
+         <widget class="QCheckBox" name="checkBox_adjustment_mode">
+          <property name="text">
+           <string>Adjustment Mode</string>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <layout class="QHBoxLayout" name="horizontalLayout_15">
+          <item>
+           <widget class="QPushButton" name="pushButton_selecPointsOnEditPlane">
+            <property name="text">
+             <string>Select Points</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QPushButton" name="pushButton_bundleVertices">
+            <property name="text">
+             <string>Bundle Planes</string>
+            </property>
+           </widget>
+          </item>
+         </layout>
+        </item>
+        <item>
+         <layout class="QHBoxLayout" name="horizontalLayout_10">
+          <item>
+           <widget class="QPushButton" name="pushButton_accetpAdjusment">
+            <property name="text">
+             <string>Accept</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QPushButton" name="pushButton_cancelAdjustment">
+            <property name="text">
+             <string>Cancel</string>
+            </property>
+           </widget>
+          </item>
+         </layout>
+        </item>
+       </layout>
+      </item>
+      <item>
+       <spacer name="horizontalSpacer_7">
+        <property name="orientation">
+         <enum>Qt::Horizontal</enum>
+        </property>
+        <property name="sizeHint" stdset="0">
+         <size>
+          <width>70</width>
+          <height>20</height>
+         </size>
+        </property>
+       </spacer>
+      </item>
+      <item>
+       <layout class="QVBoxLayout" name="verticalLayout_5">
+        <item>
+         <layout class="QHBoxLayout" name="horizontalLayout_14">
+          <item>
+           <widget class="QPushButton" name="pushButton_birdView">
+            <property name="text">
+             <string>Bird View</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QPushButton" name="pushButton_lateralView">
+            <property name="text">
+             <string>Lateral View</string>
+            </property>
+           </widget>
+          </item>
+         </layout>
+        </item>
+        <item>
+         <widget class="QPushButton" name="pushButton_DTsOnEditPlane">
+          <property name="text">
+           <string>Delaunay Triangulation</string>
+          </property>
+         </widget>
+        </item>
+       </layout>
+      </item>
+     </layout>
     </widget>
    </item>
    <item>
     <widget class="QGroupBox" name="GroupBox_IGM">
      <property name="enabled">
-      <bool>false</bool>
+      <bool>true</bool>
      </property>
      <property name="title">
       <string>Image Guided Modeling</string>
@@ -344,41 +584,105 @@
      <property name="checked">
       <bool>false</bool>
      </property>
-     <layout class="QHBoxLayout" name="horizontalLayout_6">
+     <layout class="QHBoxLayout" name="horizontalLayout_13">
       <item>
-       <layout class="QHBoxLayout" name="horizontalLayout_3">
+       <layout class="QVBoxLayout" name="verticalLayout_7">
         <item>
-         <widget class="QLabel" name="label_setImageNumber">
-          <property name="text">
-           <string>Select An Image</string>
+         <layout class="QHBoxLayout" name="horizontalLayout_3">
+          <item>
+           <widget class="QPushButton" name="pushButton_PolygonPlanes">
+            <property name="autoFillBackground">
+             <bool>true</bool>
+            </property>
+            <property name="text">
+             <string>Get Ploygon Planes</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QPushButton" name="pushButton_beginGTSDetection_">
+            <property name="autoFillBackground">
+             <bool>true</bool>
+            </property>
+            <property name="text">
+             <string>GTS Detection</string>
+            </property>
+           </widget>
+          </item>
+         </layout>
+        </item>
+        <item>
+         <widget class="QPushButton" name="pushButton_backprojection">
+          <property name="autoFillBackground">
+           <bool>true</bool>
           </property>
-          <property name="buddy">
-           <cstring>spinBox_imageID</cstring>
+          <property name="text">
+           <string>Back Projection</string>
           </property>
          </widget>
         </item>
+       </layout>
+      </item>
+      <item>
+       <spacer name="horizontalSpacer_8">
+        <property name="orientation">
+         <enum>Qt::Horizontal</enum>
+        </property>
+        <property name="sizeHint" stdset="0">
+         <size>
+          <width>154</width>
+          <height>20</height>
+         </size>
+        </property>
+       </spacer>
+      </item>
+      <item>
+       <layout class="QVBoxLayout" name="verticalLayout_8">
         <item>
-         <widget class="QSpinBox" name="spinBox_imageID"/>
+         <layout class="QHBoxLayout" name="horizontalLayout_11">
+          <item>
+           <layout class="QHBoxLayout" name="horizontalLayout_6">
+            <item>
+             <widget class="QLabel" name="label_2">
+              <property name="text">
+               <string>Window Depth</string>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="QDoubleSpinBox" name="doubleSpinBox_windowDepth"/>
+            </item>
+           </layout>
+          </item>
+          <item>
+           <widget class="QPushButton" name="pushButton_addWindowPlanes">
+            <property name="autoFillBackground">
+             <bool>true</bool>
+            </property>
+            <property name="text">
+             <string>Add Window Planes</string>
+            </property>
+           </widget>
+          </item>
+         </layout>
         </item>
         <item>
-         <spacer name="horizontalSpacer_3">
-          <property name="orientation">
-           <enum>Qt::Horizontal</enum>
-          </property>
-          <property name="sizeHint" stdset="0">
-           <size>
-            <width>40</width>
-            <height>20</height>
-           </size>
-          </property>
-         </spacer>
-        </item>
-        <item>
-         <widget class="QPushButton" name="pushButton">
-          <property name="text">
-           <string>Begining</string>
-          </property>
-         </widget>
+         <layout class="QHBoxLayout" name="horizontalLayout_12">
+          <item>
+           <widget class="QPushButton" name="pushButton_accpectWindowPlanes">
+            <property name="text">
+             <string>Aceept </string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QPushButton" name="pushButton_cacelWindowPlanes">
+            <property name="text">
+             <string>Cancel</string>
+            </property>
+           </widget>
+          </item>
+         </layout>
         </item>
        </layout>
       </item>
@@ -396,10 +700,9 @@
   <tabstop>pushButton_insistRegionDetection</tabstop>
   <tabstop>pushButton_divide_slices</tabstop>
   <tabstop>pushButton_mainDireciongs</tabstop>
-  <tabstop>horizontalSlider</tabstop>
-  <tabstop>horizontalSlider_2</tabstop>
-  <tabstop>pushButton_2</tabstop>
-  <tabstop>pushButton</tabstop>
+  <tabstop>horizontalSlider_Slayer</tabstop>
+  <tabstop>horizontalSlider_Elayer</tabstop>
+  <tabstop>pushButton_floorplanRec</tabstop>
  </tabstops>
  <resources/>
  <connections/>

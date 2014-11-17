@@ -134,7 +134,6 @@ private:
     SW::FloorPlanDialog * m_floorplanRec_;
 
 
-
     //------------------------------------------variables------------------------------------------//
 
     // dense points
@@ -142,13 +141,13 @@ private:
 
     // remaining point ids
     // it is used for remove some noisy points
-    QVector<int> m_pt_ids_;
+    QVector<uint> m_pt_ids_;
 
     // vertices
     QVector<Vec3> m_vertices_;
 
     // facets of the mesh
-    QVector<QVector<int> > m_facets_;
+    QVector<QVector<uint> > m_facets_;
 
     // texture coords of each vertex
     QVector<QVector2D> m_texture_coords_;
