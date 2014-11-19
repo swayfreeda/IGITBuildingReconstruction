@@ -113,6 +113,48 @@ float meanDistance(vector<Point> &points)
 
 
 
+//-----------------------------------------meanDistance-------------------------------------------------------//
+float meanDistance(QVector<Point> &points)
+{
+    int Knn = 5 +1;
+
+    cv::Mat samples(points.size(), 3, CV_32FC1);
+    cv::Mat query(points.size(), 3, CV_32FC1);
+
+    cv::Mat dists(points.size(), Knn, CV_64FC1);
+    cv::Mat indices;
+
+    for(int i=0; i<points.size(); i++)
+    {
+        samples.at<float>(i, 0) = points[i].x;
+        samples.at<float>(i, 1) = points[i].y;
+        samples.at<float>(i, 2) = points[i].z;
+
+        query.at<float>(i, 0) = points[i].x;
+        query.at<float>(i, 1) = points[i].y;
+        query.at<float>(i, 2) = points[i].z;
+
+    }
+    cv::flann::KDTreeIndexParams params(4);
+    cv::flann::Index neighbours_search(samples, params);
+    neighbours_search.knnSearch(query, indices, dists, Knn, cv::flann::SearchParams(128));
+
+    float distance;
+    float num = 0;
+    for(int i=0; i< dists.rows; i++)
+    {
+        for(int j=1; j< dists.cols; j++)
+        {
+            distance += sqrt( dists.at<float>(i, j));
+            num ++;
+        }
+    }
+
+    return distance/num;
+}
+
+
+
 
 //----------------------------------------knnNeighbours-------------------------------------------------------//
 vector<vector<int> > knnNeighbours(int Knn, vector<Vec3> &querys,
@@ -172,6 +214,90 @@ vector<vector<int> > knnNeighbours(int Knn, vector<Vec3> &querys,
     indices.release();
 
     return neighbours;
+}
+
+
+
+
+
+
+//-----------------------------------------knnClusterNeighbours------------------------------------------------//
+vector<vector<int> > knnClusterNeighbours(int Knn, vector<vector<PointXYZRGBNormal> > &clusters,
+                                          vector<vector<float> >&cluster_distances )
+{
+    Knn = min(Knn, (int)clusters.size());
+
+    vector<vector<int> > cluster_neighbrs;
+    cluster_neighbrs.resize(clusters.size());
+
+    cluster_distances.resize(clusters.size());
+
+    vector<Vec3> samples; //所有的点
+    vector<int> labels; //  所有点的标签
+    for(int i=0; i< clusters.size(); i++)
+    {
+        for(int j=0; j< clusters[i].size(); j++)
+        {
+            Vec3 point(clusters[i][j].x, 0, clusters[i][j].z);
+            samples.push_back(point);
+
+            labels.push_back(i);
+        }
+    }
+
+
+    for(int i=0; i< clusters.size(); i++)
+    {
+        int label_s =  i;
+
+        vector<Vec3> sub_clusters;
+        for(int j=0; j< clusters[i].size(); j++)
+        {
+            Vec3 point(clusters[i][j].x, 0, clusters[i][j].z);
+            sub_clusters.push_back(point);
+        }
+
+        vector<vector<float > > distances;
+        vector<vector<int> > sub_neighbrs = knnNeighbours(100, sub_clusters, samples, distances);
+
+        vector<float > tables;
+        tables.resize(clusters.size(), numeric_limits<float>::max());
+
+        //  对于每一个点的邻居
+        for(int j=0; j< sub_neighbrs.size(); j++)
+        {
+            for(int k=0; k< sub_neighbrs[j].size(); k++)
+            {
+                int id = sub_neighbrs[j][k];
+                int label_n = labels[id];
+
+                if(label_n ==label_s) continue;
+
+                if(distances[j][k]< tables[label_n] )
+                {
+                    tables[label_n] = distances[j][k];
+                }
+            }
+        }
+
+        vector<pair<int, float> >sort_dist;
+        for(int j=0;  j< tables.size(); j++)
+        {
+            sort_dist.push_back(make_pair(j, tables[j]));
+        }
+        sort(sort_dist.begin(), sort_dist.end(), comparePairFloatLess);
+        for(int j=0; j< Knn; j++)
+        {
+            if(sort_dist[j].second != numeric_limits<float> ::max())
+            {
+                cluster_neighbrs[i].push_back(sort_dist[j].first);
+                cluster_distances[i].push_back(sort_dist[j].second);
+            }
+        }
+    }
+
+    return cluster_neighbrs;
+
 }
 
 
@@ -261,6 +387,138 @@ void bilateralFilterNormal(vector<Point> &points, float window, float angle)
     }
 }
 
+
+
+
+//----------------------------------------bilaterFilterPosition-----------------------------------------------//
+void bialteralFilterPosition(vector<Point> &points, float window, float angle)
+{
+    // 计算最近邻
+    vector<Vec3> samples;
+    samples.resize(points.size());
+    for(int i=0; i< points.size(); i++)
+    {
+        samples[i].x_ = points[i].x;
+        samples[i].y_ = 0;
+        samples[i].z_ = points[i].z;
+    }
+
+    int Knn =points.size()< 30? points.size(): 30;
+    vector<vector<float> > dist;
+    vector<vector<int> > neighbours = knnNeighbours(Knn, samples,samples, dist);
+
+    vector<float> filtered_positions;
+    filtered_positions.resize(points.size());
+
+    int iter = 0;
+
+    while(iter < 10)
+    {
+        for(int i=0; i< points.size(); i++)
+        {
+            Vec3 pos0(points[i].x, 0, points[i].z);
+            Vec3 normal0(points[i].normal_x, points[i].normal_y, points[i].normal_z);
+
+            vector< float > weights;
+            weights.resize(neighbours[i].size(), 0);
+            for(int j = 0; j< neighbours[i].size(); j++)
+            {
+                int index = neighbours[i][j];
+
+                if (index == i) continue;
+                if(index< 0|| index> points.size()) continue;
+                Vec3 pos1(points[index].x,0, points[index].z);
+                Vec3 normal1(points[index].normal_x,
+                             points[index].normal_y,
+                             points[index].normal_z);
+
+                Vec3 diff = pos1 - pos0;
+                float r = diff.norm();
+
+                float weight0 =  Gaussian(r, 0, window);
+                float weight1 = normalSimlaity(normal0, normal1, angle);
+
+                weights[j] = weight0 * weight1;
+            }
+
+
+            float Wsum = accumulate(weights.begin(), weights.end(), 0.0);
+            if(Wsum == 0)continue;
+
+            filtered_positions[i] = 0;
+            // filtered_positions[i] = Vec3(0, 0, 0);
+            for(int j = 0; j< neighbours[i].size(); j++)
+            {
+                int index = neighbours[i][j];
+
+                if (index == i) continue;
+                if(index< 0|| index> points.size()) continue;
+                Vec3 pos1(points[index].x, points[index].y, points[index].z);
+
+                float u = normal0*(pos1 - pos0);
+                //                filtered_positions[i] =  filtered_positions[i]
+                //                        + u* weights[j]* normal0/Wsum ;
+                filtered_positions[i] += u* weights[j]/Wsum;
+            }
+        }
+
+
+        for(int i=0; i< points.size(); i++)
+        {
+            points[i].x += filtered_positions[i]* points[i].normal_x;
+            points[i].y += filtered_positions[i]* points[i].normal_y;
+            points[i].z += filtered_positions[i]* points[i].normal_z;
+        }
+
+        iter ++;
+    }
+
+}
+
+
+
+
+//----------------------------------------leastSquareFittingLine----------------------------------------------//
+vector<float> leastSquareFittingLine(vector<Point>pts)
+{
+    cv::Mat features(pts.size(), 2, CV_32FC1);
+    cv::Mat mean(1, 2, CV_32FC1);
+    mean.setTo(0);
+
+    for(int i=0; i<pts.size(); i++)
+    {
+        features.at<float>(i, 0) = pts[i].x;
+        features.at<float>(i, 1) = pts[i].z;
+
+        mean.at<float>(0) += pts[i].x/ pts.size();
+        mean.at<float>(1) += pts[i].z/ pts.size();
+    }
+
+    for(int i=0; i<features.rows; i++)
+    {
+        features.at<float>(i,0) -= mean.at<float>(0);
+        features.at<float>(i,1) -= mean.at<float>(1);
+    }
+
+    cv::SVD svd;
+    cv::Mat S,U,V;
+    svd.compute(features.t()*features/pts.size(),S,U,V);
+
+    vector<float> params;
+    params.resize(3);
+    params[0] = U.at<float>(0, 1);
+    params[1] = U.at<float>(1, 1);
+    params[2] = - params[0]*mean.at<float>(0)
+            - params[1]*mean.at<float>(1);
+
+    S.release();
+    U.release();
+    V.release();
+    features.release();
+
+    return params;
+
+}
 
 
 
@@ -407,6 +665,67 @@ void centersMerging(const vector<Vec3> &input, const vector< float>&input_weight
 
     }
 
+}
+
+
+
+
+
+//----------------------------------------lineRelationShape----------------------------------------------------//
+LineType lineRelationShape(vector<float>&line0,vector<float>&line1, float TR)
+{
+
+    if(line0.size()==3&& line1.size()==3)
+    {
+        Vec3 l0(line0[0], 0, line0[1]);
+        Vec3 l1(line1[0], 0, line1[1]);
+
+        l0.normalize();
+        l1.normalize();
+
+        float product = abs(l0*l1);
+        float angle = acos(product)*180/3.1415;
+
+        float d = abs(line0[2] - line1[2]);
+
+        if(angle< 15&& d> TR) return PARALLEL;
+        if(angle< 15&& d< TR) return COLINEAR;
+        else if(angle>=15) return INTERSET;
+    }
+
+}
+
+
+
+
+//-----------------------------------------Intersection--------------------------------------------------------//
+Point intersection(vector<float>&line0, vector<float>&line1)
+{
+    //if(line0.size()==3&& line1.size()==3)
+   // {
+
+        cv::Mat A (2, 3, CV_32FC1);
+        for(int i=0; i< A.cols; i++)
+        {
+            A.at<float>(0, i) = line0[i];
+            A.at<float>(1, i) = line1[i];
+        }
+
+        cv::Mat S, U, V;
+        cv::SVD svd;
+        svd.compute(A.t()*A,S,U,V);
+
+        PointXYZRGBNormal pt;
+        pt.x = V.at<float>(2, 0)/V.at<float>(2,2);
+        pt.y = 0;
+        pt.z = V.at<float>(2, 1)/V.at<float>(2,2);
+
+        S.release();
+        U.release();
+        V.release();
+
+        return pt;
+  //  }
 }
 
 

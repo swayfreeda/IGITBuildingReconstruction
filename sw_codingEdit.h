@@ -130,97 +130,136 @@ public:
 using namespace SW;
 
 
-/************************* 如果每一层含有多个轮廓，
-                       则对轮廓进行调整，保证是按照同一顺序排列*******************/
+/////////////////////////////////////////SUBCURVESPOSITIONADJUSTMENT///////////////////////////////
+//如果每一层含有多个轮廓，则对轮廓进行调整，保证是按照同一顺序排列
 void subCurvesPositionAdjustment(vector<vector<PointXYZRGBNormal> > &curves, 
                                  Vec3&ref_pt);
 
 
-/*************************对提取的轮廓进行对齐，保证起始位置一致******************/
+
+/////////////////////////////////////////STARTPOSADJUSTMENT////////////////////////////////////////
+// 对提取的轮廓进行对齐，保证起始位置一致
 void startPosAdjustment(vector<vector<PointXYZRGBNormal> > & curves, Vec3 &ref_pt);
 
 
 
-/************************** 创建编码字典，每一个有向线段用一个字符代表************/
+//////////////////////////////////////////MAKE_DICTIONARY//////////////////////////////////////////
+//创建编码字典，每一个有向线段用一个字符代表
 map<Letter, string> make_dictionary(vector<vector<PointXYZRGBNormal> > &allCorners);
 
 
-/************************* 对每一个轮廓进行编码*****************************************/
+
+
+//////////////////////////////////////////CODING///////////////////////////////////////////////////
+// 对每一个轮廓进行编码
 string  coding(vector<PointXYZRGBNormal>&corners, map<Letter, string> &dictionary);
 
 
 
-
-/************************* 对所有的层的轮廓进行编码************************************/
+////////////////////////////////////////CONVERTCURVESTOWORDS///////////////////////////////////////
+//对所有的层的轮廓进行编码
 vector<string>  convertCurvesToWords(vector<vector<vector< PointXYZRGBNormal> > > &allCorners,
                                      map<Letter, string> & table);
 
 
-/*************************重载输出流*********************************************/
+
+//////////////////////////////////////////OPERATOR << //////////////////////////////////////////////
+//重载输出流
 ostream &operator << (ostream& os, const Letter& let);
 
 
 
-/*************************计算编辑距离******************************************/
+//////////////////////////////////////////EDITDIST///////////////////////////////////////////////////
+//计算编辑距离
 int EditDist(string str0, string str1 );
 
 
-/*************************加算相似性********************************************/
+
+//////////////////////////////////////////SIMILARITY///////////////////////////////////////////////////
+//加算相似性
 float similarity(string str0, string str1);
 
 
-/*************************对字符串进行聚类 本质上是一个统计的过程*****************/
+
+//////////////////////////////////////////CODECENTERCLUSTRING//////////////////////////////////////////
+//对字符串进行聚类 本质上是一个统计的过程
 vector<string > codeCentersClustering(vector<string> &words, vector<float> &weights,
                                       vector<vector<PointXYZRGBNormal> > &start_pos, vector<vector<PointXYZRGBNormal> > &centers_pos);
 
-/*************************多目标分配----图优化 ***********************************/
-vector<string> multiLabelAssignment(vector<string>& words, vector<string> &centers, 
-                                    vector<float>&weights, vector<vector<PointXYZRGBNormal> > &start_pos, vector<vector<PointXYZRGBNormal> > &centers_pos, float sim_thresh, float labmda);
 
-/************************从每层的编码中获取BLOCK3*********************************/
+
+//////////////////////////////////////////MULTILABELASSIGNMENT///////////////////////////////////////
+//多目标分配----图优化
+vector<string> multiLabelAssignment(vector<string>& words, vector<string> &centers, 
+                                    vector<float>&weights, vector<vector<PointXYZRGBNormal> > &start_pos,
+                                    vector<vector<PointXYZRGBNormal> > &centers_pos, float sim_thresh, float labmda);
+
+
+
+
+///////////////////////////////////////////GETBLOCKS///////////////////////////////////////////////////
+//从每层的编码中获取BLOCK3
 vector<Block3> getBlocks(vector<string> &words, vector<vector<PointXYZRGBNormal> >& start_pts, float step);
 
-/************************** 解码，由字符串得到一个轮廓并进行重建*******************/
+
+
+
+///////////////////////////////////////////DECODING//////////////////////////////////////////////////
+//解码，由字符串得到一个轮廓并进行重建
 vector<PointXYZRGBNormal> deCoding(string &word, map<string, Letter> &table_inv);
 
 
-/*************************对Block进行重建*************************/
+
+
+///////////////////////////////////////////BCLOCKRECONSTRUCTION////////////////////////////////////
+//对Block进行重建*************************/
 // Block3::word_中含有多个轮廓，每个轮廓的字符由空格间隔
 // 重建出的轮廓存储在Block3::curves_中
 void blockReconstruction(vector<Block3> &blocks, map<string, Letter> &table_inv);
 
 
-/************************对Blocks进行后处理，去掉相邻的Block之间的间隙*************/
+
+/////////////////////////////////////////POSPROCESSING/////////////////////////////////////////////
+//对Blocks进行后处理，去掉相邻的Block之间的间隙
 void posProcessing(vector<Block3> &blocks, float TR);
 
 
-//******************判断编码是否有效***********************************************/
+/////////////////////////////////////////ISWORDVALID///////////////////////////////////////////////
+//判断编码是否有效
 bool isWordValid(string &word);
 
 
-/**********************对提取的轮廓进行调整，保证曲线是按照逆时针方向旋转***********************/
+
+////////////////////////////////////////STARTDIRECIONADJUSTMENT////////////////////////////////////
+//对提取的轮廓进行调整，保证曲线是按照逆时针方向旋转
 void startDirectionAdjustment(vector<vector<PointXYZRGBNormal> > &curves);
 
 
 
-//**********************将未进行编码之前的模型三角化，保存成OFF文件***************************//
+////////////////////////////////////////WRITEURVESTOOFFFILE////////////////////////////////////////
+//将未进行编码之前的模型三角化，保存成OFF文件
 void writeCurvesToOFFFile(vector<vector<vector<PointXYZRGBNormal> > > & allcorners, string file_dir);
 
 
-/**********************将BLOCK进行三角化，并保存成OFF文件*********************************/
+
+///////////////////////////////////////WRITEBLOCKSTOOFFFILE////////////////////////////////////////
+//将BLOCK进行三角化，并保存成OFF文件
 void writeBlocksToOFFFile(const vector<Block3> &blocks, string file_dir);
 
 
-/************************从编码的曲线中获取三角面片****************************************************/
+
+////////////////////////////////////////GETTINGTRAINGULATIONSFRMALLCORNERS//////////////////////////
+//从编码的曲线中获取三角面片
 void gettingTriangulationsFromAllCorners(const vector<vector<vector<PointXYZRGBNormal> > > & allcorners,
-                                         vector<Vec3>& vertices, vector<vector<int> > & facets);
+                                         vector<Vec3>& vertices, vector<vector<int> > &facets);
 
 
-/*************************从blocks 中获取三角面片******************************************************/
+/////////////////////////////////////////GETTINGTRIANGULATIONSFROMBLOCKS///////////////////////////
+//从blocks 中获取三角面片
 void gettingTriangulationsFromBlocks(const vector<Block3> &blocks, vector<Vec3>& vertices, vector<vector<int> >&facets);
 
 
-
+////////////////////////////////////////WRITEOFFILES/////////////////////////////////////////////////
 void writeOFFFiles(const vector<Vec3>& vertices, const vector<vector<int> >&facets, string file_dir);
 
 #endif

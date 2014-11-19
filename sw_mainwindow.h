@@ -77,12 +77,12 @@ public slots:
     void loadData();
 
 
-    //---------------------------------------save points---------------------------//
+    //-------------------------------save points------------------------------------//
     // save dense points to PLY File
     void savePoints();
 
 
-    //---------------------------------------message-------------------------------//
+    //----------------------------------message-------------------------------------//
     // show message from viwer on status bar
     void viewerMessageToStatusBar(QString str)
     {
@@ -91,7 +91,37 @@ public slots:
     }
 
 
-    //----------------------------------------floorplan reconstruction---------------//
+    //----------------------------------addPlaneListItem----------------------------//
+    // add a plane to the plane list widgets
+    inline  void addPlaneListItem(QString name)
+    {
+        QListWidgetItem * item = new QListWidgetItem(name);
+
+        planeListWidget->addItem(item);
+
+        update();
+    }
+
+
+    //-----------------------------------setCurrentPlane3D---------------------------//
+    inline void setCurrentPlane3D(QListWidgetItem* item)
+    {
+
+        QString name(item->text());
+
+        if(m_plane3Ds_.contains(name))
+        {
+            m_current_plane3D_ = m_plane3Ds_[name];
+        }
+        else
+        {
+            QMessageBox::warning(this,tr("Information"), tr("Plane Does not Existed!"));
+        }
+        update();
+    }
+
+
+    //-----------------------------floorplan reconstruction------------------------//
     // begin floorplan reconstruction
     void floorPlanReconstruction(bool flag)
     {
@@ -108,7 +138,7 @@ public slots:
         {
             m_floorplanRec_->hide();
         }
-       update();
+        update();
     }
 
 
@@ -120,7 +150,7 @@ signals:
 
 private:
 
-     bool m_floorpan_reconstruction_;
+    bool m_floorpan_reconstruction_;
 
 
     //------------------------------------------class structures-----------------------------------//
@@ -134,29 +164,56 @@ private:
     SW::FloorPlanDialog * m_floorplanRec_;
 
 
-    //------------------------------------------variables------------------------------------------//
 
-    // dense points
-    QVector<Point> m_points_;
 
-    // remaining point ids
-    // it is used for remove some noisy points
-    QVector<uint> m_pt_ids_;
+    //------------------------variables for dense points--------------------------------//
+    // pointcloud constaines points with normals, rgbs, positions and visibilities
+    // also there is a function for computing the center  of the pointcloud
+    // and a function for computing the bounding box of the pointcloud
+    PointCloud m_pc_;
 
-    // vertices
-    QVector<Vec3> m_vertices_;
 
-    // facets of the mesh
-    QVector<QVector<uint> > m_facets_;
+    //-------------------------varaibles for mesh---------------------------------------//
+    // g_mesh containes the vertices, facets and edges of the mesh
+    // edges are calculated from vertices and facets
+    Mesh m_mesh_;
 
-    // texture coords of each vertex
-    QVector<QVector2D> m_texture_coords_;
 
+
+    //------------------------variables for plane3D--------------------------------------//
+    // g_plane3Ds_ containes all the plane structures in the scene, inlcuding:
+    // *normal of the plane
+    // *parameters of the plane
+    // *vertices that are in the plane
+    // *texture_coordinates of the verices
+    // *facets of the mesh
+    // *boundaries of the plane
+    // *coordinates system of the plane
+    // *window boundaries of the plane
+    QMap<QString, Plane3D> m_plane3Ds_;
+
+
+    // current plane pointer
+    Plane3D  m_current_plane3D_;
+
+
+
+    //-------------------------variables for images---------------------------------------//
     // images of all the scene
     QMap< QString, QImage> m_images_;
 
-    // projection matrixes
+
+
+
+    //-------------------------variables for cameras--------------------------------------//
+    // *projection matrixes
+    // *positions
+    // *directions
+    // *colors
+    // *focal
     QMap< QString, Camera> m_cameras_;
+
+
 
     // multi-thread
     QThread m_thread_;

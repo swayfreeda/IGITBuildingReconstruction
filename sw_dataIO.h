@@ -65,7 +65,7 @@ public:
 
     // * return variables:
     //  vertices:  3D points containing point colors, coordinates, normals, and so on
-    bool loadPointsFromPLY(QVector<Point> & vertices);
+    bool loadPointsFromPLY(PointCloud &pc);
 
 
 

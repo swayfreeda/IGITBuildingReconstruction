@@ -177,6 +177,7 @@
     <addaction name="actionFlat"/>
     <addaction name="actionTexture"/>
     <addaction name="actionCameras"/>
+    <addaction name="actionAll_Planes_Triangulations"/>
    </widget>
    <widget class="QMenu" name="helpMenu">
     <property name="title">
@@ -254,7 +255,36 @@
    <attribute name="dockWidgetArea">
     <number>1</number>
    </attribute>
-   <widget class="QWidget" name="dockWidgetContents"/>
+   <widget class="QWidget" name="dockWidgetContents">
+    <widget class="QScrollArea" name="planeLsitScrollArea">
+     <property name="geometry">
+      <rect>
+       <x>9</x>
+       <y>-1</y>
+       <width>201</width>
+       <height>421</height>
+      </rect>
+     </property>
+     <property name="widgetResizable">
+      <bool>true</bool>
+     </property>
+     <widget class="QWidget" name="planeScrollAreaWidgetContents">
+      <property name="geometry">
+       <rect>
+        <x>0</x>
+        <y>0</y>
+        <width>199</width>
+        <height>419</height>
+       </rect>
+      </property>
+      <layout class="QVBoxLayout" name="verticalLayout_2">
+       <item>
+        <widget class="QListWidget" name="planeListWidget"/>
+       </item>
+      </layout>
+     </widget>
+    </widget>
+   </widget>
   </widget>
   <action name="loadDataAction">
    <property name="icon">
@@ -788,6 +818,14 @@
    </property>
    <property name="text">
     <string>Inconsistent Region</string>
+   </property>
+  </action>
+  <action name="actionAll_Planes_Triangulations">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>All Planes Triangulations</string>
    </property>
   </action>
  </widget>

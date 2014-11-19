@@ -18,7 +18,11 @@ HEADERS += \
     graph.h \
     energy.h \
     block.h \
-    sw_alpha_expansion.h
+    sw_alpha_expansion.h \
+    sw_cornerExtraction.h \
+    sw_graph_vec.h \
+    sw_regionGrowing.h \
+    sw_cgal_mesh_processing.h
 FORMS += mainwindow.ui \
     FloorPlan.ui
 SOURCES += main.cpp \
@@ -32,8 +36,12 @@ SOURCES += main.cpp \
     sw_graph_str.cpp \
     sw_codingEdit.cpp \
     graph.cpp \
-    alpha_expansion.cpp \
-    maxflow.cpp
+    maxflow.cpp \
+    sw_alpha_expansion.cpp \
+    sw_cornerExtraction.cpp \
+    sw_graph_vec.cpp \
+    sw_regionGrowing.cpp \
+    sw_cgal_mesh_processing.cpp
 
 INCLUDEPATH +=  /usr/include/qt4/QtCore     \
                  /usr/include/qt4/QtGui      \
@@ -43,6 +51,8 @@ INCLUDEPATH +=  /usr/include/qt4/QtCore     \
                  /usr/include/qt4/QtXml/
 
 LIBS  +=    -L/usr/X11R6/lib64 -lQtOpenGL -lQtGui -lQtCore  -lpthread\
-             -lQGLViewer -lGLEW -lglut  -lGL  -lGLU  \
-            -L/usr/local/lib/   -lopencv_core  -lopencv_flann -lopencv_highgui -lopencv_imgproc -lopencv_legacy
+             -lCGAL  -lQGLViewer -lGLEW -lglut  -lGL  -lGLU  -lboost_system -lboost_thread  \
+            -L/usr/local/lib/   -lopencv_core  -lopencv_flann -lopencv_highgui -lopencv_imgproc -lopencv_legacy \
+            -L/usr/lib/x86_64-linux-gnu/ -lgmp -lmpfr
+
 

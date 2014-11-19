@@ -125,7 +125,8 @@ QVector<QString> SW::DATAIO::getCameraDirs()
 
 
 //-------------------------------------------loadPointsFromPLY----------------------------//
-bool SW::DATAIO::loadPointsFromPLY(QVector<Point> & vertices)
+// can read multi files
+bool SW::DATAIO::loadPointsFromPLY(PointCloud & pc)
 {
 
     QVector< QString>  file_names = getPLYFileDirs();
@@ -208,7 +209,7 @@ bool SW::DATAIO::loadPointsFromPLY(QVector<Point> & vertices)
                 qApp->processEvents();
                 if (progress.wasCanceled())
                 {
-                    vertices.clear();
+                    pc.p_points_.clear();
                     return false;
                 }
             }
@@ -216,7 +217,7 @@ bool SW::DATAIO::loadPointsFromPLY(QVector<Point> & vertices)
 
         foreach(Point pt, sub_cluster)
         {
-            vertices.append(pt);
+            pc.p_points_.append(pt);
         }
         sub_cluster.clear();
         counter ++;

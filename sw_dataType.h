@@ -16,11 +16,12 @@
 
 #include <iostream>
 #include <string>
-#include<QVector>
+#include <QVector>
 #include <QColor>
+#include <QPair>
+#include <QVector2D>
 
 using namespace std;
-
 
 
 ////////////////////////////////////////////////PointXY///////////////////////////////////////////////////////////////////
@@ -31,13 +32,13 @@ public:
     PointXY(){x = 0; y=0;}
     PointXY(const PointXY&pt)
     {
-       this->x = pt.x;
-       this->y = pt.y;
+        this->x = pt.x;
+        this->y = pt.y;
     }
     PointXY(float x, float y)
     {
-      this->x = x;
-      this->y = y;
+        this->x = x;
+        this->y = y;
     }
 
     PointXY & operator- (const PointXY & pt)
@@ -50,14 +51,13 @@ public:
 
     PointXY &operator = (const PointXY & pt)
     {
-      this->x = pt.x;
-      this->y = pt.y;
+        this->x = pt.x;
+        this->y = pt.y;
     }
 
     float x;
     float y;
 };
-
 
 
 ////////////////////////////////////////////////PointXYZ///////////////////////////////////////////////////////////////////
@@ -68,15 +68,15 @@ public:
     PointXYZ(){}
     PointXYZ(const PointXYZ&pt)
     {
-      this->x = pt.x;
-      this->y = pt.y;
-      this->z = pt.z;
+        this->x = pt.x;
+        this->y = pt.y;
+        this->z = pt.z;
     }
     PointXYZ(float x, float y, float z)
     {
-       this->x = x;
-       this->y = y;
-       this->z = z;
+        this->x = x;
+        this->y = y;
+        this->z = z;
     }
 
     PointXYZ & operator =(const PointXYZ & pt)
@@ -106,7 +106,6 @@ public:
 };
 
 
-
 ////////////////////////////////////////////////PointXYZRGB////////////////////////////////////////////////////////////////
 class PointXYZRGB
 {
@@ -115,31 +114,31 @@ public:
     PointXYZRGB(){}
     PointXYZRGB(const PointXYZRGB&pt)
     {
-       this->x = pt.x;
-       this->y = pt.y;
-       this->z = pt.z;
+        this->x = pt.x;
+        this->y = pt.y;
+        this->z = pt.z;
 
-       this->r = pt.r;
-       this->g = pt.g;
-       this->b = pt.b;
-       
-       this->isProcessed = pt.isProcessed;
-       this->id = pt.id;
+        this->r = pt.r;
+        this->g = pt.g;
+        this->b = pt.b;
 
-       this-> vis = pt.vis;
-       this-> inconsist_ = pt.inconsist_;
+        this->isProcessed = pt.isProcessed;
+        this->id = pt.id;
+
+        this-> vis = pt.vis;
+        this-> inconsist_ = pt.inconsist_;
 
     }
     PointXYZRGB(float x, float y, float z, uchar r, uchar g, uchar b)
-   {
+    {
         this->x = x;
         this->y = y;
         this->z = z;
-     
+
         this->r = (float)r;
         this->g = (float)g;
         this->b = (float)b;
-   }
+    }
 
     bool isProcessed;
 
@@ -227,7 +226,7 @@ public:
 };
 
 
-///////////////////////////////////////////////PointXYZRGBNrmal/////////////////////////////////////////////////////////////
+///////////////////////////////////////////////PointXYZRGBNormal/////////////////////////////////////////////////////////////
 class PointXYZRGBNormal
 {
 public:
@@ -378,8 +377,7 @@ public:
 };
 
 
-
-////////////////////////////////////////////////Vec3//////////////////////////////////////////////////////////////////////////
+/////////////////////////////////////////////////Class Vec3//////////////////////////////////////////////////////////////////////////
 class Vec3{
 
 public:
@@ -463,30 +461,30 @@ public:
             z_ /= l;
         }
     }
-   
-    // 进行map的排序的操作 如果v1 和 v2 之间相互不存在小于的关系，则认为v1 和 v2 相同
-     bool operator < ( const Vec3& v) const 
-     {
-         bool flag0 = false;
-         bool flag1 = false;
-         bool flag2 = false;
 
-         if(this->x_ != v.x_)
-         {
-           flag0 =  this->x_< v.x_ ? true: false;
-         }
-         if((this->x_== v.x_)&& ( this->y_ != v.y_ ))
-         {
-           flag1 =  this->y_< v.y_ ? true: false;
-         }
-         if( (this->x_ == v.x_)&&(this->y_ == v.y_)
-                 &&(this->z_ != v.z_ ))
-         {
-           flag2 =  this->z_ < v.z_? true: false;
-         }
+    // 进行map的排序的操作 如果v1 和 v2 之间相互不存在小于的关系，则认为v1 和 v2 相同
+    bool operator < ( const Vec3& v) const
+    {
+        bool flag0 = false;
+        bool flag1 = false;
+        bool flag2 = false;
+
+        if(this->x_ != v.x_)
+        {
+            flag0 =  this->x_< v.x_ ? true: false;
+        }
+        if((this->x_== v.x_)&& ( this->y_ != v.y_ ))
+        {
+            flag1 =  this->y_< v.y_ ? true: false;
+        }
+        if( (this->x_ == v.x_)&&(this->y_ == v.y_)
+                &&(this->z_ != v.z_ ))
+        {
+            flag2 =  this->z_ < v.z_? true: false;
+        }
 
         return flag0||flag1||flag2;
-     }
+    }
 
 public:
     float x_;
@@ -503,7 +501,8 @@ float operator *(const Vec3& vl, const Vec3& vr);
 ostream& operator <<(ostream os, const Vec3 v);
 Vec3 cross(const Vec3 &vl, const Vec3 &vr);
 
-////////////////////////////////////////////////Line3D//////////////////////////////////////////////////////////////////////
+
+////////////////////////////////////////////////Class Line3D//////////////////////////////////////////////////////////////////////
 class Line3D
 {
 public:
@@ -516,7 +515,7 @@ public:
 
 public:
 
-     enum LineType{VERTICAL, PARALLEL, COLINEAR};
+    enum LineType{VERTICAL, PARALLEL, COLINEAR};
 
     PointXYZRGBNormal pt1_;
     PointXYZRGBNormal pt2_;
@@ -524,8 +523,7 @@ public:
 };
 
 
-
-////////////////////////////////////////////////Camera//////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////Class Camera//////////////////////////////////////////////////////////////////////
 class Camera{
 
 public:
@@ -561,24 +559,24 @@ public:
 
     Camera(const Camera &cam )
     {
-       this->focal_ = focal_;
-       cam.rotation_.copyTo(this->rotation_);
-       cam.trans_.copyTo((this->trans_));
-       cam.project_.copyTo(this->project_);
+        this->focal_ = focal_;
+        cam.rotation_.copyTo(this->rotation_);
+        cam.trans_.copyTo((this->trans_));
+        cam.project_.copyTo(this->project_);
 
-       this->k0 = cam.k0;
-       this->k1 = cam.k1;
+        this->k0 = cam.k0;
+        this->k1 = cam.k1;
 
-       cam.pos_.copyTo(this->pos_);
-       cam.dir_.copyTo(this->dir_);
+        cam.pos_.copyTo(this->pos_);
+        cam.dir_.copyTo(this->dir_);
 
-       this->img_dir_ = cam.img_dir_;
-       this->color_ = cam.color_;
+        this->img_dir_ = cam.img_dir_;
+        this->color_ = cam.color_;
 
 
-       cam.xaxis_.copyTo(this->xaxis_);
-       cam.yaxis_.copyTo(this->yaxis_);
-       cam.zaxis_.copyTo(this->zaxis_);
+        cam.xaxis_.copyTo(this->xaxis_);
+        cam.yaxis_.copyTo(this->yaxis_);
+        cam.zaxis_.copyTo(this->zaxis_);
 
     }
 
@@ -639,6 +637,209 @@ public:
     cv::Mat xaxis_;
     cv::Mat yaxis_;
     cv::Mat zaxis_;
+};
+
+
+////////////////////////////////////////////////Class PointCloud//////////////////////////////////////////////////////////////////
+class PointCloud
+{
+
+    typedef PointXYZRGBNormal Point;
+
+public:
+    // constructor
+    PointCloud(){
+
+        p_points_.clear();
+        p_pt_ids_.clear();
+
+        p_Xmin_= 0;
+        p_Ymin_= 0;
+        p_Zmin_= 0;
+
+        p_Xmax_= 0;
+        p_Ymax_= 0;
+        p_Zmax_= 0;
+
+        p_center_x_ = 0;
+        p_center_y_ = 0;
+        p_center_z_ = 0;
+    }
+
+    QVector<Point> p_points_;
+    QVector<uint> p_pt_ids_;
+
+    uint ptNum(){return p_pt_ids_.size();}
+
+    // compute the bouding box of the pointcloud
+    void compute_bounding_box();
+
+    //compute the center of the point cloud
+    void compute_center();
+
+    float xmin(){return p_Xmin_;}
+    float ymin(){return p_Ymin_;}
+    float zmin(){return p_Zmin_;}
+
+    float xmax(){return p_Xmax_;}
+    float ymax(){return p_Ymax_;}
+    float zmax(){return p_Zmax_;}
+
+    float centerx(){return p_center_x_;}
+    float centery(){return p_center_y_;}
+    float centerz(){return p_center_z_;}
+
+private:
+
+    float p_Xmin_;
+    float p_Ymin_;
+    float p_Zmin_;
+
+    float p_Xmax_;
+    float p_Ymax_;
+    float p_Zmax_;
+
+    float p_center_x_;
+    float p_center_y_;
+    float p_center_z_;
+
+};
+
+
+////////////////////////////////////////////////CLASS MESH////////////////////////////////////////////////////////////////////////
+class Mesh
+{
+
+public:
+    Mesh(){
+        m_vertices_.clear();
+        m_facets_.clear();
+        m_edges_.clear();
+        m_texture_coords_.clear();
+    }
+
+    // get m_edges_ from the vertices and the facets
+    void computeEdges();
+
+    QVector<Vec3> m_vertices_;
+    QVector<QVector<uint> > m_facets_;
+    QVector<QPair<uint, uint> > m_edges_;
+    QVector<QVector2D> m_texture_coords_;
+};
+
+
+////////////////////////////////////////////////CLASS PLANE3D//////////////////////////////////////////////////////////////////////
+class Plane3D
+{
+public:
+
+    Plane3D(){
+
+        p_vertices_.clear();
+        p_facets_.clear();
+        p_boundary3Ds_.clear();
+        p_window_boundary3Ds_.clear();
+
+        p_d_ = 0;
+    }
+
+    // copy constructor
+    Plane3D(const Plane3D & p)
+    {
+        this->p_color_ = p.p_color_;
+        this->p_normal_ = p.p_normal_;
+        this-> p_d_ = p.p_d_;
+        this->p_vertices_ = p.p_vertices_;
+        this-> p_facets_ = p.p_facets_;
+        this->p_boundary3Ds_ = p.p_boundary3Ds_;
+        this->p_window_boundary3Ds_ = p.p_window_boundary3Ds_;
+        this->p_frame_x_ = p.p_frame_x_;
+        this->p_frame_y_ = p.p_frame_y_;
+        this->p_center_ = p.p_center_;
+    }
+
+    // copy
+    Plane3D & operator =(const Plane3D & p)
+    {
+        this->p_color_ = p.p_color_;
+        this->p_normal_ = p.p_normal_;
+        this-> p_d_ = p.p_d_;
+        this->p_vertices_ = p.p_vertices_;
+        this-> p_facets_ = p.p_facets_;
+        this->p_boundary3Ds_ = p.p_boundary3Ds_;
+        this->p_window_boundary3Ds_ = p.p_window_boundary3Ds_;
+        this->p_frame_x_ = p.p_frame_x_;
+        this->p_frame_y_ = p.p_frame_y_;
+        this->p_center_ = p.p_center_;
+
+        return *this;
+    }
+
+    // fit a plane to the points stores in P
+    void fittingPlane(vector<Vec3> &points);
+
+    // implement constraint traingulation on a plane and save an OFF file with name file_name
+    void constraint_triangulation();
+
+    // get the OFF file format from the facets
+    void updateTriangulations(vector<vector<Vec3> >facets);
+    // draw boundary of this plane
+    //void draw();
+
+    // draw delaunary triangulation
+    void drawTriangulation();
+
+    // draw i th delaunary triangulation
+    void drawTriangulation(int i);
+
+    // draw facets and edges
+    void drawTriangulationWithEdges(int i);
+
+    // convert 3D to 2D
+    PointXY cvt3Dto2D(const Vec3 &pt3D);
+
+    // convert 2D to 3D
+    Vec3 cvt2Dto3D(const PointXY &pt2D);
+
+    // get boundary of plane from triangulations from triangulations
+    void getBoundaryFromTriangulations();
+
+    // eliminate some points that are on the same line
+    void boundaryProcessing();
+
+    // adjust normal direction according to the direction of the boundary to make it CCW
+    void adjustNormalDirection();
+
+    // make each triangulation of a plane to be counterclockwise
+    void makePlaneFacetsCCW();
+
+
+public:
+
+    QColor p_color_;
+
+    /******************another version*************************************************/
+    Vec3 p_normal_;
+    float p_d_;
+
+    // vertices of all the scenes // or vertices of each plane individual???
+    // which is convienent need to be considered// need to be update the global
+    // triangulations in the final
+    QVector<Vec3> p_vertices_;
+
+    QVector<QVector<uint> > p_facets_;
+
+    // boundaries of the plane
+    QVector<QVector<Vec3> > p_boundary3Ds_;
+
+    // boundaries of the windows that are attached to the plane
+    QVector<QVector<Vec3> > p_window_boundary3Ds_;
+
+    // coordinat system
+    Vec3 p_frame_x_; // the coordinates of the plane
+    Vec3 p_frame_y_;
+    Vec3 p_center_;
+
 };
 
 #endif // DATATYPE_H

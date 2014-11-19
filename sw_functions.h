@@ -20,6 +20,13 @@ using namespace std;
 
 typedef PointXYZRGBNormal Point;
 
+
+// relationship between lines
+enum LineType{ PARALLEL, INTERSET , COLINEAR};
+
+
+
+
 // 11/07/2014 add functions
 ////////////////////////////////////ANGle-AXIS METHOD///////////////////////////////////////////////
 // get a angle and a axis from two vectors
@@ -44,6 +51,19 @@ float angleAxisFromDirections(Vec3 & src, Vec3& dest, Vec3 & axis);
 float meanDistance(vector<Point> &points);
 
 
+
+////////////////////////////////////MEANDISTANCE/////////////////////////////////////////////////////
+// compute the mean distances for the points. For each point compute the distances between its
+// K neighbours, and then the whole mean distances is obtained by computing the mean of all.
+// Another version
+// **input
+// points-- input points
+float meanDistance(QVector<Point> &points);
+
+
+
+
+
 ////////////////////////////////////KNNNEIGHBOURS////////////////////////////////////////////////////
 // compute the K nearest neighbours from points for each query
 // **input
@@ -55,13 +75,55 @@ vector<vector<int> > knnNeighbours(int Knn, vector<Vec3> &querys,
                                    vector<Vec3> &points, vector<vector<float> > &distances);
 
 
+
+
+/////////////////////////////////////////////////////////////////////////////////////////////////////
+// compute the K neareast neighbours of the clusters
+// **input
+// Knn-- number of the nearest neighbours
+// clusters--  input clusters to process
+// cluster_distances-- distances between the neareast neigbours
+// **return
+// indices of K nearest neigbours of each cluster
+
+vector<vector<int> > knnClusterNeighbours(int Knn, vector<vector<Point> >& clusters,
+                                          vector<vector<float> >&cluster_distances );
+
+
+
+
+
 //////////////////////////////////////BILATERALFILTERNOMAL////////////////////////////////////////////
-// conduct bilateral filter on normal
+// conduct bilateral filter on normals
 // **input
 // points-- containes normals
 // window-- the window for bilateral filter
 // angle-- the minimum angle for filtering
 void bilateralFilterNormal(vector<Point> &points, float window, float angle);
+
+
+
+
+
+/////////////////////////////////////BIALTERALFILTERPOSITION/////////////////////////////////////////
+// conduct bilater filter on positions
+// **input
+// points--input points with normals, rgbs, normals
+// window-- the window for bilater filtering
+// angle-- the angle thresh for filtering
+void bialteralFilterPosition(vector<Point> &points, float window, float angle);
+
+
+
+
+
+//////////////////////////////////////LEASTSQUAREFILTTINGLINE///////////////////////////
+// fitting a line on data by the least square method
+// ** input
+// pts-- input points to fit a line
+vector<float> leastSquareFittingLine(vector<Point> pts);
+
+
 
 
 
@@ -75,6 +137,7 @@ void bilateralFilterNormal(vector<Point> &points, float window, float angle);
 // labels--  labels of each samples, the label indicated which cluster the sample is belong to
 void EMClustering(const vector<Vec3> &samples, int nCluster,
                   vector<Vec3> &centers, vector<float> &weights,vector<int> &labels);
+
 
 
 
@@ -94,12 +157,42 @@ void centersMerging(const vector<Vec3> &input, const vector< float>&input_weight
 
 
 
+
+///////////////////////////////////////////LINERELATIONSHAPE///////////////////////////////////////////
+// compute the relationshape between two lines(Parallel,  Intersect or Colinear )
+// **input
+// line0 -- the first line
+// line1 -- the second line
+// TR    -- the threshold for judging
+// ** return
+// LineType ( Parallel, Intersect or Colinear)
+LineType lineRelationShape(vector<float>&line0,vector<float>&line1, float TR);
+
+
+
+
+
+////////////////////////////////////////////INTERSECTION//////////////////////////////////////////////
+// calculate the intersectio of two lines
+// **input
+// line0-- the first line
+// line1-- the second line
+// **return
+// Point the intersecting point of two lines
+Point intersection(vector<float>&line0, vector<float>&line1);
+
+
+
+
+
 ///////////////////////////////////////////COMPAREPAIRFLOATGREAT//////////////////////////////////////
 bool comparePairFloatGreat(pair<int,float> p1, pair<int, float> p2);
 
 
+
 ///////////////////////////////////////////COMPAREPAIRFLOATLESS///////////////////////////////////////
 bool comparePairFloatLess(pair<int,float> p1, pair<int, float> p2);
+
 
 
 

@@ -5,69 +5,17 @@
 #define VALUE0 0
 #define VALUE1 1
 
-////////////////////////////////////////////////////////////////////////////////////////////////
+/////////////////////////////////////////ERROR_FUNCTION/////////////////////////////////////////
 void error_function(char *msg)
 {
     //fprintf(stderr, "%s\n", msg);
     exit(1);
 }
-////////////////////////////////////////////////////////////////////////////////////////////////
-void  alpha_expansion::computeKnnNeighbours(int Knn)
-{
-  neighbrs_.clear();
-  vector<vector<float> > dist;
-  neighbrs_ =  knnNeighbours(Knn, input_, input_, dist);
-}
-////////////////////////////////////////////////////////////////////////////////////////////////
-double alpha_expansion:: data_term(int id, int label)
-{
-    Vec3 normal = input_[id];
-    Vec3 center = centers_[label];
 
-    normal.normalize();
-    center.normalize();
 
-    double u = normal * center;
-
-    u = min(u, 1.0);
-    u = max(-1.0, u);  //abs(u)> 1 则返回NAN
-
-    return acos(u)* 180/ 3.1416;
-}
-////////////////////////////////////////////////////////////////////////////////////////////////
-double alpha_expansion:: smooth_term(int xid, int yid, int xlabel, int ylabel)
-{
-   double E = 0;
-
-   if(xlabel != ylabel)
-   {
-       Vec3 normal0 = input_[xid];
-       Vec3 normal1 = input_[yid];
-
-       normal0.normalize();
-       normal1.normalize();
-
-       double u = normal0 * normal1;
-
-       u = min(u, (double)1.0);
-       u = max((double)-1.0, u);  //abs(u)> 1 则返回NAN
-
-       double angle = acos(u)* 180/ 3.1416;
-
-       if(angle < angle_thresh_)
-       {
-          E += 3*lambda_;
-       }
-       else
-       {
-          E += lambda_;
-       }
-   }
-
-   return E;
-}
-////////////////////////////////////////////////////////////////////////////////////////////////
-void  alpha_expansion:: computeEnergy()
+//////////////////////////////////////////COMPUTENERGY/////////////////////////////////////////
+template< class T>
+void alpha_expansion_base<T>:: computeEnergy()
 {
   E_ = 0;
 
@@ -92,8 +40,12 @@ void  alpha_expansion:: computeEnergy()
       }
   }
 }
-////////////////////////////////////////////////////////////////////////////////////////////////
-double  alpha_expansion:: expansion()
+
+
+
+//////////////////////////////////////////EXPANSION///////////////////////////////////////
+template<class T>
+double  alpha_expansion_base<T>:: expansion()
 {
     Energy *e = new Energy (error_function);
     Energy::Var Var_p, Var_q;
@@ -188,8 +140,11 @@ double  alpha_expansion:: expansion()
     return E_new;
 }
 
-////////////////////////////////////////////////////////////////////////////////////////////////
-void  alpha_expansion::optimization()
+
+
+///////////////////////////////////////////OPTIMIZATION//////////////////////////////////////////
+template<class T>
+void  alpha_expansion_base<T>::optimization()
 {
 
     labels_.resize(input_.size(), 0);
@@ -229,3 +184,9 @@ void  alpha_expansion::optimization()
     }
 
 }
+
+
+template class alpha_expansion_base<Vec3>;
+template class alpha_expansion_base<string>;
+
+

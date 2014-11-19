@@ -18,7 +18,8 @@ SW::MainWindow::MainWindow()
 
     // alloc for the pointers
     m_dataIO_ = new SW::DATAIO();
-    m_floorplanRec_ = new SW::FloorPlanDialog(this, &m_points_, &m_pt_ids_);
+    m_floorplanRec_ = new SW::FloorPlanDialog(this, &m_pc_, &m_mesh_, &m_plane3Ds_);
+    m_floorplanRec_->setCurrentPlane3DPtr(&m_current_plane3D_);
 
 
     QActionGroup *displayActions = new QActionGroup(this);
@@ -31,13 +32,12 @@ SW::MainWindow::MainWindow()
 
 
     //--------------------------------SET SHARED POINTER--------------------------------//
-    viewer->setDensePointsPtr(&m_points_);
-    viewer->setMeshVerticesPtr(&m_vertices_);
-    viewer->setMeshFacetsPtr(&m_facets_);
-    viewer->setMeshTextureCoordsPtr(&m_texture_coords_);
-    viewer->setCamerasPtr(&m_cameras_);
-    viewer->setPtIdsPtr(&m_pt_ids_);
+    viewer->setPointCloudPtr(&m_pc_);
+    viewer->setMeshPtr(&m_mesh_);
+    viewer->setPlane3DPtr(&m_plane3Ds_);
+    viewer->setCurrentPlane3D(&m_current_plane3D_);
     viewer->setFloorPlanDisplay(&m_floorplanRec_->p_floorplan_displays_);
+
 
 
     //---------------------------------SIGNALS  AND SLOTS------------------------------//
@@ -64,17 +64,35 @@ SW::MainWindow::MainWindow()
 
 
     //---------------------------------FloorPlan Reconstruction--------------------------------------------//
-    // begin floor plan reconstruction
+    // start floor plan reconstruction
     connect(actionFloorPlanReconstuction, SIGNAL(triggered(bool)), this, SLOT(floorPlanReconstruction(bool)));
+
 
     // display inconsistent region
     connect(m_floorplanRec_->checkBox_dispInconsist, SIGNAL(stateChanged(int)), viewer, SLOT(toggle_display_inconsist_pts(int)));
+
     // display slices
     connect(m_floorplanRec_->checkBox_dispSices, SIGNAL(stateChanged(int)), viewer, SLOT(toggle_display_slices(int)));
+
+    //display modelling process
+    connect(m_floorplanRec_->checkBox_dispProcess, SIGNAL(stateChanged(int)), viewer, SLOT(toggle_display_modelling_process(int)) );
+
+    // display modelling results
+    connect(m_floorplanRec_->checkBox_dispModel, SIGNAL(stateChanged(int)), viewer, SLOT(toggle_display_modellding_results(int)));
+
+    // display all plane triangulations
+    connect(actionAll_Planes_Triangulations, SIGNAL(triggered(bool)), viewer, SLOT(toggle_display_all_planes_trians(bool)));
+
+    // add new plane3D
+    connect(m_floorplanRec_, SIGNAL(createNewPlane(QString)), this, SLOT(addPlaneListItem(QString)));
+
+    // set current plane3D
+    connect(planeListWidget, SIGNAL(itemClicked(QListWidgetItem*)), this, SLOT(setCurrentPlane3D(QListWidgetItem*)) );
 
     // update GL
     connect(m_floorplanRec_->getIncinsistDetector(), SIGNAL(updateGLViewer()), viewer, SLOT(updateGLViewer()));
     connect(m_floorplanRec_->getSlicesCalculator(), SIGNAL(updateGLViewer()), viewer,  SLOT(updateGLViewer()));
+    connect(m_floorplanRec_->getFloorPlanReconstructor(), SIGNAL(updateGLViewer()), viewer,SLOT(updateGLViewer()));
 }
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////
 SW::MainWindow::~MainWindow()
@@ -92,16 +110,21 @@ void SW::MainWindow::loadData()
     m_dataIO_->setFolderDir(folder_name);
 
     //------------------------- load points from ply files---------------------------------//
-    if(m_dataIO_->loadPointsFromPLY(m_points_))
+    if(m_dataIO_->loadPointsFromPLY(m_pc_))
     {
-        for(uint i=0; i< m_points_.size(); i++)
+        for(uint i=0; i< m_pc_.p_points_.size(); i++)
         {
-            m_pt_ids_.append(i);
+            m_pc_.p_pt_ids_.append(i);
         }
 
-
-        QString outputText = QString("%1 points").arg(m_points_.size());
+        QString outputText = QString("%1 points").arg(m_pc_.ptNum());
         statusBar()->showMessage(outputText);
+
+        // compute the bounding box of the point cloud
+        m_pc_.compute_bounding_box();
+
+        // compute the center of the point cloud
+        m_pc_.compute_center();
 
         actionDense_Points->setEnabled(true);
         emit displayDensePoints(true);
@@ -170,6 +193,8 @@ void SW::MainWindow::loadData()
     // acitive the floor plan reconstruction
     actionFloorPlanReconstuction->setEnabled(true);
 }
+
+
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////
 void SW::MainWindow::savePoints()
 {

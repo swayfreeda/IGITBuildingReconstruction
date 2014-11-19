@@ -1,7 +1,7 @@
 /********************************************************************************
 ** Form generated from reading UI file 'FloorPlan.ui'
 **
-** Created: Mon Nov 17 18:58:55 2014
+** Created: Wed Nov 19 16:23:15 2014
 **      by: Qt User Interface Compiler version 4.8.1
 **
 ** WARNING! All changes made in this file will be lost when recompiling UI file!
@@ -516,7 +516,7 @@ public:
 
         GroupBox_IGM = new QGroupBox(FloorPlanDialog);
         GroupBox_IGM->setObjectName(QString::fromUtf8("GroupBox_IGM"));
-        GroupBox_IGM->setEnabled(false);
+        GroupBox_IGM->setEnabled(true);
         GroupBox_IGM->setCheckable(false);
         GroupBox_IGM->setChecked(false);
         horizontalLayout_13 = new QHBoxLayout(GroupBox_IGM);

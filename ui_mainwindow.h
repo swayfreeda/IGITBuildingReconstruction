@@ -1,7 +1,7 @@
 /********************************************************************************
 ** Form generated from reading UI file 'mainwindow.ui'
 **
-** Created: Mon Nov 17 22:18:26 2014
+** Created: Wed Nov 19 16:58:36 2014
 **      by: Qt User Interface Compiler version 4.8.1
 **
 ** WARNING! All changes made in this file will be lost when recompiling UI file!
@@ -89,6 +89,7 @@ public:
     QAction *actionCameras;
     QAction *actionFloorPlanReconstuction;
     QAction *actionInconsistent_Region;
+    QAction *actionAll_Planes_Triangulations;
     QWidget *centralwidget;
     QVBoxLayout *verticalLayout;
     SW::GLViewer *viewer;
@@ -109,6 +110,10 @@ public:
     QToolBar *toolBar_3;
     QDockWidget *dockWidget;
     QWidget *dockWidgetContents;
+    QScrollArea *planeLsitScrollArea;
+    QWidget *planeScrollAreaWidgetContents;
+    QVBoxLayout *verticalLayout_2;
+    QListWidget *planeListWidget;
 
     void setupUi(QMainWindow *MainWindow)
     {
@@ -328,6 +333,9 @@ public:
         actionInconsistent_Region = new QAction(MainWindow);
         actionInconsistent_Region->setObjectName(QString::fromUtf8("actionInconsistent_Region"));
         actionInconsistent_Region->setCheckable(true);
+        actionAll_Planes_Triangulations = new QAction(MainWindow);
+        actionAll_Planes_Triangulations->setObjectName(QString::fromUtf8("actionAll_Planes_Triangulations"));
+        actionAll_Planes_Triangulations->setCheckable(true);
         centralwidget = new QWidget(MainWindow);
         centralwidget->setObjectName(QString::fromUtf8("centralwidget"));
         QSizePolicy sizePolicy1(QSizePolicy::Preferred, QSizePolicy::Preferred);
@@ -427,6 +435,21 @@ public:
         dockWidget->setMinimumSize(QSize(215, 41));
         dockWidgetContents = new QWidget();
         dockWidgetContents->setObjectName(QString::fromUtf8("dockWidgetContents"));
+        planeLsitScrollArea = new QScrollArea(dockWidgetContents);
+        planeLsitScrollArea->setObjectName(QString::fromUtf8("planeLsitScrollArea"));
+        planeLsitScrollArea->setGeometry(QRect(9, -1, 201, 421));
+        planeLsitScrollArea->setWidgetResizable(true);
+        planeScrollAreaWidgetContents = new QWidget();
+        planeScrollAreaWidgetContents->setObjectName(QString::fromUtf8("planeScrollAreaWidgetContents"));
+        planeScrollAreaWidgetContents->setGeometry(QRect(0, 0, 199, 419));
+        verticalLayout_2 = new QVBoxLayout(planeScrollAreaWidgetContents);
+        verticalLayout_2->setObjectName(QString::fromUtf8("verticalLayout_2"));
+        planeListWidget = new QListWidget(planeScrollAreaWidgetContents);
+        planeListWidget->setObjectName(QString::fromUtf8("planeListWidget"));
+
+        verticalLayout_2->addWidget(planeListWidget);
+
+        planeLsitScrollArea->setWidget(planeScrollAreaWidgetContents);
         dockWidget->setWidget(dockWidgetContents);
         MainWindow->addDockWidget(static_cast<Qt::DockWidgetArea>(1), dockWidget);
 
@@ -445,6 +468,7 @@ public:
         displayMenu->addAction(actionFlat);
         displayMenu->addAction(actionTexture);
         displayMenu->addAction(actionCameras);
+        displayMenu->addAction(actionAll_Planes_Triangulations);
         toolBar->addSeparator();
         toolBar->addSeparator();
         toolBar->addSeparator();
@@ -574,6 +598,7 @@ public:
         actionCameras->setText(QApplication::translate("MainWindow", "Cameras", 0, QApplication::UnicodeUTF8));
         actionFloorPlanReconstuction->setText(QApplication::translate("MainWindow", "FloorPlan Reconstuction", 0, QApplication::UnicodeUTF8));
         actionInconsistent_Region->setText(QApplication::translate("MainWindow", "Inconsistent Region", 0, QApplication::UnicodeUTF8));
+        actionAll_Planes_Triangulations->setText(QApplication::translate("MainWindow", "All Planes Triangulations", 0, QApplication::UnicodeUTF8));
         fileMenu->setTitle(QApplication::translate("MainWindow", "&File", 0, QApplication::UnicodeUTF8));
         editMenu->setTitle(QApplication::translate("MainWindow", "&Edit", 0, QApplication::UnicodeUTF8));
         settingMenu->setTitle(QApplication::translate("MainWindow", "&Setting", 0, QApplication::UnicodeUTF8));

@@ -15,9 +15,9 @@
 
 #include"ui_FloorPlan.h"
 #include "sw_dataType.h"
+#include"sw_codingEdit.h"
 
 ////#include"SW_PointCloud.h"
-////#include"codingEdit.h"
 //#include"gts_repetitiveStructure.h"
 
 #include <QApplication>
@@ -48,8 +48,21 @@ public:
     FloorPlanDisplay(){}
 
 public:
+
+    // indices of points in slice
     QVector<QVector<uint> > f_slice_pt_ids_;
+
+    // ycoordinates of each slice
     QVector<float> f_Y_coords_;
+
+    // semiplanes of slice data
+    QVector<QVector<Vec3> > f_semi_planes_;
+
+    // starting layer
+    QVector<Vec3> f_starting_layer_boundary_;
+
+    // endding layer
+    QVector<Vec3> f_ending_layer_boundary_;
 
 };
 
@@ -169,7 +182,46 @@ public:
     inline void setLetterMargin(double v){ p_Letter_margin_ = v;}
     inline double getLetterMargin(){return p_Letter_margin_;}
 
+
 protected slots:
+
+    // set starting layer number
+    inline void starttingLayerChanged(int v)
+    {
+        setStartingLayer(v);
+    }
+
+    // set ending layer number
+    inline void endingLayerChanged(int v)
+    {
+        setEndingLayer(v);
+    }
+
+    // set line width
+    inline void lineWidthChanged(double v)
+    {
+        setRGLineWidth(v);
+    }
+
+    // set curve margin
+    inline void curveMarginChanged(double v)
+    {
+        setLinkingCurvesMargin(v);
+    }
+
+    //set MRF Lambda
+    inline void MRFLambdaChanged(double v)
+    {
+       setMRFLambda(v);
+    }
+
+    // set Letter Margin Changed
+    inline void LetterMarginChanged(double v)
+    {
+        setLetterMargin(v);
+    }
+
+
     /*
      * reconstruct buiding layer by layer
      */
@@ -178,18 +230,30 @@ protected slots:
 signals:
     void enableModelingCeiling();
 
+    void updateGLViewer();
+
 private:
 
     //shared point cloud pointer
     FloorPlanDialog* m_floor_plan_;
 
 
+    // the indice of the starting layer
     int p_starting_layer_;
+
+    // the indice of the ending layer
     int p_ending_layer_;
 
+    // the max width of the line for region growing
     double p_RG_line_width_;
+
+    // the max margin between two curves
     double p_linking_curves_margin_;
+
+    // the lambda for MRF Optimization
     double p_MRF_lambda_;
+
+    // the margin for Letter
     double p_Letter_margin_;
 };
 
@@ -208,7 +272,7 @@ public:
     friend class MainDirectionExtractor;
     friend class FloorPlanReconstructor;
 
-    FloorPlanDialog(QWidget * parent, QVector<Point> * points, QVector<uint> * pt_ids);
+    FloorPlanDialog(QWidget * parent,PointCloud * pc, Mesh * mesh, QMap<QString, Plane3D> * planes);
     FloorPlanDialog(){}
     ~FloorPlanDialog(){}
 
@@ -231,33 +295,9 @@ public:
 
     InconsistenRegionDetector *getIncinsistDetector(){return  p_inconsistent_detector_;}
     SlicesDataCaculator * getSlicesCalculator(){return  p_slices_acculator_; }
+    FloorPlanReconstructor * getFloorPlanReconstructor(){ return p_floorplan_constructor_;}
 
-#if 0
-    inline void setFacetsPtr(QVector<QVector<int> > * facets)
-    {
-        p_facets_ = facets;
-    }
-    inline void setVerticesPtr(QVector<Vec3> * vertices)
-    {
-        p_vertices_ = vertices;
-    }
-    inline void setEdgesPtr(QVector<QPair<int, int> >*edges)
-    {
-        p_edges_ = edges;
-    }
-    inline void setBlocksPtr(QVector<Block3> * blocks)
-    {
-        p_blocks_ = blocks;
-    }
-#endif
-
-    inline void setStartingLayerPtr(QVector<Vec3>* starting_layer){p_starting_layer_boundary_ = starting_layer;}
-    inline void setEndingLayerPtr(QVector<Vec3>* ending_layer){p_ending_layer_boundary_ = ending_layer;}
-
-#if 0
-    inline void setSemiPlanesPtr(QVector<QVector<Vec3> > * semi_planes){ p_semi_planes_ = semi_planes;}
-#endif
-
+    inline void setCurrentPlane3DPtr(Plane3D * ptr){p_current_plane3D_ptr_ = ptr;}
     // QVector<QPolygon > getGTS(){ return p_detected_gts_; }
 
 private slots:
@@ -344,45 +384,15 @@ private slots:
         GroupBox_modelingCeiling->setEnabled(true);
     }
 
-    // set starting layer number
-    inline void starttingLayerChanged(int v)
-    {
-        p_floorplan_constructor_->setStartingLayer(v);
-    }
 
-    // set ending layer number
-    inline void endingLayerChanged(int v)
-    {
-        p_floorplan_constructor_->setEndingLayer(v);
-    }
-
-    // set line width
-    inline void lineWidthChanged(double v)
-    {
-        p_floorplan_constructor_->setRGLineWidth(v);
-    }
-
-    // set curve margin
-    inline void curveMarginChanged(double v)
-    {
-        p_floorplan_constructor_->setLinkingCurvesMargin(v);
-    }
+    ////////////////////////////////////CreatePlanesFromTriangulations////////////////////////////////////////////////
+    // perform a region growing algorithms on the triangulations, triangulations belonging to the same
+    // plane are clustered into the same plane, afterwards, a plane is created, and corresponding
+    // triangulations are added.
+    void createPlanesFromTriangulations();
 
 
-    //set MRF Lambda
-    inline void MRFLambdaChanged(double v)
-    {
-        p_floorplan_constructor_->setMRFLambda(v);
-    }
-
-
-    inline void LetterMarginChanged(double v)
-    {
-        p_floorplan_constructor_->setLetterMargin(v);
-    }
-
-
- #if 0
+#if 0
     // begin GTS detection
     inline void startGTSDetection(){
 
@@ -430,6 +440,8 @@ signals:
 
     void startToDetect(bool, bool);
 
+    void createNewPlane(QString name);
+
     //// void start_gts_detection();
 
 private:
@@ -464,17 +476,11 @@ private:
     // main directions
     QVector<Vec3> p_main_directions_;
 
-    QVector<QVector<uint> > *p_facets_;
-    QVector<Vec3> * p_vertices_;
-    QVector<QPair<uint, uint> > *p_edges_;
-    //// QVector<Block3> *p_blocks_;
-    QVector<QVector<Vec3> > *p_semi_planes_;
-
-    QVector<Vec3>* p_starting_layer_boundary_;
-    QVector<Vec3>* p_ending_layer_boundary_;
-
+    QVector<SW::Block3> p_blocks_;
 
     QThread p_thread_;
+
+    Plane3D * p_current_plane3D_ptr_;
 
 public:
 
@@ -482,8 +488,14 @@ public:
 
 private:
 
-    QVector<Point> * p_points_;
-    QVector<uint> * p_pt_ids_;
+    // point cloud of the scene
+    PointCloud * p_pc_;
+
+    // mesh containes vertices, facets and edges
+    Mesh *p_mesh_;
+
+    // planes of the scene
+    QMap<QString, Plane3D> * p_plane3Ds_;
 };
 }
 
