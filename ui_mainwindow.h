@@ -1,7 +1,7 @@
 /********************************************************************************
 ** Form generated from reading UI file 'mainwindow.ui'
 **
-** Created: Wed Nov 19 16:58:36 2014
+** Created: Wed Nov 26 10:22:15 2014
 **      by: Qt User Interface Compiler version 4.8.1
 **
 ** WARNING! All changes made in this file will be lost when recompiling UI file!
@@ -26,6 +26,7 @@
 #include <QtGui/QToolBar>
 #include <QtGui/QVBoxLayout>
 #include <QtGui/QWidget>
+#include <sw_paintImageWidget.h>
 #include "sw_glviewer.h"
 
 QT_BEGIN_NAMESPACE
@@ -85,11 +86,15 @@ public:
     QAction *actionWireFrame;
     QAction *actionFlat;
     QAction *actionTexture;
-    QAction *actionSave_Points;
+    QAction *savePointsAction;
     QAction *actionCameras;
     QAction *actionFloorPlanReconstuction;
     QAction *actionInconsistent_Region;
     QAction *actionAll_Planes_Triangulations;
+    QAction *actionSingle_Plane_Triangulation;
+    QAction *actionProjection;
+    QAction *loadMeshAction;
+    QAction *saveMeshAction;
     QWidget *centralwidget;
     QVBoxLayout *verticalLayout;
     SW::GLViewer *viewer;
@@ -110,10 +115,12 @@ public:
     QToolBar *toolBar_3;
     QDockWidget *dockWidget;
     QWidget *dockWidgetContents;
+    QVBoxLayout *verticalLayout_3;
     QScrollArea *planeLsitScrollArea;
     QWidget *planeScrollAreaWidgetContents;
     QVBoxLayout *verticalLayout_2;
     QListWidget *planeListWidget;
+    SW::PaintImageWidget *paintImageWidget;
 
     void setupUi(QMainWindow *MainWindow)
     {
@@ -126,6 +133,8 @@ public:
         sizePolicy.setVerticalStretch(0);
         sizePolicy.setHeightForWidth(MainWindow->sizePolicy().hasHeightForWidth());
         MainWindow->setSizePolicy(sizePolicy);
+        MainWindow->setMinimumSize(QSize(0, 500));
+        MainWindow->setMaximumSize(QSize(16777215, 1011));
         loadDataAction = new QAction(MainWindow);
         loadDataAction->setObjectName(QString::fromUtf8("loadDataAction"));
         QIcon icon;
@@ -320,8 +329,8 @@ public:
         actionTexture->setObjectName(QString::fromUtf8("actionTexture"));
         actionTexture->setCheckable(true);
         actionTexture->setEnabled(false);
-        actionSave_Points = new QAction(MainWindow);
-        actionSave_Points->setObjectName(QString::fromUtf8("actionSave_Points"));
+        savePointsAction = new QAction(MainWindow);
+        savePointsAction->setObjectName(QString::fromUtf8("savePointsAction"));
         actionCameras = new QAction(MainWindow);
         actionCameras->setObjectName(QString::fromUtf8("actionCameras"));
         actionCameras->setCheckable(true);
@@ -336,6 +345,16 @@ public:
         actionAll_Planes_Triangulations = new QAction(MainWindow);
         actionAll_Planes_Triangulations->setObjectName(QString::fromUtf8("actionAll_Planes_Triangulations"));
         actionAll_Planes_Triangulations->setCheckable(true);
+        actionSingle_Plane_Triangulation = new QAction(MainWindow);
+        actionSingle_Plane_Triangulation->setObjectName(QString::fromUtf8("actionSingle_Plane_Triangulation"));
+        actionSingle_Plane_Triangulation->setCheckable(true);
+        actionProjection = new QAction(MainWindow);
+        actionProjection->setObjectName(QString::fromUtf8("actionProjection"));
+        actionProjection->setCheckable(true);
+        loadMeshAction = new QAction(MainWindow);
+        loadMeshAction->setObjectName(QString::fromUtf8("loadMeshAction"));
+        saveMeshAction = new QAction(MainWindow);
+        saveMeshAction->setObjectName(QString::fromUtf8("saveMeshAction"));
         centralwidget = new QWidget(MainWindow);
         centralwidget->setObjectName(QString::fromUtf8("centralwidget"));
         QSizePolicy sizePolicy1(QSizePolicy::Preferred, QSizePolicy::Preferred);
@@ -351,7 +370,7 @@ public:
         viewer->setObjectName(QString::fromUtf8("viewer"));
         sizePolicy1.setHeightForWidth(viewer->sizePolicy().hasHeightForWidth());
         viewer->setSizePolicy(sizePolicy1);
-        viewer->setMinimumSize(QSize(310, 0));
+        viewer->setMinimumSize(QSize(330, 0));
         //viewer->setFrameShape(QFrame::StyledPanel);
         //viewer->setFrameShadow(QFrame::Sunken);
 
@@ -370,7 +389,7 @@ public:
         imageScrollArea->setWidgetResizable(true);
         scrollAreaWidgetContents = new QWidget();
         scrollAreaWidgetContents->setObjectName(QString::fromUtf8("scrollAreaWidgetContents"));
-        scrollAreaWidgetContents->setGeometry(QRect(0, 0, 887, 118));
+        scrollAreaWidgetContents->setGeometry(QRect(0, 0, 792, 118));
         horizontalLayout = new QHBoxLayout(scrollAreaWidgetContents);
         horizontalLayout->setObjectName(QString::fromUtf8("horizontalLayout"));
         imageListWidget = new QListWidget(scrollAreaWidgetContents);
@@ -432,24 +451,44 @@ public:
         sizePolicy3.setVerticalStretch(0);
         sizePolicy3.setHeightForWidth(dockWidget->sizePolicy().hasHeightForWidth());
         dockWidget->setSizePolicy(sizePolicy3);
-        dockWidget->setMinimumSize(QSize(215, 41));
+        dockWidget->setMinimumSize(QSize(310, 1099));
+        dockWidget->setMaximumSize(QSize(310, 524287));
         dockWidgetContents = new QWidget();
         dockWidgetContents->setObjectName(QString::fromUtf8("dockWidgetContents"));
+        verticalLayout_3 = new QVBoxLayout(dockWidgetContents);
+        verticalLayout_3->setObjectName(QString::fromUtf8("verticalLayout_3"));
         planeLsitScrollArea = new QScrollArea(dockWidgetContents);
         planeLsitScrollArea->setObjectName(QString::fromUtf8("planeLsitScrollArea"));
-        planeLsitScrollArea->setGeometry(QRect(9, -1, 201, 421));
+        QSizePolicy sizePolicy4(QSizePolicy::Fixed, QSizePolicy::Fixed);
+        sizePolicy4.setHorizontalStretch(0);
+        sizePolicy4.setVerticalStretch(0);
+        sizePolicy4.setHeightForWidth(planeLsitScrollArea->sizePolicy().hasHeightForWidth());
+        planeLsitScrollArea->setSizePolicy(sizePolicy4);
+        planeLsitScrollArea->setMinimumSize(QSize(300, 650));
+        planeLsitScrollArea->setMaximumSize(QSize(16777215, 650));
         planeLsitScrollArea->setWidgetResizable(true);
         planeScrollAreaWidgetContents = new QWidget();
         planeScrollAreaWidgetContents->setObjectName(QString::fromUtf8("planeScrollAreaWidgetContents"));
-        planeScrollAreaWidgetContents->setGeometry(QRect(0, 0, 199, 419));
+        planeScrollAreaWidgetContents->setGeometry(QRect(0, 0, 298, 648));
         verticalLayout_2 = new QVBoxLayout(planeScrollAreaWidgetContents);
         verticalLayout_2->setObjectName(QString::fromUtf8("verticalLayout_2"));
         planeListWidget = new QListWidget(planeScrollAreaWidgetContents);
         planeListWidget->setObjectName(QString::fromUtf8("planeListWidget"));
+        planeListWidget->setAutoFillBackground(true);
 
         verticalLayout_2->addWidget(planeListWidget);
 
         planeLsitScrollArea->setWidget(planeScrollAreaWidgetContents);
+
+        verticalLayout_3->addWidget(planeLsitScrollArea);
+
+        paintImageWidget = new SW::PaintImageWidget(dockWidgetContents);
+        paintImageWidget->setObjectName(QString::fromUtf8("paintImageWidget"));
+        paintImageWidget->setMinimumSize(QSize(300, 350));
+        paintImageWidget->setMaximumSize(QSize(300, 350));
+
+        verticalLayout_3->addWidget(paintImageWidget);
+
         dockWidget->setWidget(dockWidgetContents);
         MainWindow->addDockWidget(static_cast<Qt::DockWidgetArea>(1), dockWidget);
 
@@ -460,7 +499,9 @@ public:
         menubar->addAction(menuDebug->menuAction());
         menubar->addAction(helpMenu->menuAction());
         fileMenu->addAction(loadDataAction);
-        fileMenu->addAction(actionSave_Points);
+        fileMenu->addAction(savePointsAction);
+        fileMenu->addAction(loadMeshAction);
+        fileMenu->addAction(saveMeshAction);
         editMenu->addAction(actionFloorPlanReconstuction);
         displayMenu->addAction(actionDense_Points);
         displayMenu->addAction(actionVertices);
@@ -469,6 +510,8 @@ public:
         displayMenu->addAction(actionTexture);
         displayMenu->addAction(actionCameras);
         displayMenu->addAction(actionAll_Planes_Triangulations);
+        displayMenu->addAction(actionSingle_Plane_Triangulation);
+        menuDebug->addAction(actionProjection);
         toolBar->addSeparator();
         toolBar->addSeparator();
         toolBar->addSeparator();
@@ -594,11 +637,18 @@ public:
         actionWireFrame->setText(QApplication::translate("MainWindow", "WireFrame", 0, QApplication::UnicodeUTF8));
         actionFlat->setText(QApplication::translate("MainWindow", "Flat", 0, QApplication::UnicodeUTF8));
         actionTexture->setText(QApplication::translate("MainWindow", "Texture", 0, QApplication::UnicodeUTF8));
-        actionSave_Points->setText(QApplication::translate("MainWindow", "Save Points", 0, QApplication::UnicodeUTF8));
+        savePointsAction->setText(QApplication::translate("MainWindow", "Save Points", 0, QApplication::UnicodeUTF8));
         actionCameras->setText(QApplication::translate("MainWindow", "Cameras", 0, QApplication::UnicodeUTF8));
         actionFloorPlanReconstuction->setText(QApplication::translate("MainWindow", "FloorPlan Reconstuction", 0, QApplication::UnicodeUTF8));
         actionInconsistent_Region->setText(QApplication::translate("MainWindow", "Inconsistent Region", 0, QApplication::UnicodeUTF8));
         actionAll_Planes_Triangulations->setText(QApplication::translate("MainWindow", "All Planes Triangulations", 0, QApplication::UnicodeUTF8));
+        actionSingle_Plane_Triangulation->setText(QApplication::translate("MainWindow", "Single Plane Triangulation", 0, QApplication::UnicodeUTF8));
+        actionProjection->setText(QApplication::translate("MainWindow", "Projection  ", 0, QApplication::UnicodeUTF8));
+#ifndef QT_NO_TOOLTIP
+        actionProjection->setToolTip(QApplication::translate("MainWindow", "Projection mesh of a plane3D  onto image", 0, QApplication::UnicodeUTF8));
+#endif // QT_NO_TOOLTIP
+        loadMeshAction->setText(QApplication::translate("MainWindow", "Load Mesh", 0, QApplication::UnicodeUTF8));
+        saveMeshAction->setText(QApplication::translate("MainWindow", "Save Mesh", 0, QApplication::UnicodeUTF8));
         fileMenu->setTitle(QApplication::translate("MainWindow", "&File", 0, QApplication::UnicodeUTF8));
         editMenu->setTitle(QApplication::translate("MainWindow", "&Edit", 0, QApplication::UnicodeUTF8));
         settingMenu->setTitle(QApplication::translate("MainWindow", "&Setting", 0, QApplication::UnicodeUTF8));

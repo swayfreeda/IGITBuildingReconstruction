@@ -282,6 +282,9 @@ PointXY  Camera::project(const Vec3 &coord)
     p3D.at<float>(2) = coord.z_;
     p3D.at<float>(3) = 1.0;
 
+    //cout<<"X: "<<  p3D <<endl;
+    //cout<<"Proj: "<< project_<<endl;
+
     cv::Mat ptmp = project_* p3D;
     if(ptmp.at<float>(2)==0)
     {
@@ -293,6 +296,8 @@ PointXY  Camera::project(const Vec3 &coord)
         p2D.x = ptmp.at<float>(0)/ptmp.at<float>(2);
         p2D.y = ptmp.at<float>(1)/ptmp.at<float>(2);
     }
+
+   // cout<<"p2Dx: "<< p2D.x << " p2Dy: "<< p2D.y<<endl;
     ptmp.release();
     p3D.release();
     return p2D;
@@ -424,13 +429,13 @@ void Plane3D::fittingPlane(vector<Vec3> & points)
     svd.compute(covar_matrix, S, U, V);
 
 
-//    p_normal_[0] = U.at<float>(0,2);
-//    p_normal_[1] = U.at<float>(1,2);
-//    p_normal_[2] = U.at<float>(2,2);
+    //    p_normal_[0] = U.at<float>(0,2);
+    //    p_normal_[1] = U.at<float>(1,2);
+    //    p_normal_[2] = U.at<float>(2,2);
 
-//    cout<<"( "<<p_normal_.x_<<", "<<p_normal_.y_<<", "<< p_normal_.z_<<" )---->";
+    //    cout<<"( "<<p_normal_.x_<<", "<<p_normal_.y_<<", "<< p_normal_.z_<<" )---->";
 
-   // normal 通过平面边界的叉乘来计算
+    // normal 通过平面边界的叉乘来计算
     int id0 = p_facets_[0][0];
     int id1 = p_facets_[0][1];
     int id2 = p_facets_[0][2];
@@ -441,7 +446,7 @@ void Plane3D::fittingPlane(vector<Vec3> & points)
     p_normal_ = cross(v10, v21);
     p_normal_.normalize();
 
-//    cout<<"( "<<p_normal_.x_<<", "<<p_normal_.y_<<", "<<p_normal_.z_<<endl;
+    //    cout<<"( "<<p_normal_.x_<<", "<<p_normal_.y_<<", "<<p_normal_.z_<<endl;
 
 
     Vec3 frameZ = p_normal_;
@@ -582,9 +587,9 @@ void Plane3D::drawTriangulationWithEdges(int i)
     // draw facets
     glBegin(GL_TRIANGLES);
     foreach(int id, p_facets_[i])
-      {
-          glVertex3f(p_vertices_[id].x_, p_vertices_[id].y_, p_vertices_[id].z_);
-      }
+    {
+        glVertex3f(p_vertices_[id].x_, p_vertices_[id].y_, p_vertices_[id].z_);
+    }
     glEnd();
 
 
@@ -595,9 +600,9 @@ void Plane3D::drawTriangulationWithEdges(int i)
     glBegin(GL_LINE_LOOP);
 
     foreach(int id, p_facets_[i])
-      {
-          glVertex3f(p_vertices_[id].x_, p_vertices_[id].y_, p_vertices_[id].z_);
-      }
+    {
+        glVertex3f(p_vertices_[id].x_, p_vertices_[id].y_, p_vertices_[id].z_);
+    }
     glEnd();
 
     glLineWidth(1.0);
@@ -616,14 +621,14 @@ void Plane3D::drawTriangulation(int i)
     // draw facets
     glPushMatrix();
 
-      glBegin(GL_TRIANGLES);
-      foreach(int id, p_facets_[i])
-        {
-            glVertex3f(p_vertices_[id].x_, p_vertices_[id].y_, p_vertices_[id].z_);
-        }
-      glEnd();
+    glBegin(GL_TRIANGLES);
+    foreach(int id, p_facets_[i])
+    {
+        glVertex3f(p_vertices_[id].x_, p_vertices_[id].y_, p_vertices_[id].z_);
+    }
+    glEnd();
 
-     glPopMatrix();
+    glPopMatrix();
 
 }
 
@@ -663,8 +668,8 @@ void Plane3D::getBoundaryFromTriangulations()
 
     foreach(Vec3 pt3D, p_vertices_)
     {
-       PointXY  pt2D = this->cvt3Dto2D(pt3D);
-       vertice2Ds.push_back(pt2D);
+        PointXY  pt2D = this->cvt3Dto2D(pt3D);
+        vertice2Ds.push_back(pt2D);
     }
 
     // convert 3D facets to 2D facets
@@ -682,7 +687,7 @@ void Plane3D::getBoundaryFromTriangulations()
     // get boundarys from triangulations
     vector<vector<PointXY> >  boundarys2D = getOuterBoundaryFromTrians(facets2D);
 
-   // bool flag = isCounterClockWise(boundarys2D[0]);
+    // bool flag = isCounterClockWise(boundarys2D[0]);
 
     // convert 2D facets to 3D facets
     for(int i=0; i< boundarys2D.size(); i++)
@@ -715,23 +720,23 @@ void Plane3D::boundaryProcessing()
 
     for(int i=0; i< p_boundary3Ds_[0].size(); i++)
     {
-      int id0 = i;
-      int id1 = (i+1)%pt_num;
-      int id2 = (i+2)%pt_num;
+        int id0 = i;
+        int id1 = (i+1)%pt_num;
+        int id2 = (i+2)%pt_num;
 
-      Vec3 v10 = p_boundary3Ds_[0][id1] - p_boundary3Ds_[0][id0];
-      Vec3 v21 = p_boundary3Ds_[0][id2] - p_boundary3Ds_[0][id1];
-      v10.normalize();
-      v21.normalize();
+        Vec3 v10 = p_boundary3Ds_[0][id1] - p_boundary3Ds_[0][id0];
+        Vec3 v21 = p_boundary3Ds_[0][id2] - p_boundary3Ds_[0][id1];
+        v10.normalize();
+        v21.normalize();
 
-      float pro = v10 * v21;
+        float pro = v10 * v21;
 
-      pro = min(pro, (float)0.99999);
-      pro = max((float)-0.9999, pro);
+        pro = min(pro, (float)0.99999);
+        pro = max((float)-0.9999, pro);
 
-      float angle = acos(abs(pro))*180/3.1415;
+        float angle = acos(abs(pro))*180/3.1415;
 
-      if(angle >75){ new_outer_boundary.append(p_boundary3Ds_[0][id1]);}
+        if(angle >75){ new_outer_boundary.append(p_boundary3Ds_[0][id1]);}
     }
 
     p_boundary3Ds_[0].swap(new_outer_boundary);
@@ -756,19 +761,19 @@ void Plane3D::adjustNormalDirection()
         Vec3 n = cross(v10, v21);
         n.normalize();
 
-//        cout<<"( "<<n.x_<<", "<<n.y_<<", "<< n.z_<<" )---->";
-//        cout<<"( "<<p_normal_.x_<<", "<<p_normal_.y_<<", "<<p_normal_.z_<<" ): "<<n*p_normal_<<endl;
+        //        cout<<"( "<<n.x_<<", "<<n.y_<<", "<< n.z_<<" )---->";
+        //        cout<<"( "<<p_normal_.x_<<", "<<p_normal_.y_<<", "<<p_normal_.z_<<" ): "<<n*p_normal_<<endl;
 
 
 
         if(n* p_normal_< 0)
         {
-          p_normal_ = -1* p_normal_;
-          p_d_ = -p_d_;
+            p_normal_ = -1* p_normal_;
+            p_d_ = -p_d_;
 
-          Vec3 tmp = p_frame_x_;
-          p_frame_x_ = p_frame_y_;
-          p_frame_y_ = tmp;
+            Vec3 tmp = p_frame_x_;
+            p_frame_x_ = p_frame_y_;
+            p_frame_y_ = tmp;
         }
     }
 }
@@ -779,35 +784,35 @@ void Plane3D::adjustNormalDirection()
 //----------------------------------------------makePlaneFacetsCCW--------------------------------------------------//
 void Plane3D::makePlaneFacetsCCW()
 {
-     QVector<QVector<uint> > new_facets;
+    QVector<QVector<uint> > new_facets;
 
-       foreach(QVector<uint> facet,  p_facets_)
+    foreach(QVector<uint> facet,  p_facets_)
+    {
+        Polygon_2 polygon;
+        foreach(int id, facet)
         {
-            Polygon_2 polygon;
-            foreach(int id, facet)
-            {
-                Vec3 pt3D = p_vertices_[id];
-                PointXY pt2D = this->cvt3Dto2D(pt3D);
-                polygon.push_back(Point_2(pt2D.x, pt2D.y));
-            }
-
-            // if orientation is clock wise
-            if(polygon.orientation() == CGAL::CLOCKWISE)
-            {
-              QVector<uint> facet_tmp;
-              facet_tmp.append(facet[0]);
-              for(int i=facet.size() -1; i> 0; i--)
-              {
-                  facet_tmp.append(facet[i]);
-              }
-              new_facets.append(facet_tmp);
-            }
-
-            // if orientation is counterclockwise
-             if(polygon.orientation() == CGAL::COUNTERCLOCKWISE)
-             {
-               new_facets.append(facet);
-             }
+            Vec3 pt3D = p_vertices_[id];
+            PointXY pt2D = this->cvt3Dto2D(pt3D);
+            polygon.push_back(Point_2(pt2D.x, pt2D.y));
         }
-       p_facets_.swap(new_facets);
+
+        // if orientation is clock wise
+        if(polygon.orientation() == CGAL::CLOCKWISE)
+        {
+            QVector<uint> facet_tmp;
+            facet_tmp.append(facet[0]);
+            for(int i=facet.size() -1; i> 0; i--)
+            {
+                facet_tmp.append(facet[i]);
+            }
+            new_facets.append(facet_tmp);
+        }
+
+        // if orientation is counterclockwise
+        if(polygon.orientation() == CGAL::COUNTERCLOCKWISE)
+        {
+            new_facets.append(facet);
+        }
+    }
+    p_facets_.swap(new_facets);
 }

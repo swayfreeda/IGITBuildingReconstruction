@@ -90,7 +90,7 @@ public:
 
     // * output variables
     // images: containes all the images and their names
-    bool loadImages(QMap<QString, QImage> & images);
+    bool loadImages(QMap<QString, cv::Mat_<cv::Vec3b> > &images);
 
 
 
@@ -104,7 +104,9 @@ public:
     bool loadCameras(QMap<QString, Camera> & cameras);
 
 
-    //---------------------------------------------load visibility-----------------------------//
+
+
+    //-------------------------------------load visibility------------------------------------//
     // load all the visibility of the points
     // *input variable
     // NONE
@@ -112,6 +114,25 @@ public:
     // vertices: attach the visibility information of each vertex to each point
     bool loadVisiblities(QVector<Point> & vertices);
 
+
+
+    //* 11/25/2014 add functions
+
+    //-------------------------------------load mesh from OFF file------------------------------//
+    // load model from OFF file (without texture)
+    // *input variables
+    // filename---- address of the filename
+    // *output variables
+    //  mesh --containes the vertices, edges and facets of the mesh
+    bool loadModelFromOFF(Mesh & mesh , QString filename);
+
+
+    //------------------------------------save mesh to OFF file--------------------------------//
+    // save model to OFF file (without texture)
+    // *inpput
+    // mesh---- containes vertices, edges and facets of the mesh
+    // filename ---- the dir of the file to be saved
+    bool saveMeshToOFF(Mesh & mesh, QString filename);
 
 
 

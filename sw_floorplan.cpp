@@ -2,10 +2,9 @@
 #include"sw_functions.h"
 #include"sw_cornerExtraction.h"
 #include"sw_codingEdit.h"
+#include "sw_cgal_mesh_processing.h"
 
 #include<QtGui>
-
-//float Letter::TR_ = 0.01;
 
 //--------------------------------------computeCurvatures-----------------------------------------------//
 // compute the curvatures of each point in the point cloud
@@ -113,6 +112,7 @@ void SW::InconsistenRegionDetector::computeCurvatures()
 
 
 }
+
 
 
 //---------------------------------------getInconsistentRegion------------------------------------------//
@@ -702,7 +702,10 @@ void SW::FloorPlanReconstructor:: reconstruction( )
 
 //----------------------------------------constructor----------------------------------------------------//
 SW::FloorPlanDialog::FloorPlanDialog(QWidget *parent,
-                                     PointCloud *pc, Mesh *mesh, QMap<QString, Plane3D> *planes) :p_pc_(pc), p_mesh_(mesh), p_plane3Ds_(planes)
+                                     PointCloud *pc, Mesh *mesh,
+                                     QMap<QString, Plane3D> *planes,
+                                     QMap<QString, cv::Mat_<cv::Vec3b> > * images,
+                                     QMap<QString, Camera> *cameras) :p_pc_(pc), p_mesh_(mesh), p_plane3Ds_(planes), p_images_(images),p_cameras_(cameras)
 {
     setupUi(this);
 
@@ -793,15 +796,26 @@ SW::FloorPlanDialog::FloorPlanDialog(QWidget *parent,
     connect(pushButton_PolygonPlanes, SIGNAL(clicked()), this, SLOT(createPlanesFromTriangulations()));
 
 
+    //---------------------------------------------------------------windows relates---------------------------------------//
     //gts detection
-    ////connect(pushButton_beginGTSDetection_, SIGNAL(clicked()), this, SLOT(startGTSDetection()));
+    connect(pushButton_beginGTSDetection_, SIGNAL(clicked()), this, SLOT(startGTSDetection()));
+
+    // back prjection
+    connect(pushButton_backprojection,  SIGNAL(clicked() ), this, SLOT(backProjection()));
+
+    // add window planes
+    connect(pushButton_addWindowPlanes, SIGNAL(clicked()), this, SLOT(addWindowPlanes()));
+
+    // accept added window planes
+    connect(pushButton_accpectWindowPlanes, SIGNAL(clicked()), this, SLOT(acceptAddedWindowPlanes()));
+
+    // abort added window planes
+    connect(pushButton_cacelWindowPlanes, SIGNAL(clicked()), this, SLOT(abortAddedWindowPlanes()));
 
 }
 
 
-
-
-//----------------------------------------createPlanesFromTriangulations---------------------------------//
+//----------------------------------------createPlanesFromTriangulations------------------------------------------------//
 void SW::FloorPlanDialog::createPlanesFromTriangulations()
 {
 
@@ -1007,4 +1021,390 @@ void SW::FloorPlanDialog::createPlanesFromTriangulations()
 
         emit createNewPlane(name);
     }
+}
+
+
+//-----------------------------------------computeMaskForGTS------------------------------------------------------------//
+void SW::FloorPlanDialog::computeMaskForGTS()
+{
+    if(p_current_plane3D_ptr_->p_boundary3Ds_.size()==0 || p_cameras_->size() ==0)
+    {
+       QMessageBox::warning(0, tr("Warning!"), tr("Select An Image And A Plane First!"));
+    }
+    else
+    {
+       p_current_mask_.clear();
+        foreach(QVector<Vec3> polygon3D, p_current_plane3D_ptr_->p_boundary3Ds_)
+        {
+            foreach(Vec3 pt3D, polygon3D)
+            {
+                PointXY pt2D = p_current_camera_.project(pt3D);
+                p_current_mask_ << QPoint(pt2D.x, pt2D.y);
+            }
+        }
+    }
+}
+
+
+
+//----------------------------------------------backprojection------------------------------------------------------------//
+void SW::FloorPlanDialog::backProjection()
+{
+    if(p_cameras_->size()==0)
+    {
+        QMessageBox::warning(this, tr("Warning!"), tr("Camreas Does not Existed!"));
+    }
+    else
+    {
+
+        // make a backup of the facet and the vertices
+        p_current_plane3D_ptr_->backup();
+
+        //--------------------------------------1.0 get the parameters of the camera---------------------------------------//
+        // the postion of the camera
+        Vec3 orig (p_current_camera_.pos_.at<float>(0),
+                   p_current_camera_.pos_.at<float>(1),
+                   p_current_camera_.pos_.at<float>(2));
+
+        // normal of the current plane
+        Vec3 normal(p_current_plane3D_ptr_->p_normal_[0],
+                    p_current_plane3D_ptr_->p_normal_[1],
+                    p_current_plane3D_ptr_->p_normal_[2]);
+
+        // the parameter of the plane
+        float d =  p_current_plane3D_ptr_->p_d_;
+
+        // projection matrix
+        cv::Mat prj_mat = p_current_camera_.project_;
+
+        cv::Mat KR(3,3, CV_32FC1);
+        for(int i=0; i< KR.rows; i++)
+        {
+            for(int j=0; j< KR.cols; j++)
+            {
+                KR.at<float>(i, j) = prj_mat.at<float>(i, j);
+            }
+        }
+
+        //------------------------------------2.0 collect the position of the repetetive structure--------------------------//
+        // collect the repetitive structures
+        QVector<QPolygon > gts_pos2D = this->getGTS();
+
+
+        //------------------------------------3.0 back project the image onto the plane-------------------------------------//
+        QVector<QVector<Vec3> > gts_pos3D;
+        foreach(QPolygon polygon, gts_pos2D)
+        {
+            QVector<Vec3> quad3D;
+            for(int i=0; i< polygon.size(); i++)
+            {
+                cv::Mat pt2D(3, 1, CV_32FC1);
+                pt2D.at<float>(0) = (float)polygon[i].x();
+                pt2D.at<float>(1) = (float)polygon[i].y();
+                pt2D.at<float>(2) = 1.0;
+
+                cv::Mat dirM = KR.inv() * pt2D;
+
+                Vec3 dir(dirM.at<float>(0), dirM.at<float>(1), dirM.at<float>(2));
+                dir.normalize();
+
+                float lambda = -(normal* orig +d)/(normal * dir);
+
+                Vec3 pt = orig + lambda * dir;
+
+                quad3D.append(pt);
+            }
+            gts_pos3D.append(quad3D);
+        }
+
+
+
+        //------------------------------------4.0 add 3D gts windows boundary------------------------------------------------//
+        foreach(QVector<Vec3>polygon, gts_pos3D)
+        {
+            // convert 3D quad to 2D quad
+            vector<PointXY> polygon2D;
+            foreach(Vec3 pt3D, polygon)
+            {
+                PointXY pt2D = p_current_plane3D_ptr_-> cvt3Dto2D(pt3D);
+                polygon2D.push_back(pt2D);
+            }
+            //check whether a polygon is CCW
+            if(isCounterClockWise(polygon2D))
+            {
+                p_current_plane3D_ptr_->p_window_boundary3Ds_.append(polygon);
+            }
+            else{
+
+                // make a polygon CCW
+                QVector<Vec3> polygon_ccw;
+                polygon_ccw.append(polygon[0]);
+                for(int i=polygon.size() -1; i>0; i--)
+                {
+                    polygon_ccw.append(polygon[i]);
+                }
+                p_current_plane3D_ptr_->p_window_boundary3Ds_.append(polygon_ccw);
+            }
+
+        }
+
+
+        //------------------------------------5.0 mesh processing, intersection----------------------------------------------//
+        // constrained triangulation
+        vector<vector<Vec3> > boundarys3D;
+        int boundary_num =  p_current_plane3D_ptr_-> p_boundary3Ds_.size();
+        int window_num = p_current_plane3D_ptr_->p_window_boundary3Ds_.size();
+
+        boundarys3D.resize( boundary_num + window_num);
+        vector<vector<PointXY> > boundarys2D;
+        boundarys2D.resize( boundary_num + window_num );
+
+        int index = 0;
+
+        // 5.1 add outer boundarys
+        foreach(QVector<Vec3> boundary, p_current_plane3D_ptr_->p_boundary3Ds_)
+        {
+            foreach(Vec3 pt3D, boundary)
+            {
+                PointXY pt2D = p_current_plane3D_ptr_->cvt3Dto2D(pt3D);
+                boundarys3D[index].push_back(pt3D);
+                boundarys2D[index].push_back(pt2D);
+            }
+            index++;
+        }
+
+
+        // 5.2 add window boundarys
+        foreach(QVector<Vec3> boundary, p_current_plane3D_ptr_->p_window_boundary3Ds_)
+        {
+            foreach(Vec3 pt3D, boundary)
+            {
+                PointXY pt2D = p_current_plane3D_ptr_->cvt3Dto2D(pt3D);
+                boundarys3D[index].push_back(pt3D);
+                boundarys2D[index].push_back(pt2D);
+            }
+            index++;
+        }
+
+
+        // 5.3 constrained triangulation
+        vector<vector<Vec3> > new_facets = constrained_triangulation(boundarys2D, boundarys3D);
+
+
+        //----------------------------------6.0 update the triangulation of the current plane--------------------------------//
+        // update the mesh in the current plane
+        p_current_plane3D_ptr_->updateTriangulations(new_facets);
+
+        // update the mesh in the scene
+        //updateMeshAll();
+
+        // start display backporjectd quads in QGLViewer
+        emit startDisplayBackProjQuads();
+
+        emit updateGLViewer();
+
+        update();
+    }//else
+}
+
+
+
+//----------------------------------------------add window planes-----------------------------------------------------------//
+void SW::FloorPlanDialog::addWindowPlanes()
+{
+    p_current_plane3D_ptr_->p_added_window_planes_.clear();
+
+    // get the depth of the window
+    p_window_depth_ = doubleSpinBox_windowDepth->value();
+
+    if(p_plane3Ds_->size() ==0)
+    {
+        QMessageBox::warning(this, tr("Waning"), tr("No Planes!"));
+    }
+    else
+    {
+        foreach(QVector<Vec3> window, p_current_plane3D_ptr_->p_window_boundary3Ds_)
+        {
+            /*-------------------------------------*/
+            Vec3 normal = p_current_plane3D_ptr_->p_normal_;
+            // each window andd 5 planes
+            // the first plane
+            QVector<Vec3> plane0;
+            foreach(Vec3 pt, window)
+            {
+                Vec3 pt_n = pt - p_window_depth_ * normal;
+                plane0.append(pt_n);
+            }
+            p_current_plane3D_ptr_->p_added_window_planes_.append(plane0);
+
+            /*-------------------------------------*/
+            int pt_num = (int)window.size();
+            for(int i=0; i< window.size(); i++)
+            {
+                QVector<Vec3> plane;
+                int id0 = i;
+                int id1 = (i+1)%pt_num;
+
+                Vec3 pt0 = window[id0];
+                Vec3 pt1 = window[id1];
+
+                Vec3 pt0_n = pt0 - p_window_depth_ * normal;
+                Vec3 pt1_n = pt1 - p_window_depth_ * normal;
+
+                plane.append(pt0);
+                plane.append(pt1);
+                plane.append(pt1_n);
+                plane.append(pt0_n);
+
+                p_current_plane3D_ptr_->p_added_window_planes_.append(plane);
+            }
+        }
+
+        emit startDisplayAddedWindowPlanes();
+    }
+}
+
+
+
+//-----------------------------------------------accept added window planes--------------------------------------------------//
+void SW::FloorPlanDialog::acceptAddedWindowPlanes()
+{
+    foreach(QVector<Vec3> polygon, p_current_plane3D_ptr_->p_added_window_planes_)
+    {
+        Plane3D plane ;
+
+        //1.0 name
+        QString name;
+        name.sprintf("Plane%d", p_plane3Ds_->size());
+
+        //2.0 color
+        plane.p_color_ = QColor(rand()&255, rand()&255, rand()&255);
+
+        //3.0 triangulations
+        /*  4 vertices  */
+        foreach(Vec3 pt, polygon)
+        {
+            plane.p_vertices_.append(pt);
+        }
+
+        /* 2 facets */
+        plane.p_facets_.resize(2);
+        plane.p_facets_[0].append(0);
+        plane.p_facets_[0].append(1);
+        plane.p_facets_[0].append(2);
+
+        plane.p_facets_[1].append(0);
+        plane.p_facets_[1].append(2);
+        plane.p_facets_[1].append(3);
+
+        //4 plane params
+        vector<Vec3> pts;
+        foreach(Vec3 pt,  p_current_plane3D_ptr_->p_vertices_)
+        {
+            pts.push_back(pt);
+        }
+        plane.fittingPlane(pts);
+
+        //5 boundarys
+        plane.p_boundary3Ds_.append(polygon);
+
+        p_plane3Ds_->insert(name, plane);
+
+        emit createNewPlane(name);
+    }
+    emit endDisplayAddedWindowPlanes();
+
+    p_current_plane3D_ptr_->p_added_window_planes_.clear();
+    p_current_plane3D_ptr_->p_window_boundary3Ds_.clear();
+
+    // update all the vertices, faces and edges of the mesh
+    updateMeshAll();
+
+    emit endDisplaySinglePlaneTrians(false);
+
+}
+
+
+
+//----------------------------------------------abort added window planes------------------------------------------------------//
+void SW::FloorPlanDialog::abortAddedWindowPlanes()
+{
+   p_current_plane3D_ptr_->p_added_window_planes_.clear();
+   p_current_plane3D_ptr_->p_window_boundary3Ds_.clear();
+
+   // recover the original vertices and facets
+   p_current_plane3D_ptr_->recover();
+   emit endDisplayBackProjQuads();
+}
+
+
+//------------------------------------------------update mesh all -------------------------------------------------------------//
+void SW::FloorPlanDialog::updateMeshAll()
+{
+    p_mesh_->m_vertices_.clear();
+    p_mesh_->m_facets_.clear();
+    p_mesh_->m_edges_.clear();
+
+    /**create a table for eliminating same vertices and assgin new index to each vertices */
+    map<Vec3, uint> table;
+    foreach(QString key, p_plane3Ds_->keys())
+    {
+        foreach(Plane3D  plane, p_plane3Ds_->values(key))
+        {
+            foreach(Vec3 pt, plane.p_vertices_)
+            {
+                table.insert(make_pair(pt, 0));
+            }
+        }
+    }
+
+    /* collect all facets represented as vertices directly instead of vertices indices */
+    QVector<QVector<Vec3> > all_facets;
+    foreach(QString key, p_plane3Ds_->keys())
+    {
+        foreach(Plane3D  plane, p_plane3Ds_->values(key))
+        {
+            foreach(QVector<uint> facet_id, plane.p_facets_)
+            {
+                QVector<Vec3> facet;
+                foreach(int id , facet_id)
+                {
+                    facet.append(plane.p_vertices_[id]);
+                }
+                all_facets.append(facet);
+            }
+        }
+    }
+
+    /* attach  new index to each vertex*/
+    int index = 0;
+    for(map<Vec3, uint> ::iterator iter = table.begin(); iter!= table.end(); iter++)
+    {
+        iter->second = (uint)index;
+        index++;
+    }
+
+    /*get new vertices, facets and vertices */
+
+    //get new vertices
+    for(map<Vec3, uint> ::iterator iter = table.begin(); iter!= table.end(); iter++)
+    {
+        p_mesh_->m_vertices_.push_back(iter->first);
+    }
+
+    // get facets
+     p_mesh_->m_facets_.resize((int)all_facets.size());
+    index = 0;
+    foreach(QVector<Vec3> facet, all_facets)
+    {
+        foreach(Vec3 pt, facet)
+        {
+            p_mesh_->m_facets_[index].append(table[pt]);
+        }
+        index++;
+    }
+
+    p_mesh_->computeEdges();
+
+   emit updateGLViewer();
 }

@@ -6,42 +6,53 @@ QMAKE_CXXFLAGS += -frounding-math
 
 # Input
 HEADERS += \
-    sw_dataType.h \
-    sw_glviewer.h \
+    unionFindGraph.h \
+    sw_regionGrowing.h \
     sw_mainwindow.h \
-    sw_dataIO.h \
+    sw_graph_vec.h \
+    sw_graph_str.h \
+    sw_glviewer.h \
     sw_functions.h \
     sw_floorplan.h \
-    unionFindGraph.h \
+    sw_dataType.h \
+    sw_dataIO.h \
+    sw_cornerExtraction.h \
     sw_codingEdit.h \
-    sw_graph_str.h \
+    sw_cgal_mesh_processing.h \
+    sw_alpha_expansion.h \
     graph.h \
     energy.h \
     block.h \
-    sw_alpha_expansion.h \
-    sw_cornerExtraction.h \
-    sw_graph_vec.h \
-    sw_regionGrowing.h \
-    sw_cgal_mesh_processing.h
+    sw_paintImageWidget.h \
+    gts_repetitiveStructure.h \
+    gts_paintWidget.h \
+    gts_paintShape.h \
+    gts_minESingleV1.h
 FORMS += mainwindow.ui \
-    FloorPlan.ui
+    FloorPlan.ui \
+    gts_repetitiveStructure.ui
 SOURCES += main.cpp \
-    sw_glviewer.cpp \
-    sw_dataType.cpp \
+    unionFindGraph.cpp \
+    sw_regionGrowing.cpp \
     sw_mainwindow.cpp \
-    sw_dataIO.cpp \
+    sw_graph_vec.cpp \
+    sw_graph_str.cpp \
+    sw_glviewer.cpp \
     sw_functions.cpp \
     sw_floorplan.cpp \
-    unionFindGraph.cpp \
-    sw_graph_str.cpp \
-    sw_codingEdit.cpp \
-    graph.cpp \
-    maxflow.cpp \
-    sw_alpha_expansion.cpp \
+    sw_dataType.cpp \
+    sw_dataIO.cpp \
     sw_cornerExtraction.cpp \
-    sw_graph_vec.cpp \
-    sw_regionGrowing.cpp \
-    sw_cgal_mesh_processing.cpp
+    sw_codingEdit.cpp \
+    sw_cgal_mesh_processing.cpp \
+    sw_alpha_expansion.cpp \
+    maxflow.cpp \
+    graph.cpp \
+    sw_paintImageWidget.cpp \
+    gts_repetitveStructure.cpp \
+    gts_paintWidget.cpp \
+    gts_paintShape.cpp \
+    gts_minESingleV1.cpp
 
 INCLUDEPATH +=  /usr/include/qt4/QtCore     \
                  /usr/include/qt4/QtGui      \
@@ -50,9 +61,10 @@ INCLUDEPATH +=  /usr/include/qt4/QtCore     \
                  /usr/include/qt3/          \
                  /usr/include/qt4/QtXml/
 
+
 LIBS  +=    -L/usr/X11R6/lib64 -lQtOpenGL -lQtGui -lQtCore  -lpthread\
-             -lCGAL  -lQGLViewer -lGLEW -lglut  -lGL  -lGLU  -lboost_system -lboost_thread  \
-            -L/usr/local/lib/   -lopencv_core  -lopencv_flann -lopencv_highgui -lopencv_imgproc -lopencv_legacy \
-            -L/usr/lib/x86_64-linux-gnu/ -lgmp -lmpfr
+             -lCGAL  -lCGAL_Core -lQGLViewer -lGLEW -lglut  -lGL  -lGLU  -lboost_system -lboost_thread  \
+            -L/usr/local/lib/   -lopencv_core  -lopencv_flann -lopencv_highgui -lopencv_imgproc -lopencv_legacy  -lopencv_calib3d\
+            -L/usr/lib/x86_64-linux-gnu/ -lgmp -lmpfr -ljpeg
 
 

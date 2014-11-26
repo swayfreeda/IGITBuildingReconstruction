@@ -3,3 +3,7 @@
 *.xml
 simpleMainwindow
 moc_*
+*.jpg
+*.png
+*.off
+

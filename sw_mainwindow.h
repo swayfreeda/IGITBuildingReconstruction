@@ -77,6 +77,17 @@ public slots:
     void loadData();
 
 
+    // * 11/25/2014 add functions
+    //--------------------------------------load Mesh--------------------------------//
+    // load meshes including vertices and facets from *.OFF file.
+    void loadMesh();
+
+
+    //---------------------------------------save Mesh-------------------------------//
+    // save meshes including vertices and facets to *.OFF file.
+    void saveMesh();
+
+
     //-------------------------------save points------------------------------------//
     // save dense points to PLY File
     void savePoints();
@@ -111,13 +122,15 @@ public slots:
 
         if(m_plane3Ds_.contains(name))
         {
-            m_current_plane3D_ = m_plane3Ds_[name];
+            m_floorplanRec_->setCurrentPlane3DPtr(&m_plane3Ds_[name]);
+            viewer->setCurrentPlane3D(&m_plane3Ds_[name]);
         }
         else
         {
             QMessageBox::warning(this,tr("Information"), tr("Plane Does not Existed!"));
         }
         update();
+        viewer->updateGL();
     }
 
 
@@ -147,6 +160,8 @@ signals:
     // emit signals to display dense points
     void displayDensePoints(bool flag);
 
+    // load mesh and starting displaying
+    void startDisplayingMesh(int state);
 
 private:
 
@@ -192,16 +207,14 @@ private:
     // *window boundaries of the plane
     QMap<QString, Plane3D> m_plane3Ds_;
 
-
     // current plane pointer
-    Plane3D  m_current_plane3D_;
+    //Plane3D  * m_current_plane3D_;
 
 
 
     //-------------------------variables for images---------------------------------------//
     // images of all the scene
-    QMap< QString, QImage> m_images_;
-
+    QMap< QString, cv::Mat_<cv::Vec3b> > m_images_;
 
 
 

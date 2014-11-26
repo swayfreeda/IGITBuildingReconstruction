@@ -58,6 +58,9 @@ SW::GLViewer::GLViewer(QWidget *parent0,
     g_display_modelling_process_ = false;
     g_display_modelling_results_ = false;
     g_display_all_planes_triangulations_= false;
+    g_display_single_plane_triangulations_ = false;
+    g_display_back_projected_quads_ = false;
+    g_display_added_widow_planes_  = false;
 
 }
 
@@ -112,8 +115,6 @@ void SW::GLViewer::init()
 //--------------------------------------------draw------------------------------------------------------//
 void SW::GLViewer::draw()
 {
-
-
     //drawAxises(0.1, 0.1);
     //-------------------- draw mesh vertices------------------------------------------//
     if(g_display_vertices_ == true)
@@ -290,6 +291,99 @@ void SW::GLViewer::draw()
     }
 
 
+    //------------------------------------draw all plane triangulations---------------------------------//
+    if(g_display_all_planes_triangulations_ == true)
+    {
+        foreach(QString key, g_plane3Ds_->keys())
+            foreach(Plane3D value, g_plane3Ds_->values(key))
+            {
+                if(value.p_facets_.size()>0&&value.p_vertices_.size()>0)
+                {
+                    value.drawTriangulation();
+                }
+            }
+    }
+
+
+    //------------------------------------draw single plane triangulations------------------------------//
+    if(g_display_single_plane_triangulations_ == true)
+    {
+        if(g_current_plane3D_ptr_->p_facets_.size()>0&&g_current_plane3D_ptr_->p_vertices_.size()>0)
+        {
+           // glColor3f(0.5, 1.0, 0.5);
+            g_current_plane3D_ptr_->drawTriangulation();
+        }
+    }
+
+
+    //-------------------------------------draw back projected quads-------------------------------------//
+    if(g_display_back_projected_quads_== true)
+    {
+        glColor4f(1.0, 0.0, 1.0, 0.75);
+        foreach(QVector<Vec3> quad, g_current_plane3D_ptr_->p_window_boundary3Ds_)
+        {
+            glPushMatrix();
+
+            int pt_num = quad.size();
+            for(int i =0;i< quad.size(); i++)
+            {
+                int id0 = i;
+                int id1 = (i+1) % pt_num;
+                glBegin(GL_LINE);
+
+                glVertex3f(quad[id0].x_, quad[id0].y_, quad[id0].z_);
+                glVertex3f(quad[id1].x_, quad[id1].y_, quad[id1].z_);
+
+                glEnd();
+            }
+
+            glPopMatrix();
+        }
+
+    }
+
+
+    //--------------------------------------draw added window planes------------------------------------//
+    if(g_display_added_widow_planes_ == true)
+    {
+        glEnable(GL_BLEND);
+        glColor4f(1.0, 1.0, 0.0, 0.75);
+        foreach(QVector<Vec3> quad, g_current_plane3D_ptr_->p_added_window_planes_)
+        {
+            glPushMatrix();
+
+            glBegin(GL_QUADS);
+
+            foreach(Vec3 pt, quad)
+            {
+                glVertex3f(pt.x_, pt.y_, pt.z_);
+            }
+
+            glEnd();
+
+            glPopMatrix();
+        }
+        glDisable(GL_BLEND);
+
+        // draw lines
+        // draw lines
+        glColor3f(0.0f, 0.0f, 0.0f);
+        glLineWidth(2.0);
+        foreach(QVector<Vec3> quad, g_current_plane3D_ptr_->p_added_window_planes_)
+        {
+            glBegin(GL_LINE_LOOP);
+
+            foreach(Vec3 pt, quad)
+            {
+                glVertex3f(pt.x_, pt.y_, pt.z_);
+            }
+            glEnd();
+        }
+        glLineWidth(1.0);
+
+    }
+
+
     //-----------------------------------draw modelling results----------------------------------------//
     if(g_display_modelling_results_== true)
     {
@@ -350,18 +444,6 @@ void SW::GLViewer::draw()
         glPopMatrix();
     }
 
-    //------------------------------------draw all plane triangulations---------------------------------//
-    if(g_display_all_planes_triangulations_ == true)
-    {
-        foreach(QString key, g_plane3Ds_->keys())
-            foreach(Plane3D value, g_plane3Ds_->values(key))
-            {
-                if(value.p_facets_.size()>0&&value.p_vertices_.size()>0)
-                {
-                    value.drawTriangulation();
-                }
-            }
-    }
 
     //---------------------------------- draw dense points---------------------------------------------//
     if(g_display_dense_pts_== true)

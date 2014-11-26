@@ -10,11 +10,13 @@
 #include"sw_mainwindow.h"
 #include <qapplication.h>
 #include<QVector3D>
+//#include <QImage>
+//#include <QString>
 
-
-using namespace SW;
+//using namespace SW;
 int main(int argc, char**argv)
 {
+
     QApplication app(argc,argv);
 
     MainWindow mainwindow;
@@ -28,5 +30,15 @@ int main(int argc, char**argv)
     mainwindow.show();
 
     return app.exec();
+
+#if 0
+    QString name = "/home/sway/Work/data/Babylon-pmvs/visualize/00000000.jpg";
+
+    QImage img;
+    img.load(name);
+    img.save("test.jpg");
+
+    return 0;
+#endif
 }
 

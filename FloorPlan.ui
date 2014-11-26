@@ -671,7 +671,7 @@
           <item>
            <widget class="QPushButton" name="pushButton_accpectWindowPlanes">
             <property name="text">
-             <string>Aceept </string>
+             <string>Accept </string>
             </property>
            </widget>
           </item>

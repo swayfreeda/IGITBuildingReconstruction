@@ -19,6 +19,18 @@
     <verstretch>0</verstretch>
    </sizepolicy>
   </property>
+  <property name="minimumSize">
+   <size>
+    <width>0</width>
+    <height>500</height>
+   </size>
+  </property>
+  <property name="maximumSize">
+   <size>
+    <width>16777215</width>
+    <height>1011</height>
+   </size>
+  </property>
   <property name="windowTitle">
    <string>MainWindow</string>
   </property>
@@ -46,7 +58,7 @@
       </property>
       <property name="minimumSize">
        <size>
-        <width>310</width>
+        <width>330</width>
         <height>0</height>
        </size>
       </property>
@@ -83,7 +95,7 @@
         <rect>
          <x>0</x>
          <y>0</y>
-         <width>887</width>
+         <width>792</width>
          <height>118</height>
         </rect>
        </property>
@@ -154,7 +166,9 @@
      <string>&amp;File</string>
     </property>
     <addaction name="loadDataAction"/>
-    <addaction name="actionSave_Points"/>
+    <addaction name="savePointsAction"/>
+    <addaction name="loadMeshAction"/>
+    <addaction name="saveMeshAction"/>
    </widget>
    <widget class="QMenu" name="editMenu">
     <property name="title">
@@ -178,6 +192,7 @@
     <addaction name="actionTexture"/>
     <addaction name="actionCameras"/>
     <addaction name="actionAll_Planes_Triangulations"/>
+    <addaction name="actionSingle_Plane_Triangulation"/>
    </widget>
    <widget class="QMenu" name="helpMenu">
     <property name="title">
@@ -188,6 +203,7 @@
     <property name="title">
      <string>Debug</string>
     </property>
+    <addaction name="actionProjection"/>
    </widget>
    <addaction name="fileMenu"/>
    <addaction name="editMenu"/>
@@ -248,42 +264,82 @@
    </property>
    <property name="minimumSize">
     <size>
-     <width>215</width>
-     <height>41</height>
+     <width>310</width>
+     <height>1099</height>
+    </size>
+   </property>
+   <property name="maximumSize">
+    <size>
+     <width>310</width>
+     <height>524287</height>
     </size>
    </property>
    <attribute name="dockWidgetArea">
     <number>1</number>
    </attribute>
    <widget class="QWidget" name="dockWidgetContents">
-    <widget class="QScrollArea" name="planeLsitScrollArea">
-     <property name="geometry">
-      <rect>
-       <x>9</x>
-       <y>-1</y>
-       <width>201</width>
-       <height>421</height>
-      </rect>
-     </property>
-     <property name="widgetResizable">
-      <bool>true</bool>
-     </property>
-     <widget class="QWidget" name="planeScrollAreaWidgetContents">
-      <property name="geometry">
-       <rect>
-        <x>0</x>
-        <y>0</y>
-        <width>199</width>
-        <height>419</height>
-       </rect>
-      </property>
-      <layout class="QVBoxLayout" name="verticalLayout_2">
-       <item>
-        <widget class="QListWidget" name="planeListWidget"/>
-       </item>
-      </layout>
-     </widget>
-    </widget>
+    <layout class="QVBoxLayout" name="verticalLayout_3">
+     <item>
+      <widget class="QScrollArea" name="planeLsitScrollArea">
+       <property name="sizePolicy">
+        <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+         <horstretch>0</horstretch>
+         <verstretch>0</verstretch>
+        </sizepolicy>
+       </property>
+       <property name="minimumSize">
+        <size>
+         <width>300</width>
+         <height>650</height>
+        </size>
+       </property>
+       <property name="maximumSize">
+        <size>
+         <width>16777215</width>
+         <height>650</height>
+        </size>
+       </property>
+       <property name="widgetResizable">
+        <bool>true</bool>
+       </property>
+       <widget class="QWidget" name="planeScrollAreaWidgetContents">
+        <property name="geometry">
+         <rect>
+          <x>0</x>
+          <y>0</y>
+          <width>298</width>
+          <height>648</height>
+         </rect>
+        </property>
+        <layout class="QVBoxLayout" name="verticalLayout_2">
+         <item>
+          <widget class="QListWidget" name="planeListWidget">
+           <property name="autoFillBackground">
+            <bool>true</bool>
+           </property>
+          </widget>
+         </item>
+        </layout>
+       </widget>
+      </widget>
+     </item>
+     <item>
+      <widget class="SW::PaintImageWidget" name="paintImageWidget" native="true">
+       <property name="minimumSize">
+        <size>
+         <width>300</width>
+         <height>350</height>
+        </size>
+       </property>
+       <property name="maximumSize">
+        <size>
+         <width>300</width>
+         <height>350</height>
+        </size>
+       </property>
+      </widget>
+     </item>
+    </layout>
    </widget>
   </widget>
   <action name="loadDataAction">
@@ -785,7 +841,7 @@
     <string>Texture</string>
    </property>
   </action>
-  <action name="actionSave_Points">
+  <action name="savePointsAction">
    <property name="text">
     <string>Save Points</string>
    </property>
@@ -828,12 +884,47 @@
     <string>All Planes Triangulations</string>
    </property>
   </action>
+  <action name="actionSingle_Plane_Triangulation">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>Single Plane Triangulation</string>
+   </property>
+  </action>
+  <action name="actionProjection">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>Projection  </string>
+   </property>
+   <property name="toolTip">
+    <string>Projection mesh of a plane3D  onto image</string>
+   </property>
+  </action>
+  <action name="loadMeshAction">
+   <property name="text">
+    <string>Load Mesh</string>
+   </property>
+  </action>
+  <action name="saveMeshAction">
+   <property name="text">
+    <string>Save Mesh</string>
+   </property>
+  </action>
  </widget>
  <customwidgets>
   <customwidget>
    <class>SW::GLViewer</class>
    <extends>QFrame</extends>
    <header>sw_glviewer.h</header>
+   <container>1</container>
+  </customwidget>
+  <customwidget>
+   <class>SW::PaintImageWidget</class>
+   <extends>QWidget</extends>
+   <header location="global">sw_paintImageWidget.h</header>
    <container>1</container>
   </customwidget>
  </customwidgets>

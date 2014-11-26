@@ -1,7 +1,7 @@
 /********************************************************************************
 ** Form generated from reading UI file 'FloorPlan.ui'
 **
-** Created: Wed Nov 19 16:23:15 2014
+** Created: Tue Nov 25 23:41:41 2014
 **      by: Qt User Interface Compiler version 4.8.1
 **
 ** WARNING! All changes made in this file will be lost when recompiling UI file!
@@ -674,7 +674,7 @@ public:
         pushButton_backprojection->setText(QApplication::translate("FloorPlanDialog", "Back Projection", 0, QApplication::UnicodeUTF8));
         label_2->setText(QApplication::translate("FloorPlanDialog", "Window Depth", 0, QApplication::UnicodeUTF8));
         pushButton_addWindowPlanes->setText(QApplication::translate("FloorPlanDialog", "Add Window Planes", 0, QApplication::UnicodeUTF8));
-        pushButton_accpectWindowPlanes->setText(QApplication::translate("FloorPlanDialog", "Aceept ", 0, QApplication::UnicodeUTF8));
+        pushButton_accpectWindowPlanes->setText(QApplication::translate("FloorPlanDialog", "Accept ", 0, QApplication::UnicodeUTF8));
         pushButton_cacelWindowPlanes->setText(QApplication::translate("FloorPlanDialog", "Cancel", 0, QApplication::UnicodeUTF8));
     } // retranslateUi
 

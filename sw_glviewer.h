@@ -266,7 +266,11 @@ public slots:
         if(state ==0) flag = false;// unchecked
         if(state ==2) flag = true;// checked
         g_display_modelling_results_ = flag;
-        g_display_dense_pts_ = !flag;
+
+        if(g_display_modelling_results_ == true)
+        {
+           g_display_dense_pts_ = !flag;
+        }
 
         updateGL();
     }
@@ -274,21 +278,73 @@ public slots:
     // display the triangulations on all planes
     inline void toggle_display_all_planes_trians(bool flag)
     {
-
-        viewAll();
-        showEntireScene();
+        //viewAll();
+        //showEntireScene();
         g_display_all_planes_triangulations_ = flag;
-        g_display_modelling_results_  = !flag;
 
+        if(g_display_all_planes_triangulations_== true)
+        {
+            g_display_modelling_results_  = false;
+            g_display_single_plane_triangulations_ = false;
+        }
         QString outputText = QString("%1 planes").arg(g_plane3Ds_->size());
         emit statusBar(outputText);
 
         updateGL();
     }
 
+
+    // display the triangulations on all planes
+    inline void toggle_display_single_plane_trians(bool flag)
+    {
+        g_display_single_plane_triangulations_ =flag;
+
+        QString outputText = QString("%1 planes").arg(g_plane3Ds_->size());
+        emit statusBar(outputText);
+
+
+        if(g_display_single_plane_triangulations_== true)
+        {
+          g_display_all_planes_triangulations_ = false;
+          g_display_modelling_results_ = true;
+        }
+
+        updateGL();
+    }
+
+
     // update GLViewer
     inline void updateGLViewer()
     {
+      updateGL();
+    }
+
+
+    // start display back projected quads
+    inline void startDisplayBackPorjQuads()
+    {
+       g_display_back_projected_quads_ =true;
+       updateGL();
+    }
+
+    // end display back projectd quads
+    inline void endDisplayBackProjQuads()
+    {
+      g_display_back_projected_quads_ = false;
+      updateGL();
+    }
+
+    // start display  added window planes
+    inline void startDisplayAddedWindowPlanes()
+    {
+      g_display_added_widow_planes_ = true;
+      updateGL();
+    }
+
+    // end display added window planes
+    inline void endDisplayAddedWindowPlanes()
+    {
+      g_display_added_widow_planes_  =false;
       updateGL();
     }
 
@@ -312,6 +368,9 @@ private:
     bool g_display_modelling_process_;
     bool g_display_modelling_results_;
     bool g_display_all_planes_triangulations_;
+    bool g_display_single_plane_triangulations_;
+    bool g_display_back_projected_quads_;
+    bool g_display_added_widow_planes_ ;
 
 
     //------------------------variables for dense points--------------------------------//
@@ -339,6 +398,7 @@ private:
     // *window boundaries of the plane
     QMap<QString, Plane3D > *g_plane3Ds_;
 
+
     // current plane3D
     Plane3D * g_current_plane3D_ptr_;
 
@@ -357,6 +417,7 @@ private:
     //---------------------------variables for texture -------------------------------------//
     //texture index
     GLuint g_texture_id_;
+
 
     //---------------------------variable for cameras----------------------------------------//
     QMap<QString, Camera> *g_cameras_;

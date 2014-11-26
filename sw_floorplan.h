@@ -17,8 +17,7 @@
 #include "sw_dataType.h"
 #include"sw_codingEdit.h"
 
-////#include"SW_PointCloud.h"
-//#include"gts_repetitiveStructure.h"
+#include"gts_repetitiveStructure.h"
 
 #include <QApplication>
 #include<QDialog>
@@ -31,6 +30,7 @@
 #include<QProgressBar>
 #include<QApplication>
 #include<QThread>
+#include<QListWidgetItem>
 
 typedef PointXYZRGBNormal Point;
 
@@ -212,7 +212,7 @@ protected slots:
     //set MRF Lambda
     inline void MRFLambdaChanged(double v)
     {
-       setMRFLambda(v);
+        setMRFLambda(v);
     }
 
     // set Letter Margin Changed
@@ -272,7 +272,9 @@ public:
     friend class MainDirectionExtractor;
     friend class FloorPlanReconstructor;
 
-    FloorPlanDialog(QWidget * parent,PointCloud * pc, Mesh * mesh, QMap<QString, Plane3D> * planes);
+    FloorPlanDialog(QWidget * parent, PointCloud * pc, Mesh * mesh,
+                    QMap<QString, Plane3D> * planes,
+                    QMap<QString, cv::Mat_<cv::Vec3b> > *images, QMap<QString, Camera> * cameras);
     FloorPlanDialog(){}
     ~FloorPlanDialog(){}
 
@@ -298,7 +300,13 @@ public:
     FloorPlanReconstructor * getFloorPlanReconstructor(){ return p_floorplan_constructor_;}
 
     inline void setCurrentPlane3DPtr(Plane3D * ptr){p_current_plane3D_ptr_ = ptr;}
-    // QVector<QPolygon > getGTS(){ return p_detected_gts_; }
+
+    QVector<QPolygon > getGTS(){ return p_detected_gts_; }
+
+
+    // void compute GTS
+    void computeMaskForGTS();
+
 
 private slots:
 
@@ -392,36 +400,43 @@ private slots:
     void createPlanesFromTriangulations();
 
 
-#if 0
-    // begin GTS detection
+
+    /////////////////////////////////////////setCurrentImage///////////////////////////////////////////////////////////
+    inline void setCurrentImage( QListWidgetItem* item)
+    {
+        cv::Mat_<cv::Vec3b> img = (*p_images_)[item->text()];
+        p_current_image_ = convertToQImage(img);
+
+        p_current_camera_ = (*p_cameras_)[item->text()];
+
+        update();
+    }
+
+
+
+    //////////////////////////////////////// begin GTS detection//////////////////////////////////////////////////////
     inline void startGTSDetection(){
 
         p_gts_detection_ = new GTSDetectionDialog (this);
 
         connect(p_gts_detection_->pushButton_accept, SIGNAL(clicked()), this, SLOT(collectGTS()));
+
+        // compute the mask for GTS
+        computeMaskForGTS();
+
+        // set current image
         p_gts_detection_->setImage(p_current_image_);
+
+        // set current mask
         p_gts_detection_->setMask(p_current_mask_);
+
+
         p_gts_detection_->show();
     }
 
 
-    inline void setImage( const QImage &image)
-    {
-        p_current_image_ = image.copy(0, 0, image.width(), image.height());
-    }
 
-    inline void setMask(const QPolygon & mask)
-    {
-        p_current_mask_.clear();
-        for(int i=0; i< mask.size(); i++)
-        {
-            p_current_mask_<< mask[i];
-        }
-        //        p_gts_detection_->widget_rectified->setMask(mask);
-        update();
-    }
-
-
+    //////////////////////////////////////// collect GTS /////////////////////////////////////////////////////////////
     inline void collectGTS()
     {
         QVector<QPolygon> gts = p_gts_detection_->getGTS();
@@ -432,7 +447,30 @@ private slots:
             p_detected_gts_.append(polygon);
         }
     }
-#endif
+
+
+
+    /////////////////////////////////////////////backprojection///////////////////////////////////////////////////////
+    // back projetion to form the windows
+    void backProjection();
+
+
+    //////////////////////////////////////////////add window planes///////////////////////////////////////////////////
+    // add window planes
+    void addWindowPlanes();
+
+
+    //////////////////////////////////////////////accept added window planes//////////////////////////////////////////
+    void acceptAddedWindowPlanes();
+
+
+
+    //////////////////////////////////////////////abort added window planes///////////////////////////////////////////
+    void abortAddedWindowPlanes();
+
+
+    ////////////////////////////////////////////// update all mesh ////////////////////////////////////////////////////
+    void updateMeshAll();
 
 signals:
 
@@ -442,7 +480,21 @@ signals:
 
     void createNewPlane(QString name);
 
-    //// void start_gts_detection();
+    void start_gts_detection();
+
+    void startDisplayBackProjQuads();
+
+    void endDisplayBackProjQuads();
+
+    void startDisplayAddedWindowPlanes();
+
+    void endDisplayAddedWindowPlanes();
+
+    void updateGLViewer();
+
+    void startDisplayModellingResults(int state);
+
+    void endDisplaySinglePlaneTrians(bool flag);
 
 private:
 
@@ -450,12 +502,22 @@ private:
     SlicesDataCaculator * p_slices_acculator_;
     MainDirectionExtractor * p_main_directions_extractor_;
     FloorPlanReconstructor* p_floorplan_constructor_;
+    GTSDetectionDialog * p_gts_detection_;
 
-    //// GTSDetectionDialog * p_gts_detection_;
-    //// QVector<QPolygon> p_detected_gts_;
 
-    //// QImage p_current_image_;
-    //// QPolygon p_current_mask_;  // outer polygon of a plane
+    //-----------------------------------------GTS detection----------------------------------------//
+    QVector<QPolygon> p_detected_gts_;
+
+    // current image
+    QImage p_current_image_;
+
+    // current mask
+    QPolygon p_current_mask_;  // outer polygon of a plane
+
+    // current camera
+    Camera p_current_camera_;
+
+
 
     //-----------------------------------------inconsistent region related------------------------//
     bool is_knn_changed_;
@@ -471,19 +533,28 @@ private:
     // y coordinates of each silces
     QVector<float> p_ycoordinates_;
 
+    // distance between neighboring slices
     float p_step_;
 
     // main directions
     QVector<Vec3> p_main_directions_;
 
+    // blocks in the scene
     QVector<SW::Block3> p_blocks_;
 
+    // for multiple thread
     QThread p_thread_;
 
+    // pointer of current plane
     Plane3D * p_current_plane3D_ptr_;
+
+
+    // width of the plane
+    float p_window_depth_;
 
 public:
 
+    // contain variables to be displayed
     FloorPlanDisplay p_floorplan_displays_;
 
 private:
@@ -493,6 +564,12 @@ private:
 
     // mesh containes vertices, facets and edges
     Mesh *p_mesh_;
+
+    // shared pointer of images
+    QMap<QString, cv::Mat_<cv::Vec3b> > *p_images_;
+
+    // shared pointer of cameras
+    QMap<QString, Camera> *p_cameras_;
 
     // planes of the scene
     QMap<QString, Plane3D> * p_plane3Ds_;

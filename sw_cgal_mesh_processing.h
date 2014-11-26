@@ -53,8 +53,48 @@ typedef CDT::Vertex_handle Vertex_handle;
 using namespace std;
 
 ////////////////////////////////////////GETOUTERBOUNDARYFROMTRIANS//////////////////////////////////////////////////////
-//get a boundary of a polygon which is the union of a set of triangulations
+// get a boundary of a polygon which is the union of a set of triangulations
 // operated in 2D space
 vector< vector<PointXY> > getOuterBoundaryFromTrians(const vector<vector<PointXY> > & facets);
+
+
+// 11/25/2014 add functions
+
+////////////////////////////////////////ISCOUNTERCLOCKWISE///////////////////////////////////////////////////////////////
+// check whether the boundary is counterclockwise
+bool isCounterClockWise(const vector<PointXY> & boundary);
+
+
+
+//explore set of facets connected with non constrained edges,
+//and attribute to each such set a nesting level.
+//We start from facets incident to the infinite vertex, with a nesting
+//level of 0. Then we recursively consider the non-explored facets incident
+//to constrained edges bounding the former set and increase the nesting level by 1.
+//Facets in the domain are those with an odd nesting level.
+void mark_domains(CDT& cdt);
+
+
+
+////////////////////////////////////////INSERT_POLYGON////////////////////////////////////////////////////////////////////
+//constrained triangulations used this functions
+void insert_polygon(CDT& cdt,const Polygon_2& polygon);
+
+
+
+
+////////////////////////////////////////GETVERTICESANDFACETS//////////////////////////////////////////////////////////////
+vector<vector<Vec3> > getVerticesAndFacets(const CDT&  cdt, const vector<vector<Vec3> > & boundary3D);
+
+
+
+////////////////////////////////////////CONSTRIANDTRIANGULATIONS//////////////////////////////////////////////////////////
+vector<vector<Vec3> > constrained_triangulation(const vector<vector<PointXY > > & boundarys2D,const vector<vector<Vec3> > &boundarys3D);
+
+
+
+
+/////////////////////////////////////////TRIANGULATION_ON_EDIT_PLANE//////////////////////////////////////////////////////
+vector<vector<Vec3> > triangulation_on_edit_plane(vector<Vec3> & boundary);
 
 #endif // SW_CGAL_MESH_PROCESSING_H

@@ -17,3 +17,28 @@ main.cpp: run the mainwindow classs
 
 
 11/07/2014 Find a Bug, if glNormalPointer are used, an error will happen.
+
+
+
+11/21/2014 Find a Bug, in "sw_functions.cpp" function: EMClustering() 
+            CvEM happen with QImage will result in a crash
+
+           so we changed the image structure from QImage to cv::Mat, 
+           and then the original version is stored in BuildingModellingSW if 
+           the problem will be resolved oneday. 
+
+
+
+11/22/2014 Wrong JPEG library version: library is 62, caller expects 80
+           Opencv is compiled with libjpeg version 6.2
+
+
+11/25//2014 Error happens that CGAL::cpp11 has not be declared
+            this is cause by the CGAL version, we use CGAL version 3.9
+            after we update to version 4.2 problem was solved.
+
+11/25/2014 compile and install CGAL by "make"  and "sudo make install"
+            all the libs are in the /usr/local/lib
+           error happen could find shared library libCGAL.s0.10.0 
+           We copy all the libs to /usr/lib/ and problem is solved.
+

@@ -721,6 +721,13 @@ public:
     // get m_edges_ from the vertices and the facets
     void computeEdges();
 
+    void clear(){
+        m_vertices_.clear();
+        m_facets_.clear();
+        m_edges_.clear();
+        m_texture_coords_.clear();
+    }
+
     QVector<Vec3> m_vertices_;
     QVector<QVector<uint> > m_facets_;
     QVector<QPair<uint, uint> > m_edges_;
@@ -814,6 +821,45 @@ public:
     void makePlaneFacetsCCW();
 
 
+    // store the current vertices and facets
+    inline void backup()
+    {
+        p_vertices_back_.clear();
+        p_facets_back_.clear();
+
+        //back up vertices
+        foreach(Vec3 v, p_vertices_)
+        {
+          p_vertices_back_.append(v);
+        }
+
+        //back up facets
+        foreach(QVector<uint> f, p_facets_)
+        {
+          p_facets_back_.append(f);
+        }
+
+    }
+
+    // recover the vertices and the facets
+    inline void recover()
+    {
+        p_vertices_.clear();
+        p_facets_.clear();
+
+        // recover vertices
+        foreach(Vec3 v, p_vertices_back_)
+        {
+          p_vertices_.append(v);
+        }
+
+        // recover facets
+        foreach(QVector<uint> f, p_facets_back_)
+        {
+          p_facets_.append(f);
+        }
+    }
+
 public:
 
     QColor p_color_;
@@ -829,11 +875,20 @@ public:
 
     QVector<QVector<uint> > p_facets_;
 
+
+    // used for  backups
+    QVector<Vec3> p_vertices_back_;
+    QVector<QVector<uint> > p_facets_back_;
+
+
     // boundaries of the plane
     QVector<QVector<Vec3> > p_boundary3Ds_;
 
     // boundaries of the windows that are attached to the plane
     QVector<QVector<Vec3> > p_window_boundary3Ds_;
+
+    // added window planes
+    QVector<QVector< Vec3> > p_added_window_planes_;
 
     // coordinat system
     Vec3 p_frame_x_; // the coordinates of the plane

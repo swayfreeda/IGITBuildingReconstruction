@@ -283,7 +283,8 @@ bool SW::DATAIO::savePointsToPLY(QVector<Point> & vertices, QString file_name)
 
 
 //--------------------------------------------load images----------------------------------//
-bool SW::DATAIO::loadImages(QMap<QString, QImage> & images)
+// QImage::load() is much faster than cv::Mat:: imread();
+bool SW::DATAIO::loadImages(QMap<QString, cv::Mat_<cv::Vec3b> > & images)
 {
 
     QVector<QString> img_dirs = getImageDirs();
@@ -294,7 +295,9 @@ bool SW::DATAIO::loadImages(QMap<QString, QImage> & images)
 
     int nSteps = 0;
 
-    QImage img;
+    // QImage img;
+
+    cv::Mat_<cv::Vec3b> img;
     //load images
     foreach(QString img_dir, img_dirs)
     {
@@ -310,24 +313,22 @@ bool SW::DATAIO::loadImages(QMap<QString, QImage> & images)
 
         if (!img_dir.isEmpty())
         {
-
-#if 0
             //----------------------------------CRASH!!-----------------------------------------------//
             // There is a problem unexpectedly
-            img.load(img_dir);
+
+            cout<<img_dir.toStdString()<<endl;
+            //img.load(img_dir);
+            img = cv::imread(img_dir.toStdString().c_str());
 
             QStringList fields = img_dir.split("/");
             QString name = fields.takeLast();
             images.insert(name, img);
-#endif
 
         }
         nSteps++;
 
     }
-    //  return true;
-
-    return false;
+    return true;
 }
 
 
@@ -389,7 +390,7 @@ bool SW::DATAIO::loadCameras(QMap<QString, Camera> & cameras)
         // get the name of the image which the camera the is correspoding to
         QStringList fields = cam_dir.split("/");
         QString name = fields.takeLast();
-        name = name.replace(".txt", "jpg");
+        name = name.replace("txt", "jpg");
 
         cameras.insert(name, cam);
 
@@ -502,3 +503,119 @@ bool SW::DATAIO::loadVisiblities(QVector<Point> & vertices)
     }
 
 }
+
+
+
+
+//* 11/25/2014 add functions
+
+//-------------------------------------load mesh from OFF file------------------------------//
+bool SW::DATAIO::loadModelFromOFF(Mesh & mesh , QString filename)
+{
+    QFile  file( filename);
+    if(!file.open(QIODevice::ReadOnly | QIODevice::Text))
+    {
+        cerr<<"Error to Read OFF File!"<<endl;
+        return false;
+    }
+
+
+    // get vertices and facets from files
+    QTextStream in(&file);
+    int pts_num = 0;
+    int facet_num = 0;
+
+    int line_num = 0;
+    while(!in.atEnd())
+    {
+        QString line = in.readLine();
+
+        // get the number of the vertices and facets
+        if(line_num ==1 )
+        {
+            QStringList fields = line.split(" ");
+            pts_num = fields.takeFirst().toInt();
+            facet_num = fields.takeFirst().toInt();
+
+            //            cout<<"pts_num: "<<pts_num<<endl
+            //            cout<<"facet_num: "<<facet_num<<endl;
+        }
+        if(line_num >=2 && line_num < 2 + pts_num)
+        {
+            QStringList fields = line.split(" ");
+            Vec3 pt;
+            pt.x_ = fields.takeFirst().toFloat();
+            pt.y_ = fields.takeFirst().toFloat();
+            pt.z_ = fields.takeFirst().toFloat();
+
+            mesh.m_vertices_.append(pt);
+        }
+
+        if(line_num >= 2+ pts_num)
+        {
+            QStringList fields = line.split(" ");
+            int num = fields.takeFirst().toInt();
+
+            QVector<uint> facet;
+            for(int i=0; i< num; i++)
+            {
+                facet.append(fields.takeFirst().toUInt());
+            }
+            mesh.m_facets_.append(facet);
+        }
+
+        line_num++;
+    }
+
+    // compute the edges of the mesh
+    mesh.computeEdges();
+
+    return true;
+}
+
+
+
+
+//------------------------------------save mesh to OFF file--------------------------------//
+bool SW::DATAIO::saveMeshToOFF(Mesh & mesh, QString filename)
+{
+
+    // open the file
+    QFile  file( filename);
+    if(!file.open(QIODevice::WriteOnly | QIODevice::Text))
+    {
+        cerr<<"Error to save OFF File!"<<endl;
+        return false;
+    }
+
+    // get vertices and facets from files
+    QTextStream out(&file);
+
+    uint v_num = mesh.m_vertices_.size();
+    uint f_num = mesh.m_facets_.size();
+
+    out<<"OFF"<<endl;
+    out<<v_num<<" "<< f_num <<endl;
+
+    //write the coordinates of each vertex
+    foreach(Vec3 v, mesh.m_vertices_)
+    {
+        out<<v.x_<<" "<<v.y_<<" "<<v.z_<<endl;
+    }
+
+    // write the facets
+    foreach(QVector<uint> facet, mesh.m_facets_)
+    {
+        out<<facet.size()<<" ";
+        foreach(uint id, facet)
+        {
+            out<<id<<" ";
+        }
+        out<<endl;
+    }
+
+    return true;
+
+}
+
+

@@ -522,7 +522,6 @@ vector<float> leastSquareFittingLine(vector<Point>pts)
 
 
 
-
 //----------------------------------------EMClustering--------------------------------------------------------//
 void EMClustering(const vector<Vec3> &samples, int nCluster,
                   vector<Vec3> &centers, vector<float> &weights,vector<int> &labels)
@@ -583,6 +582,7 @@ void EMClustering(const vector<Vec3> &samples, int nCluster,
     {
         labels[i] = labelsM.at<int>(i);
     }
+
 }
 
 
@@ -702,30 +702,30 @@ LineType lineRelationShape(vector<float>&line0,vector<float>&line1, float TR)
 Point intersection(vector<float>&line0, vector<float>&line1)
 {
     //if(line0.size()==3&& line1.size()==3)
-   // {
+    // {
 
-        cv::Mat A (2, 3, CV_32FC1);
-        for(int i=0; i< A.cols; i++)
-        {
-            A.at<float>(0, i) = line0[i];
-            A.at<float>(1, i) = line1[i];
-        }
+    cv::Mat A (2, 3, CV_32FC1);
+    for(int i=0; i< A.cols; i++)
+    {
+        A.at<float>(0, i) = line0[i];
+        A.at<float>(1, i) = line1[i];
+    }
 
-        cv::Mat S, U, V;
-        cv::SVD svd;
-        svd.compute(A.t()*A,S,U,V);
+    cv::Mat S, U, V;
+    cv::SVD svd;
+    svd.compute(A.t()*A,S,U,V);
 
-        PointXYZRGBNormal pt;
-        pt.x = V.at<float>(2, 0)/V.at<float>(2,2);
-        pt.y = 0;
-        pt.z = V.at<float>(2, 1)/V.at<float>(2,2);
+    PointXYZRGBNormal pt;
+    pt.x = V.at<float>(2, 0)/V.at<float>(2,2);
+    pt.y = 0;
+    pt.z = V.at<float>(2, 1)/V.at<float>(2,2);
 
-        S.release();
-        U.release();
-        V.release();
+    S.release();
+    U.release();
+    V.release();
 
-        return pt;
-  //  }
+    return pt;
+    //  }
 }
 
 
@@ -759,8 +759,10 @@ bool comparePairIntGreat(pair<int, int>pair1, pair<int,int >pair2)
 //----------------------------------------comparePairIntLess---------------------------------------------------//
 bool comparePairIntLess(pair<int, int>pair1, pair<int,int >pair2)
 {
-   return pair1.second> pair2.second;
+    return pair1.second> pair2.second;
 }
+
+
 
 
 //-----------------------------------------rotationMatrixFromAngleAxis------------------------------------------//
@@ -791,3 +793,53 @@ void rotationMatrixFromAngleAxis(Vec3& axis, float angle, cv::Mat & mat)
 }
 
 
+
+//-----------------------------------------convertMatToQImage------------------------------------------//
+QImage convertToQImage(cv::Mat_<cv::Vec3b> &mat)
+{
+    QImage img;
+    int nChannel=mat.channels();
+    if(nChannel==3)
+    {
+        cv::cvtColor(mat,mat,CV_BGR2RGB);
+        img = QImage((const unsigned char*)mat.data,mat.cols,mat.rows,QImage::Format_RGB888);
+    }
+    else if(nChannel==4||nChannel==1)
+    {
+        img = QImage((const unsigned char*)mat.data,mat.cols,mat.rows,QImage::Format_ARGB32);
+    }
+    return img;
+}
+
+//-----------------------------------------convertQImageToMat------------------------------------------//
+void convertQImageToMat(QImage & img_qt, cv::Mat_<cv::Vec3b> &img_cv)
+{
+    img_cv.create(img_qt.height(), img_qt.width());
+
+    img_qt.convertToFormat(QImage::Format_RGB32);
+
+    //int lineNum = 0;
+
+    int height = img_qt.height();
+
+    int width = img_qt.width();
+
+    //uchar *imgBits = img_qt.bits();
+
+    for(int i=0; i<height; i++)
+    {
+        // lineNum = i* width *4;
+        for(int j=0; j<width; j++)
+        {
+            //img_cv(i, j)[2] = imgBits[lineNum + j*4 + 2];
+            //img_cv(i, j)[1] = imgBits[lineNum + j*4 + 1];
+            //img_cv(i, j)[0] = imgBits[lineNum + j*4 + 0];
+
+            QRgb rgb = img_qt.pixel(j, i);
+            img_cv(i, j)[0] = qBlue(rgb);
+            img_cv(i, j)[1] = qGreen(rgb);
+            img_cv(i, j)[2] = qRed(rgb);
+
+        }
+    }
+}

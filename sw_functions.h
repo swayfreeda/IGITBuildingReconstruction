@@ -10,7 +10,11 @@
 
 #include"sw_dataType.h"
 
+#include"opencv2/opencv.hpp"
+
 #include<QVector>
+#include<QImage>
+
 #include <iostream>
 #include <string>
 #include <vector>
@@ -42,6 +46,21 @@ float angleAxisFromDirections(Vec3 & src, Vec3& dest, Vec3 & axis);
 
 
 // 11/17/2014 : add functions
+
+
+///////////////////////////////////////////COMPAREPAIRFLOATGREAT//////////////////////////////////////
+bool comparePairFloatGreat(pair<int,float> p1, pair<int, float> p2);
+
+///////////////////////////////////////////COMPAREPAIRFLOATLESS///////////////////////////////////////
+bool comparePairFloatLess(pair<int,float> p1, pair<int, float> p2);
+
+///////////////////////////////////////////COMPAREPAIRINTGREAT///////////////////////////////////////
+bool comparePairIntGreat(pair<int, int>pair1, pair<int,int >pair2);
+
+///////////////////////////////////////////COMPAREPAIRFLOATLESS///////////////////////////////////////
+bool comparePairIntLess(pair<int, int>pair1, pair<int,int >pair2);
+
+
 
 ////////////////////////////////////MEANDISTANCE/////////////////////////////////////////////////////
 // compute the mean distances for the points. For each point compute the distances between its
@@ -183,30 +202,6 @@ Point intersection(vector<float>&line0, vector<float>&line1);
 
 
 
-
-
-///////////////////////////////////////////COMPAREPAIRFLOATGREAT//////////////////////////////////////
-bool comparePairFloatGreat(pair<int,float> p1, pair<int, float> p2);
-
-
-
-///////////////////////////////////////////COMPAREPAIRFLOATLESS///////////////////////////////////////
-bool comparePairFloatLess(pair<int,float> p1, pair<int, float> p2);
-
-
-
-
-///////////////////////////////////////////COMPAREPAIRINTGREAT///////////////////////////////////////
-bool comparePairIntGreat(pair<int, int>pair1, pair<int,int >pair2);
-
-
-
-///////////////////////////////////////////COMPAREPAIRFLOATLESS///////////////////////////////////////
-bool comparePairIntLess(pair<int, int>pair1, pair<int,int >pair2);
-
-
-
-
 ////////////////////////////////////////////ROTATIONMATRIXFROMANGLEAXIS////////////////////////////////
 // get a rotation matrix from an angle and an axis
 // **input
@@ -215,5 +210,30 @@ bool comparePairIntLess(pair<int, int>pair1, pair<int,int >pair2);
 // **output
 // mat-- a rotation matrix that rotate an object along axis by angle.
 void rotationMatrixFromAngleAxis(Vec3& axis, float angle, cv::Mat & mat);
+
+
+// 11/21/2014 add functions
+
+////////////////////////////////////////////COVERTOQIMAGE////////////////////////////////////////////////
+// convert a cv::Mat image to QImage
+// **input
+// mat-- an image in opencv structure
+
+// **return @
+//   -- an image in Qt image structure
+QImage convertToQImage(cv::Mat_<cv::Vec3b> &mat);
+
+
+//////////////////////////////////////////CONVERQIMAGETOMAT//////////////////////////////////////////////
+// convert an QImage to cv::Mat
+// **input
+// img_qt-- an image in qt structure
+// **output
+// img_cv-- an image in cv::Mat structure
+void convertQImageToMat(QImage & img_qt, cv::Mat_<cv::Vec3b> &img_cv);
+
+
+
+
 
 #endif // SW_FUNCTIONS_H

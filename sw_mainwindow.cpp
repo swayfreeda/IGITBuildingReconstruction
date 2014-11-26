@@ -1,5 +1,6 @@
 #include"sw_mainwindow.h"
 #include"sw_dataIO.h"
+#include"sw_functions.h"
 
 
 #include<qfiledialog.h>
@@ -9,7 +10,7 @@
 #include<QProgressDialog>
 #include<QObject>
 
-///////////////////////////////////////////////////////////////////////////////////////////////////////////////
+//-----------------------------------------------------constructor---------------------------------------------//
 SW::MainWindow::MainWindow()
 {
     setupUi(this);
@@ -18,8 +19,7 @@ SW::MainWindow::MainWindow()
 
     // alloc for the pointers
     m_dataIO_ = new SW::DATAIO();
-    m_floorplanRec_ = new SW::FloorPlanDialog(this, &m_pc_, &m_mesh_, &m_plane3Ds_);
-    m_floorplanRec_->setCurrentPlane3DPtr(&m_current_plane3D_);
+    m_floorplanRec_ = new SW::FloorPlanDialog(this, &m_pc_, &m_mesh_, &m_plane3Ds_, &m_images_, &m_cameras_);
 
 
     QActionGroup *displayActions = new QActionGroup(this);
@@ -33,10 +33,15 @@ SW::MainWindow::MainWindow()
 
     //--------------------------------SET SHARED POINTER--------------------------------//
     viewer->setPointCloudPtr(&m_pc_);
+    viewer->setCamerasPtr(&m_cameras_);
     viewer->setMeshPtr(&m_mesh_);
     viewer->setPlane3DPtr(&m_plane3Ds_);
-    viewer->setCurrentPlane3D(&m_current_plane3D_);
     viewer->setFloorPlanDisplay(&m_floorplanRec_->p_floorplan_displays_);
+
+
+    paintImageWidget->setImagesPtr(&m_images_);
+    paintImageWidget->setCamerasPtr(&m_cameras_);
+    paintImageWidget->setPlane3DsPtr(&m_plane3Ds_);
 
 
 
@@ -46,15 +51,32 @@ SW::MainWindow::MainWindow()
     m_dataIO_->moveToThread(&m_thread_);
     m_thread_.start();
 
+    // load mesh from OFF file
+    connect(loadMeshAction, SIGNAL(triggered()), this, SLOT(loadMesh()), Qt::QueuedConnection);
+    m_dataIO_->moveToThread(&m_thread_);
+    m_thread_.start();
 
-    connect(actionSave_Points,SIGNAL(triggered()), this, SLOT(savePoints()));
-    // display signals and slots
+    // save mesh to OFF file
+    connect(saveMeshAction, SIGNAL(triggered()), this, SLOT(saveMesh()), Qt::QueuedConnection);
+    m_dataIO_->moveToThread(&m_thread_);
+    m_thread_.start();
+
+    // start to display mesh
+    connect(this, SIGNAL(startDisplayingMesh(int)), viewer, SLOT(toggle_display_modellding_results(int)));
+
+
+    // save points
+    connect(savePointsAction, SIGNAL(triggered()), this, SLOT(savePoints()));
+
+    //------------------------------- display signals and slots----------------------------------------------//
     connect(actionDense_Points, SIGNAL(triggered(bool)), viewer, SLOT(toggle_display_points(bool)));
     connect(actionVertices, SIGNAL(triggered(bool)), viewer, SLOT(toggle_display_vertices(bool)));
     connect(actionWireFrame, SIGNAL(triggered(bool)), viewer, SLOT(toggle_display_wire_frame(bool)));
     connect(actionFlat, SIGNAL(triggered(bool)), viewer, SLOT(toggle_display_flat(bool)));
     connect(actionTexture, SIGNAL(triggered(bool)), viewer, SLOT(toggle_display_texture(bool)));
     connect(this, SIGNAL(displayDensePoints(bool)), viewer, SLOT(toggle_display_points(bool)));
+
+    // display cameras
     connect(actionCameras, SIGNAL(triggered(bool)), viewer, SLOT(toggle_display_cameras(bool)));
 
 
@@ -83,23 +105,63 @@ SW::MainWindow::MainWindow()
     // display all plane triangulations
     connect(actionAll_Planes_Triangulations, SIGNAL(triggered(bool)), viewer, SLOT(toggle_display_all_planes_trians(bool)));
 
-    // add new plane3D
+    // display single plane triangulations
+    connect(actionSingle_Plane_Triangulation, SIGNAL(triggered(bool)), viewer, SLOT(toggle_display_single_plane_trians(bool)));
+
+    // add new plane3D to planeListWidget
     connect(m_floorplanRec_, SIGNAL(createNewPlane(QString)), this, SLOT(addPlaneListItem(QString)));
 
-    // set current plane3D
+    // set current plane3D in mainwindow
     connect(planeListWidget, SIGNAL(itemClicked(QListWidgetItem*)), this, SLOT(setCurrentPlane3D(QListWidgetItem*)) );
+
+    //set current plane3D in painImageWidget
+    connect(planeListWidget, SIGNAL(itemClicked(QListWidgetItem*)), paintImageWidget, SLOT(setCurrentPlane(QListWidgetItem*)));
+
+
+
+    // set current image in painImageWidget
+    connect(imageListWidget, SIGNAL(itemClicked(QListWidgetItem*)), paintImageWidget, SLOT(startPaintingImg(QListWidgetItem*)) );
+    connect(imageListWidget, SIGNAL(itemActivated(QListWidgetItem*)), paintImageWidget, SLOT(startPaintingImg(QListWidgetItem*)) );
+
+    // set current image in floorreconstruction
+    connect(imageListWidget, SIGNAL(itemClicked(QListWidgetItem*)), m_floorplanRec_, SLOT(setCurrentImage(QListWidgetItem*)));
+    connect(imageListWidget, SIGNAL(itemActivated(QListWidgetItem*)), m_floorplanRec_, SLOT(setCurrentImage(QListWidgetItem*)));
+
+    // projection mesh onto image
+    connect(actionProjection, SIGNAL(triggered(bool)), paintImageWidget, SLOT(startPainitingProjecting(bool)));
 
     // update GL
     connect(m_floorplanRec_->getIncinsistDetector(), SIGNAL(updateGLViewer()), viewer, SLOT(updateGLViewer()));
     connect(m_floorplanRec_->getSlicesCalculator(), SIGNAL(updateGLViewer()), viewer,  SLOT(updateGLViewer()));
     connect(m_floorplanRec_->getFloorPlanReconstructor(), SIGNAL(updateGLViewer()), viewer,SLOT(updateGLViewer()));
+    connect(m_floorplanRec_, SIGNAL(updateGLViewer()), viewer, SLOT(updateGLViewer()));
+
+    // start display back projected quads
+    connect(m_floorplanRec_, SIGNAL(startDisplayBackProjQuads()), viewer, SLOT(startDisplayBackPorjQuads()));
+
+    // end display back projected quads
+    connect(m_floorplanRec_, SIGNAL(endDisplayBackProjQuads()), viewer, SLOT(endDisplayBackProjQuads()));
+
+    // start display added window planes in viewer
+    connect(m_floorplanRec_, SIGNAL(startDisplayAddedWindowPlanes()), viewer, SLOT(startDisplayAddedWindowPlanes()));
+
+    // end display added windwo planes in viewer
+    connect(m_floorplanRec_, SIGNAL(endDisplayAddedWindowPlanes()), viewer, SLOT(endDisplayAddedWindowPlanes()));
+
+    // start display modelling results
+    connect(m_floorplanRec_, SIGNAL(startDisplayModellingResults(int)), viewer, SLOT(toggle_display_modellding_results(int)));
+
+    // end display sigle plane trians
+    connect(m_floorplanRec_, SIGNAL(endDisplaySinglePlaneTrians(bool)), viewer, SLOT(toggle_display_single_plane_trians(bool)));
 }
-//////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+
+//-----------------------------------------------------desctructor---------------------------------------------//
 SW::MainWindow::~MainWindow()
 {
 
 }
-//////////////////////////////////////////////////////////////////////////////////////////////////////////////
+//-----------------------------------------------------load data-----------------------------------------------//
 void SW::MainWindow::loadData()
 {
 
@@ -145,12 +207,16 @@ void SW::MainWindow::loadData()
         imageListWidget->setSpacing(5);
 
         int index =0;
+        QImage img_qt;
         foreach(QString key, m_images_.keys())
         {
-            foreach(QImage img, m_images_.values(key))
+            foreach(cv::Mat_<cv::Vec3b> img_cv, m_images_.values(key))
             {
-                int height_img = img.height();
-                int width_img = img.width();
+                //cout<<"height* width: "<< img_cv.rows<<" * "<<img_cv.cols<<endl;
+                img_qt = convertToQImage(img_cv);
+
+                int height_img = img_qt.height();
+                int width_img = img_qt.width();
 
                 // size of the item
                 int height_icon = imageListWidget->height() - 25;
@@ -158,12 +224,13 @@ void SW::MainWindow::loadData()
 
                 imageListWidget->setIconSize(QSize(width_icon, height_icon));
 
-                QListWidgetItem * pItem = new QListWidgetItem(QIcon(QPixmap::fromImage(img)), key);
+                QListWidgetItem * pItem = new QListWidgetItem(QIcon(QPixmap::fromImage(img_qt)), key);
                 pItem->setSizeHint(QSize(width_icon, height_icon + 20));// +15 make the txt appear
                 imageListWidget->insertItem(index, pItem);
                 index++;
             }
         }
+
     }
     else{
 
@@ -173,6 +240,7 @@ void SW::MainWindow::loadData()
     //--------------------------load cameras----------------------------------------------//
     if(m_dataIO_->loadCameras(m_cameras_))
     {
+
         actionCameras->setEnabled(true);
         viewer->updateGL();
     }
@@ -195,7 +263,54 @@ void SW::MainWindow::loadData()
 }
 
 
-//////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+//-----------------------------------------------------load Mesh-----------------------------------------------//
+void SW::MainWindow::loadMesh()
+{
+    QString file_name = QFileDialog::getOpenFileName(this, tr("Open Model File"),".",
+                                                     tr("Model files(*.off)") );
+    if(!file_name.isEmpty())
+    {
+        m_mesh_.clear();
+
+        if( m_dataIO_->loadModelFromOFF(m_mesh_, file_name))
+        {
+            statusBar()->message("OFF File Loaded", 2000);
+
+            viewer->viewAll();
+
+            // state == 2 means true
+            emit startDisplayingMesh(2);
+
+            // acitive the floor plan reconstruction
+            actionFloorPlanReconstuction->setEnabled(true);
+
+            viewer->updateGL();
+        }
+    }
+    else
+    {
+        statusBar()->message("OFF File Open Failed", 0);
+    }
+}
+
+
+//------------------------------------------------------save mesh-----------------------------------------------//
+void SW::MainWindow::saveMesh()
+{
+    QString file_name = QFileDialog::getSaveFileName(this, tr("Save OFF File"),
+                                                     ".", tr("OFF Files(*.off)"));
+
+    if(!file_name.isEmpty())
+    {
+         m_dataIO_->saveMeshToOFF(m_mesh_, file_name);
+    }
+
+
+}
+
+
+//-------------------------------------------------------save points--------------------------------------------//
 void SW::MainWindow::savePoints()
 {
 }
